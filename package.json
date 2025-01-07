@@ -9,13 +9,15 @@
 	"repository": {
 		"url": "https://github.com/Cleboost/djs-core"
 	},
+	"bugs": {
+		"url": "https://github/com/Cleboost/djs-core/issues"
+	},
 	"scripts": {
 		"dev": "tsup --config tsup-dev.config.ts",
 		"build": "tsup --config tsup-prod.config.ts"
 	},
 	"dependencies": {
 		"discord.js": "14.17.2",
-		"dotenv": "16.4.5",
 		"kolorist": "1.8.0"
 	},
 	"devDependencies": {

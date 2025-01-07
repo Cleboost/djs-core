@@ -3,7 +3,8 @@
 	"version": "1.0.0",
 	"main": "dist/index.js",
 	"dependencies": {
-		"djs-core": "file:../dist/"
+		"djs-core": "file:../dist/",
+		"dotenv": "16.4.7"
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",
