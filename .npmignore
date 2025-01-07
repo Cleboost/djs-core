@@ -1,0 +1,14 @@
+src/
+test/
+node_modules/
+
+
+.vscode/
+.idea/
+.DS_Store
+
+header.txt
+tsconfig.json
+tsup-dev.config.ts
+tsup-prod.config.ts
+eslint.config.mjs
