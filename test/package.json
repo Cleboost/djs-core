@@ -11,9 +11,5 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^5.7.2",
 		"tsup": "8.3.5"
-	},
-	"scripts": {
-		"dev": "npm run build:dev",
-		"build": "tsup"
 	}
 }
