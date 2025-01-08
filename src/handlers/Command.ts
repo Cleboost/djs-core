@@ -21,6 +21,7 @@ export default class CommandHandler extends Handler {
 		/* eslint-disable no-async-promise-executor */
 		return new Promise<void>(async (resolve) => {
 			const commands = path.join(process.cwd(), "interactions", "commands");
+			if (!fs.existsSync(commands)) return resolve();
 			for (const categories of fs.readdirSync(commands)) {
 				for (const command of fs.readdirSync(path.join(commands, categories)).filter((file) => file.endsWith(".js"))) {
 					const cmd = (await import(path.join(commands, categories, command))).default.default

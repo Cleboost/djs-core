@@ -20,6 +20,7 @@ export default class ButtonHandler extends Handler {
 		/* eslint-disable no-async-promise-executor */
 		return new Promise<void>(async (resolve) => {
 			const buttonsDir = path.join(process.cwd(), "interactions", "buttons");
+			if (!fs.existsSync(buttonsDir)) return resolve();
 			for (const button of fs.readdirSync(buttonsDir)) {
 				if (fs.lstatSync(path.join(buttonsDir, button)).isDirectory()) {
 					for (const buttonInSub of fs.readdirSync(path.join(buttonsDir, button))) {
