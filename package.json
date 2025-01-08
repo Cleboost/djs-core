@@ -22,7 +22,6 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "9.17.0",
-		"@types/cli-color": "2.0.6",
 		"@types/node": "22.10.5",
 		"eslint": "9.17.0",
 		"eslint-plugin-headers": "1.2.1",
