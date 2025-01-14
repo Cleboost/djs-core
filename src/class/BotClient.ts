@@ -49,7 +49,7 @@ export default class BotClient extends Client {
 
 	async start(token: unknown): Promise<void> {
 		if (fs.existsSync(path.join(process.cwd(), "config.js"))) {
-			this.config = (await import(path.join(process.cwd(), "config.js"))).default;
+			this.config = require(path.join(process.cwd(), "config.js"));
 		}
 		if (this.config === null) {
 			this.logger.error("Config is not loaded correctly, please check your config file");
@@ -71,7 +71,13 @@ export default class BotClient extends Client {
 		}
 
 		const handlers: Array<Handler> = [];
-		const handlerPromises = [import("../handlers/Command"), import("../handlers/SubCommand"), import("../handlers/Button"), import("../handlers/SelectMenu"), import("../handlers/Modal")];
+		const handlerPromises = [
+			Promise.resolve(require("../handlers/Command")),
+			Promise.resolve(require("../handlers/SubCommand")),
+			Promise.resolve(require("../handlers/Button")),
+			Promise.resolve(require("../handlers/SelectMenu")),
+			Promise.resolve(require("../handlers/Modal"))
+		];
 		const middlewaresPath = path.join(process.cwd(), "src", "middlewares");
 		if (fs.existsSync(middlewaresPath)) {
 			await fs.promises
