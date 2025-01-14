@@ -24,7 +24,7 @@ export default class CommandHandler extends Handler {
 			if (!fs.existsSync(commands)) return resolve();
 			for (const categories of fs.readdirSync(commands)) {
 				for (const command of fs.readdirSync(path.join(commands, categories)).filter((file) => file.endsWith(".js"))) {
-					const cmd = (await import(path.join(commands, categories, command))).default.default
+					const cmd = require(path.join(commands, categories, command)).default;
 					if (cmd instanceof SubCommandGroup) continue;
 					if (!(cmd instanceof Command)) {
 						this.client.logger.error(`The command ${underline(`${categories}/${command}`)} is not correct!`);

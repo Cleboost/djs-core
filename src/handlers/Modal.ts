@@ -23,7 +23,7 @@ export default class ModalHandler extends Handler {
 			if (!fs.existsSync(selectDir)) return resolve();
 			for (const modal of fs.readdirSync(selectDir)) {
 				if (!modal.endsWith(".js")) continue;
-				const modalClass = (await import(path.join(selectDir, modal))).default.default;
+				const modalClass = require(path.join(selectDir, modal)).default;
 				if (!(modalClass instanceof Modal)) {
 					this.client.logger.error(`The modal ${underline(`${modal}`)} is not correct!`);
 					continue;

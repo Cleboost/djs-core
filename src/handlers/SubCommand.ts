@@ -24,7 +24,7 @@ export default class SubCommandHandler extends Handler {
 			if (!fs.existsSync(commands)) return resolve();
 			for (const categories of fs.readdirSync(commands)) {
 				for (const command of fs.readdirSync(path.join(commands, categories)).filter((file) => file.endsWith(".js"))) {
-					const cmd = (await import(path.join(commands, categories, command))).default.default;
+					const cmd = require(path.join(commands, categories, command)).default;
 					if (!(cmd instanceof SubCommandGroup)) continue;
 					if (cmd.options.length === 0) return this.client.logger.error(`SubCommand ${command} has no options`);
 					const subCommandPath = path.join(commands, categories, cmd.name);
@@ -35,7 +35,7 @@ export default class SubCommandHandler extends Handler {
 							return this.client.logger.warn(`Subcommand ${underline(option.name)} for ${underline(command)} is missing`);
 						}
 						if (!option.name) return this.client.logger.error(`SubCommand ${option.name} for ${command} has no name`);
-						const subCmd = (await import(path.join(subCommandPath, option.name + ".js"))).default.default;
+						const subCmd = require(path.join(subCommandPath, option.name + ".js")).default
 						if (!(subCmd instanceof SubCommand)) return this.client.logger.error(`Subcommand ${underline(option.name)} for ${underline(command)} is not a SubCommand`);
 						this.collection.set(`${cmd.name}.${option.name}`, subCmd);
 					}

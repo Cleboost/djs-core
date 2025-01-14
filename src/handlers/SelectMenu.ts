@@ -9,11 +9,11 @@ import path from "path";
 import fs from "node:fs";
 import { Events, Interaction, MessageFlags } from "discord.js";
 import { underline } from "kolorist";
-import CommandMiddleware from "../class/middlewares/CommandMiddleware";
+// import CommandMiddleware from "../class/middlewares/CommandMiddleware";
 import SelectMenu from "../class/interactions/SelectMenu";
 
 export default class SelectMenuHandler extends Handler {
-	private middleware: Array<CommandMiddleware> = [];
+	// private middleware: Array<CommandMiddleware> = [];
 	async load() {
 		// this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof CommandMiddleware) as Array<CommandMiddleware>;
 
@@ -24,7 +24,7 @@ export default class SelectMenuHandler extends Handler {
 			for (const selectType of fs.readdirSync(selectDir)) {
 				for (const selectMenu of fs.readdirSync(path.join(selectDir, selectType))) {
 					if (!selectMenu.endsWith(".js")) continue;
-					const selectMenuClass = (await import(path.join(selectDir, selectType, selectMenu))).default.default;
+					const selectMenuClass = require(path.join(selectDir, selectType, selectMenu)).default;
 					if (!(selectMenuClass instanceof SelectMenu)) {
 						this.client.logger.error(`The select menu ${underline(`${selectType}/${selectMenu}`)} is not correct!`);
 						continue;
