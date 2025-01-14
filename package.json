@@ -1,6 +1,6 @@
 {
 	"name": "djs-core",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A core library for Discord.js projects",
 	"main": "index.js",
 	"types": "index.d.ts",
