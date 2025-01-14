@@ -3,7 +3,7 @@ import { execSync } from "child_process";
 import fs from "fs";
 
 export default defineConfig({
-	format: ["cjs", "esm"],
+	format: ["cjs"],
 	entryPoints: ["src/index.ts"],
 	dts: true,
 	shims: true,
@@ -11,7 +11,8 @@ export default defineConfig({
 	clean: true,
 	minify: true,
 	onSuccess: async () => {
-		execSync("cp package.json dist && cp README.md dist");
+		fs.copyFileSync("package.json", "dist/package.json");
+		fs.copyFileSync("README.md", "dist/README.md");
 		const packageString = fs.readFileSync("dist/package.json", "utf-8");
 		const packageJson = JSON.parse(packageString);
 		delete packageJson.devDependencies;
