@@ -5,7 +5,7 @@ import headers from "eslint-plugin-headers";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-	{ignores: ["dist/**/*", "test/**/*"]},
+	{ignores: ["dist/**/*", "playground/**/*"]},
 	{ files: ["**/*.{js,mjs,cjs,ts}"]},
 	{ languageOptions: { globals: globals.node } },
 	js.configs.recommended,
