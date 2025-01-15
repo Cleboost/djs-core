@@ -20,7 +20,7 @@
 		"test": "npm run build && jest"
 	},
 	"dependencies": {
-		"discord.js": "14.17.2",
+		"discord.js": "14.17.3",
 		"kolorist": "1.8.0"
 	},
 	"devDependencies": {
