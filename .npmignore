@@ -1,5 +1,5 @@
 src/
-test/
+playground/
 node_modules/
 
 
@@ -12,3 +12,4 @@ tsconfig.json
 tsup-dev.config.ts
 tsup-prod.config.ts
 eslint.config.mjs
+act.exe
