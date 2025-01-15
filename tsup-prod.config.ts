@@ -1,5 +1,4 @@
 import { defineConfig } from "tsup";
-import { execSync } from "child_process";
 import fs from "fs";
 
 export default defineConfig({
