@@ -1,4 +1,4 @@
-name: Build and Test
+name: Lint
 
 on:
   pull_request:
@@ -9,8 +9,11 @@ on:
       - master
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
+    concurrency:
+      group: build-and-test
+      cancel-in-progress: true
 
     steps:
       - name: Checkout repository
@@ -24,11 +27,8 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install dependencies for linting
+        run: pnpm install --filter eslint...
 
-      - name: ESLint
+      - name: Run ESLint
         run: pnpm run lint
-
-      - name: Run Test
-        run: pnpm run test

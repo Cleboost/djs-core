@@ -1,0 +1,40 @@
+name: Build and Test
+
+on:
+   pull_request:
+      branches:
+         - master
+   push:
+      branches:
+         - master
+
+jobs:
+   build:
+      runs-on: ${{ matrix.os }}
+      strategy:
+         matrix:
+            os: [ubuntu-latest, windows-latest]
+      concurrency:
+         group: build-and-test
+         cancel-in-progress: true
+
+      steps:
+         - name: Checkout repository
+           uses: actions/checkout@v4
+
+         - name: Setup Node.js
+           uses: actions/setup-node@v4
+           with:
+              node-version: "22.x"
+
+         - name: Install pnpm
+           run: npm install -g pnpm
+
+         - name: Install dependencies
+           run: pnpm install
+
+         - name: ESLint
+           run: pnpm run lint
+
+         - name: Run Test
+           run: pnpm run test
