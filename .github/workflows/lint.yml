@@ -28,7 +28,7 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install dependencies for linting
-        run: pnpm install --filter eslint...
+        run: pnpm install
 
       - name: Run ESLint
         run: pnpm run lint
