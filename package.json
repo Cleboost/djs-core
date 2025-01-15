@@ -15,7 +15,6 @@
 	"scripts": {
 		"dev": "tsup --config tsup-dev.config.ts",
 		"build": "tsup --config tsup-prod.config.ts",
-		"ci": "npm run lint && npm run test",
 		"lint": "eslint .",
 		"test": "npm run build && jest",
 		"preinstall": "npx only-allow pnpm"
