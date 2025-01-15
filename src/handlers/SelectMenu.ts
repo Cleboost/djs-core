@@ -24,6 +24,7 @@ export default class SelectMenuHandler extends Handler {
 			for (const selectType of fs.readdirSync(selectDir)) {
 				for (const selectMenu of fs.readdirSync(path.join(selectDir, selectType))) {
 					if (!selectMenu.endsWith(".js")) continue;
+					// eslint-disable-next-line @typescript-eslint/no-require-imports
 					const selectMenuClass = require(path.join(selectDir, selectType, selectMenu)).default;
 					if (!(selectMenuClass instanceof SelectMenu)) {
 						this.client.logger.error(`The select menu ${underline(`${selectType}/${selectMenu}`)} is not correct!`);

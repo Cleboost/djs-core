@@ -24,6 +24,7 @@ export default class CommandHandler extends Handler {
 			if (!fs.existsSync(commands)) return resolve();
 			for (const categories of fs.readdirSync(commands)) {
 				for (const command of fs.readdirSync(path.join(commands, categories)).filter((file) => file.endsWith(".js"))) {
+					// eslint-disable-next-line @typescript-eslint/no-require-imports
 					const cmd = require(path.join(commands, categories, command)).default;
 					if (cmd instanceof SubCommandGroup) continue;
 					if (!(cmd instanceof Command)) {

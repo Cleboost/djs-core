@@ -4,6 +4,8 @@
  * Licence: on the GitHub
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 import CommandHandler from "../handlers/Command";
 import Command from "./interactions/Command";
@@ -82,7 +84,7 @@ export default class BotClient extends Client {
 		if (fs.existsSync(middlewaresPath)) {
 			await fs.promises
 				.readdir(middlewaresPath)
-				.then(async (files) => {
+				.then(async (files: string[]) => {
 					for (const file of files) {
 						if (!file.endsWith(".js")) {
 							this.logger.warn(`The file ${file} is not a middleware`);
@@ -100,7 +102,7 @@ export default class BotClient extends Client {
 					if (this.middlewares.length === 0) return;
 					this.logger.info("All middlewares loaded successfully");
 				})
-				.catch((error) => {
+				.catch((error: Error) => {
 					this.logger.error(`Error loading middlewares: ${error.message}`);
 				});
 		}

@@ -24,6 +24,7 @@ export default class ButtonHandler extends Handler {
 			for (const button of fs.readdirSync(buttonsDir)) {
 				if (fs.lstatSync(path.join(buttonsDir, button)).isDirectory()) {
 					for (const buttonInSub of fs.readdirSync(path.join(buttonsDir, button))) {
+						// eslint-disable-next-line @typescript-eslint/no-require-imports
 						const buttonClass = require(path.join(buttonsDir, button, buttonInSub)).default;
 						if (!(buttonClass instanceof Button)) {
 							this.client.logger.error(`The button ${underline(`${button}/${buttonInSub}`)} is not correct!`);
@@ -40,6 +41,7 @@ export default class ButtonHandler extends Handler {
 				}
 
 				if (!button.endsWith(".js")) continue;
+				// eslint-disable-next-line @typescript-eslint/no-require-imports
 				const cmd = require(path.join(buttonsDir, button)).default;
 				if (!(cmd instanceof Button)) {
 					this.client.logger.error(`The button ${underline(button)} is not correct!`);
