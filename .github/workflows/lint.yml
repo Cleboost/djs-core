@@ -39,4 +39,4 @@ jobs:
       - name: Run Prettier
         run: pnpm run prettier:fix
 
-      - uses: autofix-ci/action
+      - uses: autofix-ci/action@551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef
