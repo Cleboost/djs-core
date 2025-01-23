@@ -13,5 +13,13 @@ import Button from "./class/interactions/Button";
 import SelectMenu from "./class/interactions/SelectMenu";
 import Modal from "./class/interactions/Modal";
 
-export { BotClient, Command, SubCommand, SubCommandGroup, Button, SelectMenu, Modal };
+export {
+  BotClient,
+  Command,
+  SubCommand,
+  SubCommandGroup,
+  Button,
+  SelectMenu,
+  Modal,
+};
 export type { Config };

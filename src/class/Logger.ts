@@ -4,19 +4,19 @@
  * Licence: on the GitHub
  */
 
-import {white,bgBlue, bgGreen, bgRed, bgYellow} from 'kolorist';
+import { white, bgBlue, bgGreen, bgRed, bgYellow } from "kolorist";
 
 export class Logger {
-    success(message: string): void {
-        console.log(bgGreen(white(' ✔ ')) + ' ' + message);
-    }
-    info(message: string): void {
-        console.log(bgBlue(white(' ℹ ')) + ' ' + message);
-    }
-    error(message: string): void {
-        console.log(bgRed(white(' ✖ ')) + ' ' + message);
-    }
-    warn(message: string): void {
-        console.log(bgYellow(white(' ⚠ ')) + ' ' + message);
-    }
+  success(message: string): void {
+    console.log(bgGreen(white(" ✔ ")) + " " + message);
+  }
+  info(message: string): void {
+    console.log(bgBlue(white(" ℹ ")) + " " + message);
+  }
+  error(message: string): void {
+    console.log(bgRed(white(" ✖ ")) + " " + message);
+  }
+  warn(message: string): void {
+    console.log(bgYellow(white(" ⚠ ")) + " " + message);
+  }
 }

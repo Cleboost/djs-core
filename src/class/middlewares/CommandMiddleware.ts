@@ -17,23 +17,23 @@ import { ChatInputCommandInteraction } from "discord.js";
 type fn = (interaction: ChatInputCommandInteraction) => boolean;
 
 export default class ComandMiddleware {
-	private fn: fn | null = null;
-	constructor() {}
+  private fn: fn | null = null;
+  constructor() {}
 
-	run(fn: fn) {
-		this.fn = fn;
-		return this;
-	}
+  run(fn: fn) {
+    this.fn = fn;
+    return this;
+  }
 
-	/**
-	 * @private
-	 * DO NOT USE 
-	 * Internal method to execute the function
-	 */
-	execute(interaction: ChatInputCommandInteraction) {
-		if (this.fn) {
-			return this.fn(interaction);
-		}
-		return true;
-	}
+  /**
+   * @private
+   * DO NOT USE
+   * Internal method to execute the function
+   */
+  execute(interaction: ChatInputCommandInteraction) {
+    if (this.fn) {
+      return this.fn(interaction);
+    }
+    return true;
+  }
 }

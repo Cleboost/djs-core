@@ -18,7 +18,7 @@ The **djs-core** project is designed to provide a robust and flexible foundation
 ## Getting Started
 
 To get started with **djs-core**, follow these steps:
- 
+
 In writing
 
 ## Contributing

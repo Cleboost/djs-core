@@ -10,7 +10,7 @@
     "declaration": true,
     "isolatedModules": true,
     "noEmit": true,
-    "outDir": "dist",
+    "outDir": "dist"
   },
   "include": ["src"],
   "exclude": ["node_modules"]

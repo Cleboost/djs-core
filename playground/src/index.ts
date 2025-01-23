@@ -1,9 +1,9 @@
-import { BotClient } from 'djs-core';
-import {config} from 'dotenv'
+import { BotClient } from "djs-core";
+import { config } from "dotenv";
 
-config()
+config();
 
-const client = new BotClient()
-client.start(process.env.TOKEN)
+const client = new BotClient();
+client.start(process.env.TOKEN);
 
-export default client
+export default client;
