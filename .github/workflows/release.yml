@@ -1,21 +1,40 @@
-name: Release and Publish NPM
+name: Auto Release and Publish
 
 on:
-  workflow_run:
-    workflows:
-      - "Build and Test"
-    types:
-      - completed
+  push:
+    branches:
+      - master
+
 jobs:
   release:
     name: Build and Publish
     runs-on: ubuntu-latest
 
-    if: startsWith(github.event.workflow_run.head_commit.message, 'v')
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Detect Version Change
+        id: version_check
+        run: |
+          # Obtenez la version actuelle dans package.json
+          current_version=$(jq -r '.version' package.json)
+
+          # Récupérez le dernier tag et supprimez le préfixe "v" si présent
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          latest_version=${latest_tag#v} # Retire le "v" du début
+
+          echo "Current Version: $current_version"
+          echo "Latest Version (from tag): $latest_version"
+
+          # Comparez les deux versions
+          if [ "$current_version" != "$latest_version" ]; then
+            echo "Version has changed!"
+            echo "new_version=$current_version" >> $GITHUB_ENV
+          else
+            echo "Version has not changed. Skipping release."
+            exit 0
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -32,13 +51,21 @@ jobs:
       - name: Build Package
         run: pnpm build
 
+      # - name: Create Tag
+      #   if: env.new_version
+      #   run: |
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "github-actions[bot]@users.noreply.github.com"
+      #     git tag $new_version
+      #     git push origin $new_version
+
       - name: Create GitHub Release (Draft)
         uses: actions/create-release@v1.1.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: "${{ github.ref_name }}"
+          tag_name: v${{ env.new_version }}
+          release_name: v${{ env.new_version }}
           draft: true
           body: |
             ### Notes de cette version
