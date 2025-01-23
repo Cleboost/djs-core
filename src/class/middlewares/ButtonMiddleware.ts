@@ -7,15 +7,15 @@
 import { ButtonInteraction } from "discord.js";
 
 export default class ButtonMiddleware {
-    private fn: (interaction: ButtonInteraction) => void = () => {};
-    constructor() {}
+  private fn: (interaction: ButtonInteraction) => void = () => {};
+  constructor() {}
 
-    run(fn: (interaction: ButtonInteraction) => void) {
-        this.fn = fn;
-        return this;
-    }
+  run(fn: (interaction: ButtonInteraction) => void) {
+    this.fn = fn;
+    return this;
+  }
 
-    execute(interaction: ButtonInteraction) {
-        return this.fn(interaction);
-    }
+  execute(interaction: ButtonInteraction) {
+    return this.fn(interaction);
+  }
 }

@@ -1,7 +1,7 @@
 import { Config } from "djs-core";
 
 export default {
-    logger: {
-        logCmd: true,
-    }
+  logger: {
+    logCmd: true,
+  },
 } as Config;

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
 
-const {BotClient}  = require("../dist/index");
+const { BotClient } = require("../dist/index");
 
 jest.mock("discord.js", () => {
   const actualDiscordJs = jest.requireActual("discord.js");
@@ -42,7 +42,9 @@ describe("BotClient", () => {
     } catch (error) {
       console.log("Caught error:", error.message);
     }
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Config is not loaded correctly"));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Config is not loaded correctly"),
+    );
     expect(exitSpy).toHaveBeenCalledWith(1);
   });
 });

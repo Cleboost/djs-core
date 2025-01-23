@@ -7,11 +7,11 @@
 import { SlashCommandBuilder } from "discord.js";
 
 export default class SubCommandGroup extends SlashCommandBuilder {
-	constructor() {
-		super();
-	}
+  constructor() {
+    super();
+  }
 
-	getDiscordCommand() {
-		return this.toJSON();
-	}
+  getDiscordCommand() {
+    return this.toJSON();
+  }
 }
