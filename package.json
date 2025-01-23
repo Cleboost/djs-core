@@ -4,7 +4,6 @@
   "description": "A core library for Discord.js projects",
   "main": "index.js",
   "types": "index.d.ts",
-  "module": "index.mjs",
   "author": "Cleboost",
   "repository": {
     "url": "https://github.com/Cleboost/djs-core"
