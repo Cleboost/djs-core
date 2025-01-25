@@ -31,27 +31,28 @@ jobs:
         run: pnpm install
 
       - name: Build Package
-        run: pnpm build
+        run: pnpm build && cd dist/
 
       - name: Pack for GitHub Releases
-        run: cd dist/ && pnpm pack
+        run: pnpm pack
 
-      # - name: Create Github Release
-      #   uses: softprops/action-gh-release@v2
-      #   with:
-      #     name: ${{ github.ref_name }}
-      #     tag_name: ${{ github.ref_name }}
-      #     files: |
-      #       dist/*.tgz
-      #     body: |
-      #       ### Notes de cette version
-      #       Ajoute ici les détails que tu veux compléter manuellement.
-      #     draft: true
+      - name: Create Github Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          files: |
+            dist/*.tgz
+          body: |
+            # 📚 djs-core ${{ github.ref_name }} ([npm](https://www.npmjs.com/package/djs-core/v/${{ github.ref_name }}))
+            ## [Fixs]
+            - Content to write manually
+          draft: true
           
       - name: Clean for NPM
-        run: rm -rf dist/*.tgz
+        run: rm -rf *.tgz
 
       - name: Publish to NPM
-        run: pnpm publish --access public --dry-run --no-git-checks
+        run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
