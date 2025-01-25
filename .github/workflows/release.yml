@@ -34,13 +34,13 @@ jobs:
         run: pnpm build
 
       - name: Pack for GitHub Releases
-        run: pnpm pack
+        run: cd dist/ && pnpm pack
 
       - name: Create Github Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ github.ref }} 
-          tag_name: ${{ github.ref }}
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           files: |
             dist/*.tgz
           body: |
