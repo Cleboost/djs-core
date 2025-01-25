@@ -31,10 +31,10 @@ jobs:
         run: pnpm install
 
       - name: Build Package
-        run: pnpm build && cd dist/
+        run: pnpm build
 
       - name: Pack for GitHub Releases
-        run: pnpm pack
+        run: cd dist/ && pnpm pack
 
       - name: Create Github Release
         uses: softprops/action-gh-release@v2
@@ -50,9 +50,9 @@ jobs:
           draft: true
           
       - name: Clean for NPM
-        run: rm -rf *.tgz
+        run: cd dist/ rm -rf *.tgz
 
       - name: Publish to NPM
-        run: pnpm publish --access public --no-git-checks
+        run: cd dist/ && pnpm publish --access public --no-git-checks --dry-run
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
