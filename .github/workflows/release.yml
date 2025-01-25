@@ -2,8 +2,8 @@ name: Auto Release and Publish
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - "v*.*.*"
 
 jobs:
   release:
@@ -17,30 +17,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Detect Version Change
-        id: version_check
-        run: |
-          # Obtenez la version actuelle dans package.json
-          current_version=$(jq -r '.version' package.json)
-
-          # Récupérez le dernier tag et supprimez le préfixe "v" si présent
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          latest_version=${latest_tag#v} # Retire le "v" du début
-
-          echo "Current Version: $current_version"
-          echo "Latest Version (from tag): $latest_version"
-
-          # Comparez les deux versions
-          if [ "$current_version" != "$latest_version" ]; then
-            echo "Version has changed!"
-            echo "new_version=$current_version" >> $GITHUB_ENV
-          else
-            echo "Version has not changed. Skipping release."
-            exit 0
-          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -57,35 +33,30 @@ jobs:
       - name: Build Package
         run: pnpm build
 
-      - name: Create Tag
-        if: env.new_version
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag $new_version
-          git push origin $new_version
+      - name: Pack for GitHub Releases
+        run: pnpm pack
 
-      - name: Create GitHub Release (Draft)
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Github Release
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.new_version }}
-          release_name: v${{ env.new_version }}
-          draft: true
+          name: ${{ github.ref }} 
+          tag_name: ${{ github.ref }}
+          files: |
+            dist/*.tgz
           body: |
             ### Notes de cette version
             Ajoute ici les détails que tu veux compléter manuellement.
+          
+            
+      # - name: Authenticate with NPM
+      #   run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
-      - name: Authenticate with NPM
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-
-      - name: NPM Publish
-        run: |
-          if [ -d "dist" ]; then
-             cd dist
-             npm publish
-          else
-             echo "Le dossier 'dist' n'existe pas."
-             exit 1
-          fi
+      # - name: NPM Publish
+      #   run: |
+      #     if [ -d "dist" ]; then
+      #        cd dist
+      #        npm publish
+      #     else
+      #        echo "Le dossier 'dist' n'existe pas."
+      #        exit 1
+      #     fi
