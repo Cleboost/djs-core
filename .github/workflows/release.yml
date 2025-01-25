@@ -1,4 +1,4 @@
-name: Auto Release and Publish
+name: Release & Publish
 
 on:
   push:
@@ -46,17 +46,12 @@ jobs:
           body: |
             ### Notes de cette version
             Ajoute ici les détails que tu veux compléter manuellement.
+          draft: true
           
-            
-      # - name: Authenticate with NPM
-      #   run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - name: Clean for NPM
+        run: rm -rf dist/*.tgz
 
-      # - name: NPM Publish
-      #   run: |
-      #     if [ -d "dist" ]; then
-      #        cd dist
-      #        npm publish
-      #     else
-      #        echo "Le dossier 'dist' n'existe pas."
-      #        exit 1
-      #     fi
+      - name: Publish to NPM
+        run: pnpm publish --access public --dry-run 
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
