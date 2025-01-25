@@ -50,7 +50,7 @@ jobs:
           draft: true
           
       - name: Clean for NPM
-        run: cd dist/ rm -rf *.tgz
+        run: cd dist/ && rm -rf *.tgz
 
       - name: Publish to NPM
         run: cd dist/ && pnpm publish --access public --no-git-checks --dry-run
