@@ -91,6 +91,7 @@ export default class BotClient extends Client {
       Promise.resolve(require("../handlers/Button")),
       Promise.resolve(require("../handlers/SelectMenu")),
       Promise.resolve(require("../handlers/Modal")),
+      Promise.resolve(require("../handlers/Event")),
     ];
     const middlewaresPath = path.join(process.cwd(), "src", "middlewares");
     if (fs.existsSync(middlewaresPath)) {
