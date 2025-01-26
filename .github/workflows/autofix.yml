@@ -31,7 +31,7 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install dependencies for linting
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run ESLint
         run: pnpm run lint:fix

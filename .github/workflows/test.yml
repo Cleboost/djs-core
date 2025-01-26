@@ -33,4 +33,4 @@ jobs:
            run: npm install -g pnpm
 
          - name: Install dependencies & test
-           run: pnpm it
+           run: pnpm it --no-frozen-lockfile
