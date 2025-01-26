@@ -82,7 +82,10 @@ if (require.main === module) {
         format: ["cjs"],
         silent: true,
       });
-      if (!fs.existsSync("dist/.env")) return console.error("No .env file found! Please create one in the src folder. You can copy the .env.example file.");
+      if (!fs.existsSync("dist/.env"))
+        return console.error(
+          "No .env file found! Please create one in the src folder. You can copy the .env.example file.",
+        );
       fs.copyFileSync("src/.env", "dist/.env");
       spinner.succeed(chalk.green.bold("Build done!"));
 
