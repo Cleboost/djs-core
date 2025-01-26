@@ -1,8 +1,11 @@
 {
-  "name": "test",
+  "name": "playground",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
+    "start": "djs-core start",
+    "dev": "djs-core dev",
+    "build": "djs-core build",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
@@ -10,9 +13,8 @@
     "dotenv": "16.4.7"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.2",
-    "tsup": "8.3.5"
+    "cross-env": "7.0.3",
+    "javascript-obfuscator": "^4.1.1",
+    "typescript": "5.7.2"
   }
 }

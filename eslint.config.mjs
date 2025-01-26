@@ -17,6 +17,10 @@ export default [
     files: ["src/**/*.{js,mjs,cjs,ts}"],
     ignores: ["dist/**/*"],
     rules: {
+      "padding-line-between-statements": [
+        "error",
+        { blankLine: "always", prev: "function", next: "function" },
+      ],
       "headers/header-format": [
         "error",
         {
