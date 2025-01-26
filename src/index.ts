@@ -20,6 +20,7 @@ import path from "path";
 import chalk from "chalk";
 import ora from "ora";
 import chokidar from "chokidar";
+import EventListner from "./class/interactions/Event";
 
 export {
   BotClient,
@@ -29,6 +30,7 @@ export {
   Button,
   SelectMenu,
   Modal,
+  EventListner,
 };
 export type { Config };
 
