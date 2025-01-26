@@ -25,11 +25,11 @@
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "chalk": "5.4.1",
+    "chalk": "4.1.2",
     "commander": "13.1.0",
     "discord.js": "14.17.3",
     "kolorist": "1.8.0",
-    "ora": "8.1.1",
+    "ora": "5.4.1",
     "tsup": "8.3.6"
   },
   "devDependencies": {
