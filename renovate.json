@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "ignorePaths": ["**/playground/**", "**/playground/**/*"]
+  "ignorePaths": ["**/playground/**", "**/playground/**/*"],
+  "ignoreTests": true
 }
