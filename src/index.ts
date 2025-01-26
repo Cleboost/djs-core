@@ -65,27 +65,27 @@ if (require.main === module) {
     });
 
   program
-  .command("dev")
-  .description("Start the bot in development mode")
-  .action(async () => {
-    await build({
-      entry: ["src/**/*.ts"],
-      outDir: "dist",
-      clean: true,
-      skipNodeModulesBundle: true,
-      format: ["cjs"],
-      silent: true,
-      watch: true,
-      onSuccess: async () => {
-        fs.copyFileSync("src/.env", "dist/.env");
-        try {
-          execSync("node dist/index.js", { stdio: "inherit" });
-        } catch {
-          // Do nothing
-        }
-      }
+    .command("dev")
+    .description("Start the bot in development mode")
+    .action(async () => {
+      await build({
+        entry: ["src/**/*.ts"],
+        outDir: "dist",
+        clean: true,
+        skipNodeModulesBundle: true,
+        format: ["cjs"],
+        silent: true,
+        watch: true,
+        onSuccess: async () => {
+          fs.copyFileSync("src/.env", "dist/.env");
+          try {
+            execSync("node dist/index.js", { stdio: "inherit" });
+          } catch {
+            // Do nothing
+          }
+        },
+      });
     });
-  });
 
   program
     .command("build")
