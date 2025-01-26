@@ -31,91 +31,106 @@ export {
 };
 export type { Config };
 
-program
-  .version("1.0.0")
-  .description("djs-core CLI")
-  .usage("<command> [options]");
+if (require.main === module) {
+  program
+    .version("1.0.0")
+    .description("djs-core CLI")
+    .usage("<command> [options]");
 
-program
-  .command("build")
-  .description("Build the project")
-  .option("-o, --obfuscate", "Obfuscate the code")
-  .action(async (options) => {
-    const spinner = ora();
-    console.log(chalk.blue.bold("🚀 Starting build process...\n"));
-    await build({
-      entry: ["src/**/*.ts"],
-      outDir: "dist",
-      clean: true,
-      minify: true,
-      skipNodeModulesBundle: true,
-      format: ["cjs"],
-      silent: true,
-    });
-    spinner.succeed(chalk.green.bold("✅ Build done!"));
-    if (options.obfuscate) {
-      spinner.start("⚙️ Obfuscating...");
-      if (detectPackageManager() === null) {
-        console.error(
-          chalk.red.bold(
-            "❌ No package manager found. Please install pnpm or npm.",
-          ),
-        );
-        process.exit(1);
-      }
+  program
+    .command("build")
+    .description("Build the project")
+    .option("-o, --obfuscate", "Obfuscate the code")
+    .action(async (options) => {
+      const spinner = ora();
+      console.log(chalk.blue.bold("🚀 Starting build process...\n"));
+      await build({
+        entry: ["src/**/*.ts"],
+        outDir: "dist",
+        clean: true,
+        minify: true,
+        skipNodeModulesBundle: true,
+        format: ["cjs"],
+        silent: true,
+      });
 
-      if (!fs.existsSync("node_modules/javascript-obfuscator")) {
-        execSync(
-          `${detectPackageManager()} install javascript-obfuscator --save-dev`,
-          {
-            stdio: "ignore",
-          },
-        );
-      }
+      fs.copyFileSync("src/.env", "dist/.env");
+      const pkg = JSON.parse(fs.readFileSync("package.json", "utf-8"));
+      delete pkg.devDependencies;
+      pkg.main = "index.js";
+      pkg.credit = "Developed and built with djs-core";
+      pkg.scripts = {
+        start: "node index.js",
+      };
+      fs.writeFileSync("dist/package.json", JSON.stringify(pkg, null, 2));
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const obfuscator = require(
-        path.join(process.cwd(), "node_modules/javascript-obfuscator"),
-      );
-
-      const files = getBuild("dist");
-
-      for (const file of files) {
-        if (file.endsWith(".js")) {
-          const code = fs.readFileSync(file, "utf-8");
-          const obfuscated = obfuscator.obfuscate(code, {
-            target: "node",
-            compact: true,
-            controlFlowFlattening: true,
-            stringArray: true,
-            // stringArrayEncoding: "base64",
-          });
-
-          fs.writeFileSync(file, obfuscated.getObfuscatedCode());
+      spinner.succeed(chalk.green.bold("✅ Build done!"));
+      if (options.obfuscate === true) {
+        spinner.start("⚙️ Obfuscating...");
+        if (detectPackageManager() === null) {
+          console.error(
+            chalk.red.bold(
+              "❌ No package manager found. Please install pnpm or npm.",
+            ),
+          );
+          process.exit(1);
         }
+
+        if (!fs.existsSync("node_modules/javascript-obfuscator")) {
+          execSync(
+            `${detectPackageManager()} install javascript-obfuscator --save-dev`,
+            {
+              stdio: "ignore",
+            },
+          );
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const obfuscator = require(
+          path.join(process.cwd(), "node_modules/javascript-obfuscator"),
+        );
+
+        const files = getBuild("dist");
+
+        for (const file of files) {
+          if (file.endsWith(".js")) {
+            const code = fs.readFileSync(file, "utf-8");
+            const obfuscated = obfuscator.obfuscate(code, {
+              target: "node",
+              compact: true,
+              controlFlowFlattening: true,
+              stringArray: true,
+              stringArrayThreshold: 1,
+              // stringArrayIndexesType: "hexadecimal",
+              stringArrayEncoding: ["rc4"],
+            });
+
+            fs.writeFileSync(file, obfuscated.getObfuscatedCode());
+          }
+        }
+
+        spinner.succeed(chalk.green.bold(`✅ Obfuscation done!\n`));
       }
+      console.log(
+        chalk.blue.bold(
+          `🎉 You can now run your bot with ${chalk.yellow(
+            "node dist/index.js",
+          )} or deploy it to a server.\n`,
+        ),
+      );
+      console.log(chalk.blue.bold("🚀 Auto-deploy feature coming soon!"));
+      return;
+    });
 
-      spinner.succeed(chalk.green.bold(`✅ Obfuscation done!\n`));
-    }
-    console.log(
-      chalk.blue.bold(
-        `🎉 You can now run your bot with ${chalk.yellow(
-          "node dist/index.js",
-        )} or deploy it to a server.\n`,
-      ),
-    );
-    console.log(chalk.blue.bold("🚀 Auto-deploy feature coming soon!"));
-    return;
-  });
+  program.parse(process.argv);
+}
 
-program.parse(process.argv);
-
-// pnpm or npm
 function detectPackageManager() {
   const managers = ["pnpm", "npm"];
   for (const manager of managers) {
     try {
       execSync(`${manager} -v`, { stdio: "ignore" });
+
       return manager;
     } catch {
       continue;
@@ -136,7 +151,6 @@ function getBuild(dir: string): Array<string> {
       }
     });
   };
-
   reader(dir);
   return files;
 }
