@@ -1,11 +1,9 @@
-# 📚 djs-core 
+# 📚 djs-core
+
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Cleboost/djs-core/test.yml?branch=master&style=flat-square)
 ![NPM Downloads](https://img.shields.io/npm/d18m/djs-core?style=flat-square&link=https%3A%2F%2Fnpmjs.com%2Fpackage%2Fdjs-core)
 
 Welcome to the **djs-core** project! 🎉
-
-
-
 
 > **Note**: This project is under active development. 🟡
 
