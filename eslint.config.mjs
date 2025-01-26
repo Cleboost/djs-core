@@ -17,6 +17,13 @@ export default [
     files: ["src/**/*.{js,mjs,cjs,ts}"],
     ignores: ["dist/**/*"],
     rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+        "selector": "CallExpression[callee.name='log']",
+        "message": "Use console.log() instead of log()"
+        }
+      ],
       "padding-line-between-statements": [
         "error",
         { blankLine: "always", prev: "function", next: "function" },
