@@ -65,7 +65,6 @@ program
       }
 
       if (!fs.existsSync("node_modules/javascript-obfuscator")) {
-        console.log("Installing javascript-obfuscator...");
         execSync(
           `${detectPackageManager()} install javascript-obfuscator --save-dev`,
           {
@@ -89,6 +88,7 @@ program
             compact: true,
             controlFlowFlattening: true,
             stringArray: true,
+            // stringArrayEncoding: "base64",
           });
 
           fs.writeFileSync(file, obfuscated.getObfuscatedCode());
