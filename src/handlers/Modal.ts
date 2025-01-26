@@ -11,6 +11,7 @@ import { Events, Interaction, MessageFlags } from "discord.js";
 import { underline } from "kolorist";
 import CommandMiddleware from "../class/middlewares/CommandMiddleware";
 import Modal from "../class/interactions/Modal";
+import { pathToFileURL } from "node:url";
 
 export default class ModalHandler extends Handler {
   private middleware: Array<CommandMiddleware> = [];
@@ -23,8 +24,7 @@ export default class ModalHandler extends Handler {
       if (!fs.existsSync(selectDir)) return resolve();
       for (const modal of fs.readdirSync(selectDir)) {
         if (!modal.endsWith(".js")) continue;
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const modalClass = require(path.join(selectDir, modal)).default;
+        const modalClass = (await import(pathToFileURL(path.join(selectDir, modal)).href)).default.default;
         if (!(modalClass instanceof Modal)) {
           this.client.logger.error(
             `The modal ${underline(`${modal}`)} is not correct!`,

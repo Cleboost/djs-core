@@ -11,6 +11,7 @@ import { Events, Interaction, MessageFlags } from "discord.js";
 import { underline } from "kolorist";
 // import CommandMiddleware from "../class/middlewares/CommandMiddleware";
 import SelectMenu from "../class/interactions/SelectMenu";
+import { pathToFileURL } from "node:url";
 
 export default class SelectMenuHandler extends Handler {
   // private middleware: Array<CommandMiddleware> = [];
@@ -26,10 +27,7 @@ export default class SelectMenuHandler extends Handler {
           path.join(selectDir, selectType),
         )) {
           if (!selectMenu.endsWith(".js")) continue;
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const selectMenuClass = require(
-            path.join(selectDir, selectType, selectMenu),
-          ).default;
+          const selectMenuClass = (await import(pathToFileURL(path.join(selectDir, selectType, selectMenu)).href)).default.default;
           if (!(selectMenuClass instanceof SelectMenu)) {
             this.client.logger.error(
               `The select menu ${underline(`${selectType}/${selectMenu}`)} is not correct!`,

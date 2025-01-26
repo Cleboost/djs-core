@@ -11,6 +11,7 @@ import { Events, Interaction } from "discord.js";
 import { underline } from "kolorist";
 import CommandMiddleware from "../class/middlewares/CommandMiddleware";
 import Button from "../class/interactions/Button";
+import { pathToFileURL } from "node:url";
 
 export default class ButtonHandler extends Handler {
   private middleware: Array<CommandMiddleware> = [];
@@ -26,10 +27,7 @@ export default class ButtonHandler extends Handler {
           for (const buttonInSub of fs.readdirSync(
             path.join(buttonsDir, button),
           )) {
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            const buttonClass = require(
-              path.join(buttonsDir, button, buttonInSub),
-            ).default;
+            const buttonClass = (await import(pathToFileURL(path.join(buttonsDir, button, buttonInSub)).href)).default.default;
             if (!(buttonClass instanceof Button)) {
               this.client.logger.error(
                 `The button ${underline(`${button}/${buttonInSub}`)} is not correct!`,

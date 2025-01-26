@@ -16,6 +16,7 @@ import {
 } from "discord.js";
 import SubCommand from "../class/interactions/SubCommand";
 import { underline } from "kolorist";
+import { pathToFileURL } from "node:url";
 
 export default class SubCommandHandler extends Handler {
   // private middleware: Array<CommandMiddleware> = [];
@@ -31,8 +32,7 @@ export default class SubCommandHandler extends Handler {
         for (const command of fs
           .readdirSync(path.join(commands, categories))
           .filter((file) => file.endsWith(".js"))) {
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const cmd = require(path.join(commands, categories, command)).default;
+          const cmd = (await import(pathToFileURL(path.join(commands, categories, command)).href)).default.default;
           if (!(cmd instanceof SubCommandGroup)) continue;
           if (cmd.options.length === 0)
             return this.client.logger.error(
