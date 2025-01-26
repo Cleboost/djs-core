@@ -59,7 +59,10 @@ if (require.main === module) {
       });
       fs.copyFileSync("src/.env", "dist/.env");
       try {
-        execSync("node dist/index.js", { stdio: "inherit" });
+        execSync("node index.js", {
+          stdio: "inherit",
+          cwd: path.join(process.cwd(), "dist"),
+        });
       } catch {
         // Do nothing
       }
