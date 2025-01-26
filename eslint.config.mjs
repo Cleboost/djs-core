@@ -19,7 +19,7 @@ export default [
     rules: {
       "padding-line-between-statements": [
         "error",
-        { blankLine: "always", prev: "function", next: "function" }
+        { blankLine: "always", prev: "function", next: "function" },
       ],
       "headers/header-format": [
         "error",
