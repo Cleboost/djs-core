@@ -29,7 +29,11 @@ export default class CommandHandler extends Handler {
         for (const command of fs
           .readdirSync(path.join(commands, categories))
           .filter((file) => file.endsWith(".js"))) {
-          const cmd = (await import(pathToFileURL(path.join(commands, categories, command)).href)).default.default;
+          const cmd = (
+            await import(
+              pathToFileURL(path.join(commands, categories, command)).href
+            )
+          ).default.default;
           if (cmd instanceof SubCommandGroup) continue;
           if (!(cmd instanceof Command)) {
             this.client.logger.error(

@@ -27,7 +27,11 @@ export default class SelectMenuHandler extends Handler {
           path.join(selectDir, selectType),
         )) {
           if (!selectMenu.endsWith(".js")) continue;
-          const selectMenuClass = (await import(pathToFileURL(path.join(selectDir, selectType, selectMenu)).href)).default.default;
+          const selectMenuClass = (
+            await import(
+              pathToFileURL(path.join(selectDir, selectType, selectMenu)).href
+            )
+          ).default.default;
           if (!(selectMenuClass instanceof SelectMenu)) {
             this.client.logger.error(
               `The select menu ${underline(`${selectType}/${selectMenu}`)} is not correct!`,

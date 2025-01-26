@@ -27,7 +27,11 @@ export default class ButtonHandler extends Handler {
           for (const buttonInSub of fs.readdirSync(
             path.join(buttonsDir, button),
           )) {
-            const buttonClass = (await import(pathToFileURL(path.join(buttonsDir, button, buttonInSub)).href)).default.default;
+            const buttonClass = (
+              await import(
+                pathToFileURL(path.join(buttonsDir, button, buttonInSub)).href
+              )
+            ).default.default;
             if (!(buttonClass instanceof Button)) {
               this.client.logger.error(
                 `The button ${underline(`${button}/${buttonInSub}`)} is not correct!`,
