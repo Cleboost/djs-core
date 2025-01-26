@@ -14,11 +14,12 @@ import SelectMenu from "./class/interactions/SelectMenu";
 import Modal from "./class/interactions/Modal";
 import { program } from "commander";
 import { build } from "tsup";
-import { execSync } from "child_process";
+import { execSync, spawn } from "child_process";
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
 import ora from "ora";
+import chokidar from "chokidar";
 
 export {
   BotClient,
@@ -66,8 +67,12 @@ if (require.main === module) {
 
   program
     .command("dev")
-    .description("Start the bot in development mode")
+    .description("Start the bot in development mode with file watcher")
     .action(async () => {
+      fs.copyFileSync("src/.env", "dist/.env");
+      console.log(process.cwd());
+      const spinner = ora();
+      spinner.start(chalk.blue.bold("🚀 Starting development bot..."));
       await build({
         entry: ["src/**/*.ts"],
         outDir: "dist",
@@ -75,15 +80,47 @@ if (require.main === module) {
         skipNodeModulesBundle: true,
         format: ["cjs"],
         silent: true,
-        watch: true,
-        onSuccess: async () => {
-          fs.copyFileSync("src/.env", "dist/.env");
-          try {
-            execSync("node dist/index.js", { stdio: "inherit" });
-          } catch {
-            // Do nothing
-          }
-        },
+      });
+      spinner.succeed(chalk.green.bold("Build done!"));
+
+      
+      //start node index
+
+      let bot = spawn("node", ["index.js"], {
+        stdio: "inherit",
+        cwd: path.join(process.cwd(), "dist"),
+      });
+
+      const watcher = chokidar.watch("src", {
+        ignored: (path) =>
+          path.includes("node_modules") || path.endsWith(".js"),
+        cwd: process.cwd(),
+        persistent: true,
+        ignoreInitial: true,
+      });
+     
+      watcher.on("ready", () => {
+        console.log(chalk.blue.bold("🚀 Watching for file changes...\n\n"));
+      });
+
+      watcher.on("change", async (filePath) => {
+        bot.kill();
+        console.log(
+          chalk.green(`File ${filePath} has been changed. Rebuilding...`),
+        );
+        
+        await build({
+          entry: [filePath.replaceAll("\\", "/")],
+          outDir: path.join("dist", path.dirname(filePath).replace("src", "")),
+          clean: false,
+          format: ["cjs"],
+          silent: true,
+        })
+
+        bot = spawn("node", ["index.js"], {
+          stdio: "inherit",
+          cwd: path.join(process.cwd(), "dist"),
+        });
       });
     });
 
@@ -151,7 +188,6 @@ if (require.main === module) {
               controlFlowFlattening: true,
               stringArray: true,
               stringArrayThreshold: 1,
-              // stringArrayIndexesType: "hexadecimal",
               stringArrayEncoding: ["rc4"],
             });
 

@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "chalk": "4.1.2",
+    "chokidar": "4.0.3",
     "commander": "13.1.0",
     "discord.js": "14.17.3",
     "kolorist": "1.8.0",
