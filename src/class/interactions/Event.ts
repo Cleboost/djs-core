@@ -35,7 +35,7 @@ export default class EventListner {
       this.runFn(client, ...args);
     } else {
       client.logger.error(
-        `The event ${this.event ? this.event.toString() : 'unknown'} has no function to execute!`,
+        `The event ${this.event ? this.event.toString() : "unknown"} has no function to execute!`,
       );
     }
   }

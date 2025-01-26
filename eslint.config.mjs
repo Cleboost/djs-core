@@ -20,9 +20,9 @@ export default [
       "no-restricted-syntax": [
         "error",
         {
-        "selector": "CallExpression[callee.name='log']",
-        "message": "Use console.log() instead of log()"
-        }
+          selector: "CallExpression[callee.name='log']",
+          message: "Use console.log() instead of log()",
+        },
       ],
       "padding-line-between-statements": [
         "error",

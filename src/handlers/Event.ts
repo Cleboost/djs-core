@@ -7,7 +7,7 @@
 import { Handler } from "./Handler";
 import path from "path";
 import fs from "node:fs";
-import { ClientEvents} from "discord.js";
+import { ClientEvents } from "discord.js";
 import { underline } from "kolorist";
 import { pathToFileURL } from "node:url";
 import EventListner from "../class/interactions/Event";
@@ -19,7 +19,9 @@ export default class EventHandler extends Handler {
       const eventsDir = path.join(process.cwd(), "events");
       if (!fs.existsSync(eventsDir)) return resolve();
       for (const eventFile of fs.readdirSync(eventsDir)) {
-        const event = (await import(pathToFileURL(path.join(eventsDir, eventFile)).href)).default.default;
+        const event = (
+          await import(pathToFileURL(path.join(eventsDir, eventFile)).href)
+        ).default.default;
         if (!(event instanceof EventListner)) {
           this.client.logger.error(
             `The event ${underline(eventFile)} is not correct!`,
@@ -30,9 +32,12 @@ export default class EventHandler extends Handler {
         if (event.getEvent()) {
           const eventName = event.getEvent();
           if (eventName) {
-            this.client.on(eventName as keyof ClientEvents, (...args: unknown[]) => {
-              return event.execute(this.client, ...args);
-            });
+            this.client.on(
+              eventName as keyof ClientEvents,
+              (...args: unknown[]) => {
+                return event.execute(this.client, ...args);
+              },
+            );
           } else {
             this.client.logger.error("The event has no event to listen to!");
           }
