@@ -83,7 +83,6 @@ if (require.main === module) {
       });
       spinner.succeed(chalk.green.bold("Build done!"));
 
-      
       //start node index
 
       let bot = spawn("node", ["index.js"], {
@@ -98,7 +97,7 @@ if (require.main === module) {
         persistent: true,
         ignoreInitial: true,
       });
-     
+
       watcher.on("ready", () => {
         console.log(chalk.blue.bold("🚀 Watching for file changes...\n\n"));
       });
@@ -108,14 +107,14 @@ if (require.main === module) {
         console.log(
           chalk.green(`File ${filePath} has been changed. Rebuilding...`),
         );
-        
+
         await build({
           entry: [filePath.replaceAll("\\", "/")],
           outDir: path.join("dist", path.dirname(filePath).replace("src", "")),
           clean: false,
           format: ["cjs"],
           silent: true,
-        })
+        });
 
         bot = spawn("node", ["index.js"], {
           stdio: "inherit",
