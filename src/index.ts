@@ -129,7 +129,11 @@ if (require.main === module) {
     .action(async (options) => {
       if (options.obfuscate === true) {
         console.log(chalk.yellow.bold("⚠️ Obfuscation is experimental!"));
-        console.log(chalk.yellow.bold("⚠️ This can slow down the bot and bundle size is bigger. Use this function only if you know what you are doing!"));
+        console.log(
+          chalk.yellow.bold(
+            "⚠️ This can slow down the bot and bundle size is bigger. Use this function only if you know what you are doing!",
+          ),
+        );
       }
       const spinner = ora();
       console.log(chalk.blue.bold("🚀 Starting build process...\n"));
@@ -188,7 +192,7 @@ if (require.main === module) {
               /^dist[\\/]+interactions[\\/]+commands[\\/]+[a-z]+[\\/]+[a-z]+\.js$/gm,
               /^dist[\\/]+interactions[\\/]+buttons[\\/]+.*\.js$/gm,
               /^dist[\\/]+interactions[\\/]+modals[\\/]+.*\.js$/gm,
-              /^dist[\\/]+interactions[\\/]+selects[\\/]+.*\.js$/gm
+              /^dist[\\/]+interactions[\\/]+selects[\\/]+.*\.js$/gm,
             ];
 
             const code = fs.readFileSync(file, "utf-8");
