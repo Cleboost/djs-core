@@ -38,6 +38,56 @@ if (require.main === module) {
     .usage("<command> [options]");
 
   program
+    .command("init")
+    .description("Initialize a new project")
+    .action(() => {
+      console.log(chalk.yellow.bold("🚧 This feature is coming soon!"));
+    });
+
+  program
+    .command("start")
+    .description("Start the bot (not recommended for production)")
+    .action(async () => {
+      await build({
+        entry: ["src/**/*.ts"],
+        outDir: "dist",
+        clean: true,
+        skipNodeModulesBundle: true,
+        format: ["cjs"],
+        silent: true,
+      });
+      fs.copyFileSync("src/.env", "dist/.env");
+      try {
+        execSync("node dist/index.js", { stdio: "inherit" });
+      } catch {
+        // Do nothing
+      }
+    });
+
+  program
+  .command("dev")
+  .description("Start the bot in development mode")
+  .action(async () => {
+    await build({
+      entry: ["src/**/*.ts"],
+      outDir: "dist",
+      clean: true,
+      skipNodeModulesBundle: true,
+      format: ["cjs"],
+      silent: true,
+      watch: true,
+      onSuccess: async () => {
+        fs.copyFileSync("src/.env", "dist/.env");
+        try {
+          execSync("node dist/index.js", { stdio: "inherit" });
+        } catch {
+          // Do nothing
+        }
+      }
+    });
+  });
+
+  program
     .command("build")
     .description("Build the project")
     .option("-o, --obfuscate", "Obfuscate the code")
