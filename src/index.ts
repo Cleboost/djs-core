@@ -70,7 +70,6 @@ if (require.main === module) {
     .description("Start the bot in development mode with file watcher")
     .action(async () => {
       fs.copyFileSync("src/.env", "dist/.env");
-      console.log(process.cwd());
       const spinner = ora();
       spinner.start(chalk.blue.bold("🚀 Starting development bot..."));
       await build({
@@ -83,7 +82,6 @@ if (require.main === module) {
       });
       spinner.succeed(chalk.green.bold("Build done!"));
 
-      
       //start node index
 
       let bot = spawn("node", ["index.js"], {
@@ -98,7 +96,7 @@ if (require.main === module) {
         persistent: true,
         ignoreInitial: true,
       });
-     
+
       watcher.on("ready", () => {
         console.log(chalk.blue.bold("🚀 Watching for file changes...\n\n"));
       });
@@ -108,14 +106,14 @@ if (require.main === module) {
         console.log(
           chalk.green(`File ${filePath} has been changed. Rebuilding...`),
         );
-        
+
         await build({
           entry: [filePath.replaceAll("\\", "/")],
           outDir: path.join("dist", path.dirname(filePath).replace("src", "")),
           clean: false,
           format: ["cjs"],
           silent: true,
-        })
+        });
 
         bot = spawn("node", ["index.js"], {
           stdio: "inherit",
@@ -129,6 +127,10 @@ if (require.main === module) {
     .description("Build the project")
     .option("-o, --obfuscate", "Obfuscate the code")
     .action(async (options) => {
+      if (options.obfuscate === true) {
+        console.log(chalk.yellow.bold("⚠️ Obfuscation is experimental!"));
+        console.log(chalk.yellow.bold("⚠️ This can slow down the bot and bundle size is bigger. Use this function only if you know what you are doing!"));
+      }
       const spinner = ora();
       console.log(chalk.blue.bold("🚀 Starting build process...\n"));
       await build({
@@ -181,6 +183,14 @@ if (require.main === module) {
 
         for (const file of files) {
           if (file.endsWith(".js")) {
+            //if file in /commands/* but not in /commmands/**/*.js
+            const rex = [
+              /^dist[\\/]+interactions[\\/]+commands[\\/]+[a-z]+[\\/]+[a-z]+\.js$/gm,
+              /^dist[\\/]+interactions[\\/]+buttons[\\/]+.*\.js$/gm,
+              /^dist[\\/]+interactions[\\/]+modals[\\/]+.*\.js$/gm,
+              /^dist[\\/]+interactions[\\/]+selects[\\/]+.*\.js$/gm
+            ];
+
             const code = fs.readFileSync(file, "utf-8");
             const obfuscated = obfuscator.obfuscate(code, {
               target: "node",
@@ -192,6 +202,15 @@ if (require.main === module) {
             });
 
             fs.writeFileSync(file, obfuscated.getObfuscatedCode());
+
+            if (rex.some((r) => r.test(file))) {
+              const rdmName = Math.random().toString(36).substring(7);
+              const newFile = file.replace(
+                path.basename(file),
+                `${rdmName}.js`,
+              );
+              fs.renameSync(file, newFile);
+            }
           }
         }
 
@@ -205,9 +224,7 @@ if (require.main === module) {
         ),
       );
       console.log(chalk.blue.bold("🚀 Auto-deploy feature coming soon!"));
-      return;
     });
-
   program.parse(process.argv);
 }
 
