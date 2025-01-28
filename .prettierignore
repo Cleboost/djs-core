@@ -1,4 +1,4 @@
 # Ignore artifacts:
 dist/
 .github/
-*.yml
+*.yaml
