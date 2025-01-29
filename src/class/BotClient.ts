@@ -163,7 +163,7 @@ export default class BotClient extends Client {
           console.log(subCommandList);
           process.exit(1);
         });
-      this.logger.success("Bot is ready");
+      this.logger.success("Bot is logged as " + this.user?.username);
     });
 
     process.on("unhandledRejection", (reason: unknown) => {
@@ -177,7 +177,6 @@ export default class BotClient extends Client {
 
     process.on("uncaughtException", (error: Error) => {
       this.logger.error(`Uncaught Exception: ${error.message}`);
-      // Vous pouvez également notifier un canal Discord ou un administrateur ici
     });
   }
 }
