@@ -30,9 +30,7 @@ export default class Button {
     if (this.runFn) {
       return this.runFn(client, interaction);
     }
-    if (interaction instanceof ButtonInteraction) {
-      return interaction.reply("Aucune action définie");
-    }
+    return interaction.reply("No action defined");
   }
 
   getCustomId() {
