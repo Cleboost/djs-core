@@ -8,13 +8,12 @@ import { Handler } from "./Handler";
 import path from "path";
 import fs from "node:fs";
 import { Events, Interaction } from "discord.js";
-import { underline } from "kolorist";
-import CommandMiddleware from "../class/middlewares/CommandMiddleware";
 import Button from "../class/interactions/Button";
 import { pathToFileURL } from "node:url";
+import { underline } from "chalk";
 
 export default class ButtonHandler extends Handler {
-  private middleware: Array<CommandMiddleware> = [];
+  // private middleware: Array<CommandMiddleware> = [];
   async load() {
     // this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof CommandMiddleware) as Array<CommandMiddleware>;
 
@@ -54,8 +53,7 @@ export default class ButtonHandler extends Handler {
         }
 
         if (!button.endsWith(".js")) continue;
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const cmd = require(path.join(buttonsDir, button)).default;
+        const cmd = (await import(pathToFileURL(path.join(buttonsDir, button)).href)).default.default;
         if (!(cmd instanceof Button)) {
           this.client.logger.error(
             `The button ${underline(button)} is not correct!`,
@@ -63,7 +61,7 @@ export default class ButtonHandler extends Handler {
           continue;
         }
         const customID = cmd.getCustomId();
-        if (!customID || typeof customID !== "string") {
+        if (!customID) {
           this.client.logger.error(
             `The button ${underline(button)} has no customId!`,
           );
@@ -80,7 +78,7 @@ export default class ButtonHandler extends Handler {
         this.collection.set(customID, cmd);
       }
       resolve();
-      this.event();
+      return this.event();
     });
   }
 

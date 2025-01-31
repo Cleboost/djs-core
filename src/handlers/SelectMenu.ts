@@ -8,10 +8,9 @@ import { Handler } from "./Handler";
 import path from "path";
 import fs from "node:fs";
 import { Events, Interaction, MessageFlags } from "discord.js";
-import { underline } from "kolorist";
-// import CommandMiddleware from "../class/middlewares/CommandMiddleware";
 import SelectMenu from "../class/interactions/SelectMenu";
 import { pathToFileURL } from "node:url";
+import { underline } from "chalk";
 
 export default class SelectMenuHandler extends Handler {
   // private middleware: Array<CommandMiddleware> = [];
@@ -40,7 +39,7 @@ export default class SelectMenuHandler extends Handler {
           }
 
           const customID = selectMenuClass.getCustomId();
-          if (!customID || typeof customID !== "string") {
+          if (!customID) {
             this.client.logger.error(
               `The select menu  ${underline(`${selectType}/${selectMenu}`)} has no customId!`,
             );
@@ -56,7 +55,7 @@ export default class SelectMenuHandler extends Handler {
         }
       }
       resolve();
-      this.event();
+      return this.event();
     });
   }
 

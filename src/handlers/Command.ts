@@ -10,9 +10,9 @@ import fs from "node:fs";
 import Command from "../class/interactions/Command";
 import SubCommandGroup from "../class/interactions/SubCommandGroup";
 import { Events, Interaction } from "discord.js";
-import { underline } from "kolorist";
 import CommandMiddleware from "../class/middlewares/CommandMiddleware";
 import { pathToFileURL } from "node:url";
+import { underline } from "chalk";
 
 export default class CommandHandler extends Handler {
   private middleware: Array<CommandMiddleware> = [];
@@ -51,7 +51,7 @@ export default class CommandHandler extends Handler {
         }
       }
       resolve();
-      this.event();
+      return this.event();
     });
   }
 

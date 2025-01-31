@@ -8,9 +8,9 @@ import { Handler } from "./Handler";
 import path from "path";
 import fs from "node:fs";
 import { ClientEvents } from "discord.js";
-import { underline } from "kolorist";
 import { pathToFileURL } from "node:url";
 import EventListner from "../class/interactions/Event";
+import { underline } from "chalk";
 
 export default class EventHandler extends Handler {
   async load() {
@@ -45,7 +45,7 @@ export default class EventHandler extends Handler {
           this.client.logger.error("The event has no event to listen to!");
         }
       }
-      resolve();
+      return resolve();
     });
   }
 }

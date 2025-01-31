@@ -15,8 +15,8 @@ import {
   SlashCommandSubcommandBuilder,
 } from "discord.js";
 import SubCommand from "../class/interactions/SubCommand";
-import { underline } from "kolorist";
 import { pathToFileURL } from "node:url";
+import { underline } from "chalk";
 
 export default class SubCommandHandler extends Handler {
   // private middleware: Array<CommandMiddleware> = [];
@@ -72,7 +72,7 @@ export default class SubCommandHandler extends Handler {
         }
       }
       resolve();
-      this.event();
+      return this.event();
     });
   }
 
