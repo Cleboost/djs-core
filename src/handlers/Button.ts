@@ -53,7 +53,9 @@ export default class ButtonHandler extends Handler {
         }
 
         if (!button.endsWith(".js")) continue;
-        const cmd = (await import(pathToFileURL(path.join(buttonsDir, button)).href)).default.default;
+        const cmd = (
+          await import(pathToFileURL(path.join(buttonsDir, button)).href)
+        ).default.default;
         if (!(cmd instanceof Button)) {
           this.client.logger.error(
             `The button ${underline(button)} is not correct!`,

@@ -8,5 +8,5 @@ export default defineConfig({
   dts: true,
   skipNodeModulesBundle: true,
   clean: true,
-  watch: true
+  watch: true,
 });
