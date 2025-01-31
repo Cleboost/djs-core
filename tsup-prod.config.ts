@@ -3,7 +3,7 @@ import fs from "fs";
 
 export default defineConfig({
   format: ["cjs"],
-  entryPoints: ["src/index.ts"],
+  entry: ["src/index.ts"],
   dts: true,
   shims: true,
   skipNodeModulesBundle: true,
