@@ -33,7 +33,7 @@ export default class SelectMenu {
       );
       return interaction.reply({
         content: `The select menu ${this.customId} has no function to execute!`,
-        flags: [MessageFlags.Ephemeral]
+        flags: [MessageFlags.Ephemeral],
       });
     }
   }

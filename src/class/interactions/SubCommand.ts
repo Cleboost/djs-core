@@ -25,7 +25,7 @@ export default class SubCommand {
       client.logger.error("The subcommand has no function to execute!");
       return interaction.reply({
         content: "The subcommand has no function to execute!",
-        flags: [MessageFlags.Ephemeral]
+        flags: [MessageFlags.Ephemeral],
       });
     }
     return this.runFn(client, interaction);
