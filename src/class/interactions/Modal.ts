@@ -4,7 +4,7 @@
  * Licence: on the GitHub
  */
 
-import { ModalSubmitInteraction } from "discord.js";
+import { MessageFlags, ModalSubmitInteraction } from "discord.js";
 import BotClient from "../BotClient";
 
 type ModalRunFn = (
@@ -27,10 +27,15 @@ export default class Modal {
   }
 
   execute(client: BotClient, interaction: ModalSubmitInteraction) {
-    if (this.runFn) {
-      return this.runFn(client, interaction);
+    if (!this.runFn) {
+      client.logger.error(
+        `The modal ${this.customId} has no function to execute!`,
+      );
+      return interaction.reply({
+        content: `The modal ${this.customId} has no function to execute!`,
+        flags: [MessageFlags.Ephemeral],
+      });
     }
-    return interaction.reply("Aucune action définie");
   }
 
   getCustomId() {

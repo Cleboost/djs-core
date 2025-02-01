@@ -4,7 +4,7 @@
  * Licence: on the GitHub
  */
 
-import { AnySelectMenuInteraction } from "discord.js";
+import { AnySelectMenuInteraction, MessageFlags } from "discord.js";
 import BotClient from "../BotClient";
 
 type SelectRunFn = (
@@ -27,10 +27,15 @@ export default class SelectMenu {
   }
 
   execute(client: BotClient, interaction: AnySelectMenuInteraction) {
-    if (this.runFn) {
-      return this.runFn(client, interaction);
+    if (!this.runFn) {
+      client.logger.error(
+        `The select menu ${this.customId} has no function to execute!`,
+      );
+      return interaction.reply({
+        content: `The select menu ${this.customId} has no function to execute!`,
+        flags: [MessageFlags.Ephemeral]
+      });
     }
-    return interaction.reply("Aucune action définie");
   }
 
   getCustomId() {

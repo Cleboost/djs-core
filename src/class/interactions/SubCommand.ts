@@ -4,7 +4,7 @@
  * Licence: on the GitHub
  */
 
-import { ChatInputCommandInteraction, CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import BotClient from "../BotClient";
 
 type SubCommandRunFn = (
@@ -20,12 +20,14 @@ export default class SubCommand {
     return this;
   }
 
-  execute(client: BotClient, interaction: CommandInteraction) {
-    if (this.runFn && interaction instanceof ChatInputCommandInteraction) {
-      return this.runFn(client, interaction);
+  execute(client: BotClient, interaction: ChatInputCommandInteraction) {
+    if (!this.runFn) {
+      client.logger.error("The subcommand has no function to execute!");
+      return interaction.reply({
+        content: "The subcommand has no function to execute!",
+        flags: [MessageFlags.Ephemeral]
+      });
     }
-    if (interaction instanceof CommandInteraction) {
-      return interaction.reply("Aucune action définie");
-    }
+    return this.runFn(client, interaction);
   }
 }

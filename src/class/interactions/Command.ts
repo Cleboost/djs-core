@@ -10,6 +10,7 @@ import {
   SlashCommandBuilder,
   SlashCommandUserOption,
   SlashCommandOptionsOnlyBuilder,
+  MessageFlags,
 } from "discord.js";
 import BotClient from "../BotClient";
 
@@ -46,7 +47,15 @@ export default class Command extends SlashCommandBuilder {
    * Internal method to execute the function
    */
   execute(client: BotClient, interaction: ChatInputCommandInteraction) {
-    if (!this.runFn) return interaction.reply("No action defined");
+    if (!this.runFn) {
+      client.logger.error(
+        `The command ${this.name} has no function to execute!`,
+      );
+      return interaction.reply({
+        content: `The command ${this.name} has no function to execute!`,
+        flags: [MessageFlags.Ephemeral],
+      });
+    }
     return this.runFn(client, interaction);
   }
 

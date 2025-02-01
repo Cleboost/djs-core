@@ -31,13 +31,8 @@ export default class EventListner {
    * Internal method to execute the function
    */
   execute(client: BotClient, ...args: unknown[]) {
-    if (this.runFn) {
-      this.runFn(client, ...args);
-    } else {
-      client.logger.error(
-        `The event ${this.event ? this.event.toString() : "unknown"} has no function to execute!`,
-      );
-    }
+    if (!this.runFn) return client.logger.error(`The event ${this.event} has no function to execute!`);
+    return this.runFn(client, ...args);
   }
 
   getEvent() {

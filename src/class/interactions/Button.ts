@@ -4,7 +4,7 @@
  * Licence: on the GitHub
  */
 
-import { ButtonInteraction } from "discord.js";
+import { ButtonInteraction, MessageFlags } from "discord.js";
 import BotClient from "../BotClient";
 
 type ButtonRunFn = (
@@ -26,11 +26,17 @@ export default class Button {
     return this;
   }
 
-  execute(client: BotClient, interaction: ButtonInteraction) {
-    if (this.runFn) {
-      return this.runFn(client, interaction);
+  async execute(client: BotClient, interaction: ButtonInteraction) {
+    if (!this.runFn) {
+      client.logger.error(
+        `The button ${this.customId} has no function to execute!`,
+      );
+      return interaction.reply({
+        content: `The button ${this.customId} has no function to execute!`,
+        flags: [MessageFlags.Ephemeral],
+      });
     }
-    return interaction.reply("No action defined");
+    return this.runFn(client, interaction);
   }
 
   getCustomId() {
