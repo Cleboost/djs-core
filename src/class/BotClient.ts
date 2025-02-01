@@ -60,7 +60,9 @@ export default class BotClient extends Client {
 
   async start(token: unknown): Promise<void> {
     if (fs.existsSync(path.join(process.cwd(), "config.js"))) {
-      this.config = (await import(pathToFileURL(path.join(process.cwd(), "config.js")).href)).default.default;
+      this.config = (
+        await import(pathToFileURL(path.join(process.cwd(), "config.js")).href)
+      ).default.default;
     }
     if (this.config === null) {
       this.logger.error(
