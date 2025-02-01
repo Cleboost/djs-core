@@ -50,9 +50,9 @@ jobs:
           draft: true
           
       - name: Clean for NPM
-        run: && rm -rf *.tgz
+        run: rm -rf *.tgz
 
       - name: Publish to NPM
-        run: && pnpm publish --access public --no-git-checks
+        run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
