@@ -36,6 +36,7 @@ export default class Modal {
         flags: [MessageFlags.Ephemeral],
       });
     }
+    return this.runFn(client, interaction);
   }
 
   getCustomId() {
