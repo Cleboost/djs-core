@@ -18,6 +18,7 @@ import path from "path";
 import SubCommandHandler from "../handlers/SubCommand";
 import SubCommandGroup from "./interactions/SubCommandGroup";
 import { Handler } from "../handlers/Handler";
+import { pathToFileURL } from "node:url";
 
 export default class BotClient extends Client {
   logger: Logger = new Logger();
@@ -59,7 +60,7 @@ export default class BotClient extends Client {
 
   async start(token: unknown): Promise<void> {
     if (fs.existsSync(path.join(process.cwd(), "config.js"))) {
-      this.config = require(path.join(process.cwd(), "config.js"));
+      this.config = (await import(pathToFileURL(path.join(process.cwd(), "config.js")).href)).default.default;
     }
     if (this.config === null) {
       this.logger.error(
