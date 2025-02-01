@@ -163,21 +163,15 @@ export default class BotClient extends Client {
           console.log(subCommandList);
           process.exit(1);
         });
-      this.logger.success("Bot is ready");
+      this.logger.success("Bot is logged as " + this.user?.username);
     });
 
     process.on("unhandledRejection", (reason: unknown) => {
-      const errorRegex =
-        /DiscordAPIError\[\d+\]: Invalid Form Body\s+data\.components\[\d+\]\.components\[\d+\]\.style\[BASE_TYPE_REQUIRED\]: This field is required/;
-      if (errorRegex.test(reason as string)) {
-        return this.logger.error("A component is missing style");
-      }
-      this.logger.error(`Unhandled Rejection: ${reason}`);
+      return this.logger.error(`Unhandled Rejection: ${reason}`);
     });
 
     process.on("uncaughtException", (error: Error) => {
-      this.logger.error(`Uncaught Exception: ${error.message}`);
-      // Vous pouvez également notifier un canal Discord ou un administrateur ici
+      return this.logger.error(`Uncaught Exception: ${error.message}`);
     });
   }
 }

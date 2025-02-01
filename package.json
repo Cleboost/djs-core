@@ -9,10 +9,10 @@
     "djs-core": "index.js"
   },
   "repository": {
-    "url": "https://github.com/Cleboost/djs-core"
+    "url": "https://github.com/djs-core/djs-core"
   },
   "bugs": {
-    "url": "https://github/com/Cleboost/djs-core/issues"
+    "url": "https://github.com/djs-core/djs-core/issues"
   },
   "scripts": {
     "dev": "tsup --config tsup-dev.config.ts",
