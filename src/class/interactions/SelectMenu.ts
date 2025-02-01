@@ -36,6 +36,7 @@ export default class SelectMenu {
         flags: [MessageFlags.Ephemeral]
       });
     }
+    return this.runFn(client, interaction);
   }
 
   getCustomId() {
