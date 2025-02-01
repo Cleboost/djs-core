@@ -45,13 +45,9 @@ export default class Command extends SlashCommandBuilder {
    * DO NOT USE
    * Internal method to execute the function
    */
-  execute(client: BotClient, interaction: CommandInteraction) {
-    if (this.runFn && interaction instanceof ChatInputCommandInteraction) {
-      return this.runFn(client, interaction);
-    }
-    if (interaction instanceof CommandInteraction) {
-      return interaction.reply("Aucune action définie");
-    }
+  execute(client: BotClient, interaction: ChatInputCommandInteraction) {
+    if (!this.runFn) return interaction.reply("No action defined");
+    return this.runFn(client, interaction);
   }
 
   /**
@@ -84,6 +80,7 @@ declare module "discord.js" {
         | SlashCommandUserOption
         | ((builder: SlashCommandUserOption) => SlashCommandUserOption),
     ): this;
+
     addStringOption(
       input:
         | SlashCommandOptionsOnlyBuilder
@@ -91,6 +88,7 @@ declare module "discord.js" {
             builder: SlashCommandOptionsOnlyBuilder,
           ) => SlashCommandOptionsOnlyBuilder),
     ): this;
+
     addIntegerOption(
       input:
         | SlashCommandOptionsOnlyBuilder
@@ -98,6 +96,7 @@ declare module "discord.js" {
             builder: SlashCommandOptionsOnlyBuilder,
           ) => SlashCommandOptionsOnlyBuilder),
     ): this;
+
     addBooleanOption(
       input:
         | SlashCommandOptionsOnlyBuilder
@@ -105,6 +104,7 @@ declare module "discord.js" {
             builder: SlashCommandOptionsOnlyBuilder,
           ) => SlashCommandOptionsOnlyBuilder),
     ): this;
+
     addNumberOption(
       input:
         | SlashCommandOptionsOnlyBuilder
@@ -112,6 +112,7 @@ declare module "discord.js" {
             builder: SlashCommandOptionsOnlyBuilder,
           ) => SlashCommandOptionsOnlyBuilder),
     ): this;
+
     addChannelOption(
       input:
         | SlashCommandOptionsOnlyBuilder
@@ -119,6 +120,7 @@ declare module "discord.js" {
             builder: SlashCommandOptionsOnlyBuilder,
           ) => SlashCommandOptionsOnlyBuilder),
     ): this;
+
     addRoleOption(
       input:
         | SlashCommandOptionsOnlyBuilder
@@ -126,6 +128,7 @@ declare module "discord.js" {
             builder: SlashCommandOptionsOnlyBuilder,
           ) => SlashCommandOptionsOnlyBuilder),
     ): this;
+
     addMentionableOption(
       input:
         | SlashCommandOptionsOnlyBuilder

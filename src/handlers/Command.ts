@@ -68,8 +68,10 @@ export default class CommandHandler extends Handler {
         const command: Command = this.collection.get(
           interaction.commandName,
         ) as Command;
-        if (!command) return;
+        if (!command) return interaction.reply("Command not found");
+
         command.execute(this.client, interaction);
+
         if (this.client.config?.logger?.logCmd)
           this.client.logger.info(
             `Command ${underline(interaction.commandName)} used  by ${interaction.user.username} (${interaction.user.id})`,
