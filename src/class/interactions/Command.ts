@@ -99,49 +99,37 @@ declare module "discord.js" {
     addStringOption(
       input:
         | SlashCommandStringOption
-        | ((
-            builder: SlashCommandStringOption,
-          ) => SlashCommandStringOption),
+        | ((builder: SlashCommandStringOption) => SlashCommandStringOption),
     ): this;
 
     addIntegerOption(
       input:
         | SlashCommandIntegerOption
-        | ((
-            builder: SlashCommandIntegerOption,
-          ) => SlashCommandIntegerOption),
+        | ((builder: SlashCommandIntegerOption) => SlashCommandIntegerOption),
     ): this;
 
     addBooleanOption(
       input:
         | SlashCommandBooleanOption
-        | ((
-            builder: SlashCommandBooleanOption,
-          ) => SlashCommandBooleanOption),
+        | ((builder: SlashCommandBooleanOption) => SlashCommandBooleanOption),
     ): this;
 
     addNumberOption(
       input:
         | SlashCommandNumberOption
-        | ((
-            builder: SlashCommandNumberOption,
-          ) => SlashCommandNumberOption),
+        | ((builder: SlashCommandNumberOption) => SlashCommandNumberOption),
     ): this;
 
     addChannelOption(
       input:
         | SlashCommandChannelOption
-        | ((
-            builder: SlashCommandChannelOption,
-          ) => SlashCommandChannelOption),
+        | ((builder: SlashCommandChannelOption) => SlashCommandChannelOption),
     ): this;
 
     addRoleOption(
       input:
         | SlashCommandRoleOption
-        | ((
-            builder: SlashCommandRoleOption,
-          ) => SlashCommandRoleOption),
+        | ((builder: SlashCommandRoleOption) => SlashCommandRoleOption),
     ): this;
 
     addMentionableOption(
