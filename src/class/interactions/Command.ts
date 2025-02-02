@@ -9,8 +9,14 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   SlashCommandUserOption,
-  SlashCommandOptionsOnlyBuilder,
   MessageFlags,
+  SlashCommandStringOption,
+  SlashCommandIntegerOption,
+  SlashCommandBooleanOption,
+  SlashCommandNumberOption,
+  SlashCommandChannelOption,
+  SlashCommandRoleOption,
+  SlashCommandMentionableOption,
 } from "discord.js";
 import BotClient from "../BotClient";
 
@@ -92,58 +98,58 @@ declare module "discord.js" {
 
     addStringOption(
       input:
-        | SlashCommandOptionsOnlyBuilder
+        | SlashCommandStringOption
         | ((
-            builder: SlashCommandOptionsOnlyBuilder,
-          ) => SlashCommandOptionsOnlyBuilder),
+            builder: SlashCommandStringOption,
+          ) => SlashCommandStringOption),
     ): this;
 
     addIntegerOption(
       input:
-        | SlashCommandOptionsOnlyBuilder
+        | SlashCommandIntegerOption
         | ((
-            builder: SlashCommandOptionsOnlyBuilder,
-          ) => SlashCommandOptionsOnlyBuilder),
+            builder: SlashCommandIntegerOption,
+          ) => SlashCommandIntegerOption),
     ): this;
 
     addBooleanOption(
       input:
-        | SlashCommandOptionsOnlyBuilder
+        | SlashCommandBooleanOption
         | ((
-            builder: SlashCommandOptionsOnlyBuilder,
-          ) => SlashCommandOptionsOnlyBuilder),
+            builder: SlashCommandBooleanOption,
+          ) => SlashCommandBooleanOption),
     ): this;
 
     addNumberOption(
       input:
-        | SlashCommandOptionsOnlyBuilder
+        | SlashCommandNumberOption
         | ((
-            builder: SlashCommandOptionsOnlyBuilder,
-          ) => SlashCommandOptionsOnlyBuilder),
+            builder: SlashCommandNumberOption,
+          ) => SlashCommandNumberOption),
     ): this;
 
     addChannelOption(
       input:
-        | SlashCommandOptionsOnlyBuilder
+        | SlashCommandChannelOption
         | ((
-            builder: SlashCommandOptionsOnlyBuilder,
-          ) => SlashCommandOptionsOnlyBuilder),
+            builder: SlashCommandChannelOption,
+          ) => SlashCommandChannelOption),
     ): this;
 
     addRoleOption(
       input:
-        | SlashCommandOptionsOnlyBuilder
+        | SlashCommandRoleOption
         | ((
-            builder: SlashCommandOptionsOnlyBuilder,
-          ) => SlashCommandOptionsOnlyBuilder),
+            builder: SlashCommandRoleOption,
+          ) => SlashCommandRoleOption),
     ): this;
 
     addMentionableOption(
       input:
-        | SlashCommandOptionsOnlyBuilder
+        | SlashCommandMentionableOption
         | ((
-            builder: SlashCommandOptionsOnlyBuilder,
-          ) => SlashCommandOptionsOnlyBuilder),
+            builder: SlashCommandMentionableOption,
+          ) => SlashCommandMentionableOption),
     ): this;
   }
 }
