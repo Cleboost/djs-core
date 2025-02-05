@@ -16,7 +16,9 @@ import ButtonMiddleware from "../class/middlewares/ButtonMiddleware";
 export default class ButtonHandler extends Handler {
   private middleware: Array<ButtonMiddleware> = [];
   async load() {
-    this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof ButtonMiddleware)
+    this.middleware = this.client.middlewares.filter(
+      (middleware: unknown) => middleware instanceof ButtonMiddleware,
+    );
 
     /* eslint-disable no-async-promise-executor */
     return new Promise<void>(async (resolve) => {
@@ -91,7 +93,7 @@ export default class ButtonHandler extends Handler {
       async (interaction: Interaction) => {
         if (!interaction.isButton()) return;
         for (const middleware of this.middleware) {
-        	if (!await middleware.execute(interaction)) return;
+          if (!(await middleware.execute(interaction))) return;
         }
         const button: Button | undefined = this.collection.get(
           interaction.customId,

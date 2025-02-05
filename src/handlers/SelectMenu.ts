@@ -16,7 +16,9 @@ import { SelectMiddleware } from "..";
 export default class SelectMenuHandler extends Handler {
   private middleware: Array<SelectMiddleware> = [];
   async load() {
-    this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof SelectMiddleware)
+    this.middleware = this.client.middlewares.filter(
+      (middleware: unknown) => middleware instanceof SelectMiddleware,
+    );
 
     /* eslint-disable no-async-promise-executor */
     return new Promise<void>(async (resolve) => {
@@ -66,7 +68,7 @@ export default class SelectMenuHandler extends Handler {
       async (interaction: Interaction) => {
         if (!interaction.isAnySelectMenu()) return;
         for (const middleware of this.middleware) {
-        	if (!await middleware.execute(interaction)) return;
+          if (!(await middleware.execute(interaction))) return;
         }
         const select = this.collection.get(interaction.customId) as
           | SelectMenu

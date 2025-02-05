@@ -25,7 +25,9 @@ import SelectMiddleware from "./middlewares/SelectMiddleware";
 export default class BotClient extends Client {
   logger: Logger = new Logger();
   config: Config | null = null;
-  middlewares: Array<ComandMiddleware | ButtonMiddleware | ModalMiddleware | SelectMiddleware> = [];
+  middlewares: Array<
+    ComandMiddleware | ButtonMiddleware | ModalMiddleware | SelectMiddleware
+  > = [];
   constructor() {
     super({
       intents: [
