@@ -8,15 +8,17 @@ import { Handler } from "./Handler";
 import path from "path";
 import fs from "node:fs";
 import { Events, Interaction, MessageFlags } from "discord.js";
-import CommandMiddleware from "../class/middlewares/CommandMiddleware";
 import Modal from "../class/interactions/Modal";
 import { pathToFileURL } from "node:url";
 import { underline } from "chalk";
+import ModalMiddleware from "../class/middlewares/ModalMiddleware";
 
 export default class ModalHandler extends Handler {
-  private middleware: Array<CommandMiddleware> = [];
+  private middleware: Array<ModalMiddleware> = [];
   async load() {
-    // this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof CommandMiddleware) as Array<CommandMiddleware>;
+    this.middleware = this.client.middlewares.filter(
+      (middleware: unknown) => middleware instanceof ModalMiddleware,
+    );
 
     /* eslint-disable no-async-promise-executor */
     return new Promise<void>(async (resolve) => {
@@ -59,10 +61,9 @@ export default class ModalHandler extends Handler {
       Events.InteractionCreate,
       async (interaction: Interaction) => {
         if (!interaction.isModalSubmit()) return;
-        // for (const middleware of this.middleware) {
-        // 	if (!middleware.execute(interaction)) return;
-        // }
-
+        for (const middleware of this.middleware) {
+          if (!(await middleware.execute(interaction))) return;
+        }
         const select = this.collection.get(interaction.customId) as
           | Modal
           | undefined;
@@ -73,7 +74,7 @@ export default class ModalHandler extends Handler {
             flags: [MessageFlags.Ephemeral],
           });
         select.execute(this.client, interaction);
-        // if (this.client.config?.logger?.log) this.client.logger.info(`Modal ${underline(interaction.customId)} used by ${interaction.user.username} (${interaction.user.id})`);
+        // if (this.client.config?.logger?.) this.client.logger.info(`Modal ${underline(interaction.customId)} used by ${interaction.user.username} (${interaction.user.id})`);
       },
     );
   }

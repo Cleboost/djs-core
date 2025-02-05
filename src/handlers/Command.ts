@@ -19,7 +19,7 @@ export default class CommandHandler extends Handler {
   async load() {
     this.middleware = this.client.middlewares.filter(
       (middleware: unknown) => middleware instanceof CommandMiddleware,
-    ) as Array<CommandMiddleware>;
+    );
 
     /* eslint-disable no-async-promise-executor */
     return new Promise<void>(async (resolve) => {
@@ -63,7 +63,7 @@ export default class CommandHandler extends Handler {
         if (interaction.isContextMenuCommand()) return;
         if (interaction.options.getSubcommand(false)) return;
         for (const middleware of this.middleware) {
-          if (!middleware.execute(interaction)) return;
+          if (!(await middleware.execute(interaction))) return;
         }
         const command: Command = this.collection.get(
           interaction.commandName,

@@ -4,19 +4,19 @@
  * Licence: on the GitHub
  */
 
-import { ChatInputCommandInteraction } from "discord.js";
+import { ModalSubmitInteraction } from "discord.js";
 
 /**
  * fn
  * @type {Function} - Function to execute
- * @param {CommandInteraction} interaction - The interaction to check
+ * @param {ModalSubmitInteraction} interaction - The interaction to check
  * @returns {boolean} - Return true if accepted event, false otherwise
  * @public
  */
 
-type fn = (interaction: ChatInputCommandInteraction) => Promise<boolean>;
+type fn = (interaction: ModalSubmitInteraction) => Promise<boolean>;
 
-export default class ComandMiddleware {
+export default class ModalMiddleware {
   private fn: fn | null = null;
   constructor() {}
 
@@ -30,7 +30,7 @@ export default class ComandMiddleware {
    * DO NOT USE
    * Internal method to execute the function
    */
-  execute(interaction: ChatInputCommandInteraction): Promise<boolean> {
+  execute(interaction: ModalSubmitInteraction): Promise<boolean> {
     if (this.fn) {
       return this.fn(interaction);
     }
