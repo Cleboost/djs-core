@@ -11,11 +11,12 @@ import { Events, Interaction, MessageFlags } from "discord.js";
 import SelectMenu from "../class/interactions/SelectMenu";
 import { pathToFileURL } from "node:url";
 import { underline } from "chalk";
+import { SelectMiddleware } from "..";
 
 export default class SelectMenuHandler extends Handler {
-  // private middleware: Array<CommandMiddleware> = [];
+  private middleware: Array<SelectMiddleware> = [];
   async load() {
-    // this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof CommandMiddleware) as Array<CommandMiddleware>;
+    this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof SelectMiddleware)
 
     /* eslint-disable no-async-promise-executor */
     return new Promise<void>(async (resolve) => {
@@ -64,9 +65,9 @@ export default class SelectMenuHandler extends Handler {
       Events.InteractionCreate,
       async (interaction: Interaction) => {
         if (!interaction.isAnySelectMenu()) return;
-        // for (const middleware of this.middleware) {
-        // 	if (!middleware.execute(interaction)) return;
-        // }
+        for (const middleware of this.middleware) {
+        	if (!await middleware.execute(interaction)) return;
+        }
         const select = this.collection.get(interaction.customId) as
           | SelectMenu
           | undefined;

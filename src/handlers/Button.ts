@@ -11,11 +11,12 @@ import { Events, Interaction } from "discord.js";
 import Button from "../class/interactions/Button";
 import { pathToFileURL } from "node:url";
 import { underline } from "chalk";
+import ButtonMiddleware from "../class/middlewares/ButtonMiddleware";
 
 export default class ButtonHandler extends Handler {
-  // private middleware: Array<CommandMiddleware> = [];
+  private middleware: Array<ButtonMiddleware> = [];
   async load() {
-    // this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof CommandMiddleware) as Array<CommandMiddleware>;
+    this.middleware = this.client.middlewares.filter((middleware: unknown) => middleware instanceof ButtonMiddleware)
 
     /* eslint-disable no-async-promise-executor */
     return new Promise<void>(async (resolve) => {
@@ -89,9 +90,9 @@ export default class ButtonHandler extends Handler {
       Events.InteractionCreate,
       async (interaction: Interaction) => {
         if (!interaction.isButton()) return;
-        // for (const middleware of this.middleware) {
-        // 	if (!middleware.execute(interaction)) return;
-        // }
+        for (const middleware of this.middleware) {
+        	if (!await middleware.execute(interaction)) return;
+        }
         const button: Button | undefined = this.collection.get(
           interaction.customId,
         ) as Button | undefined;

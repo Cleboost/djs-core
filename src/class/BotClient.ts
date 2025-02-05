@@ -19,11 +19,13 @@ import SubCommandHandler from "../handlers/SubCommand";
 import SubCommandGroup from "./interactions/SubCommandGroup";
 import { Handler } from "../handlers/Handler";
 import { pathToFileURL } from "node:url";
+import ModalMiddleware from "./middlewares/ModalMiddleware";
+import SelectMiddleware from "./middlewares/SelectMiddleware";
 
 export default class BotClient extends Client {
   logger: Logger = new Logger();
   config: Config | null = null;
-  middlewares: Array<ComandMiddleware | ButtonMiddleware> = [];
+  middlewares: Array<ComandMiddleware | ButtonMiddleware | ModalMiddleware | SelectMiddleware> = [];
   constructor() {
     super({
       intents: [
@@ -96,7 +98,7 @@ export default class BotClient extends Client {
       Promise.resolve(require("../handlers/Modal")),
       Promise.resolve(require("../handlers/Event")),
     ];
-    const middlewaresPath = path.join(process.cwd(), "src", "middlewares");
+    const middlewaresPath = path.join(process.cwd(), "middlewares");
     if (fs.existsSync(middlewaresPath)) {
       await fs.promises
         .readdir(middlewaresPath)
@@ -106,11 +108,14 @@ export default class BotClient extends Client {
               this.logger.warn(`The file ${file} is not a middleware`);
               return;
             }
-            const middleware = (await import(path.join(middlewaresPath, file)))
-              .default;
+            const middleware = (
+              await import(pathToFileURL(path.join(middlewaresPath, file)).href)
+            ).default.default;
             if (
               !(middleware instanceof ComandMiddleware) &&
-              !(middleware instanceof ButtonMiddleware)
+              !(middleware instanceof ButtonMiddleware) &&
+              !(middleware instanceof ModalMiddleware) &&
+              !(middleware instanceof SelectMiddleware)
             ) {
               this.logger.error(`The middleware ${file} is not correct!`);
               return;

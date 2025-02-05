@@ -6,16 +6,33 @@
 
 import { ButtonInteraction } from "discord.js";
 
+/**
+ * fn
+ * @type {Function} - Function to execute
+ * @param {CommandInteraction} interaction - The interaction to check
+ * @returns {boolean} - Return true if accepted event, false otherwise
+ * @public
+ */
+
+type fn = (interaction: ButtonInteraction) => Promise<boolean>;
+
 export default class ButtonMiddleware {
-  private fn: (interaction: ButtonInteraction) => void = () => {};
+  private fn: fn | null = null;
   constructor() {}
 
-  run(fn: (interaction: ButtonInteraction) => void) {
+  run(fn: fn) {
     this.fn = fn;
     return this;
   }
 
   execute(interaction: ButtonInteraction) {
-    return this.fn(interaction);
+    if (this.fn) {
+      return this.fn(interaction);
+    }
+    interaction.reply({
+      content: "An error occured",
+      ephemeral: true,
+    });
+    return new Promise((resolve) => resolve(false));
   }
 }
