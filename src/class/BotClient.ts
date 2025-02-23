@@ -181,6 +181,7 @@ export default class BotClient extends Client {
     });
 
     process.on("uncaughtException", (error: Error) => {
+      console.error(error);
       return this.logger.error(`Uncaught Exception: ${error.message}`);
     });
   }

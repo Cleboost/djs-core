@@ -59,14 +59,12 @@ export default class CommandHandler extends Handler {
     this.client.on(
       Events.InteractionCreate,
       async (interaction: Interaction) => {
+        // return
         if (interaction.isAutocomplete()) {
-          const command: Command = this.collection.get(
-            interaction.commandName,
-          ) as Command;
-          if (!command)
-            return interaction.respond([
-              { name: "Command not found", value: "Command not found" },
-            ]);
+          const command = this.collection.get(interaction.commandName) as
+            | Command
+            | undefined;
+          if (!command) return;
           return command.executeAutoComplete(this.client, interaction);
         }
         if (!interaction.isCommand()) return;

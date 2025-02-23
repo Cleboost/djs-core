@@ -85,13 +85,11 @@ export default class SubCommandHandler extends Handler {
       Events.InteractionCreate,
       async (interaction: Interaction) => {
         if (interaction.isAutocomplete()) {
-          const subCommand: SubCommand | unknown = this.collection.get(
+          if (!interaction.options.getSubcommand(false)) return;
+          const subCommand = this.collection.get(
             `${interaction.commandName}.${interaction.options.getSubcommand()}`,
-          );
-          if (!subCommand || !(subCommand instanceof SubCommand))
-            return interaction.respond([
-              { name: "SubCommand not found", value: "SubCommand not found" },
-            ]);
+          ) as SubCommand | undefined;
+          if (!subCommand) return;
           return subCommand.executeAutoComplete(this.client, interaction);
         }
         if (!interaction.isCommand()) return;
