@@ -5,7 +5,6 @@
  */
 
 import {
-  CommandInteraction,
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   SlashCommandUserOption,
@@ -17,6 +16,7 @@ import {
   SlashCommandChannelOption,
   SlashCommandRoleOption,
   SlashCommandMentionableOption,
+  AutocompleteInteraction,
 } from "discord.js";
 import BotClient from "../BotClient";
 
@@ -26,12 +26,12 @@ type CommandRunFn = (
 ) => unknown;
 type CommandRunAutoCompleteFn = (
   client: BotClient,
-  interaction: ChatInputCommandInteraction,
+  interaction: AutocompleteInteraction,
 ) => unknown;
 
 export default class Command extends SlashCommandBuilder {
   private runFn?: CommandRunFn;
-  private autocomplete?: CommandRunAutoCompleteFn;
+  private autocompleteFn?: CommandRunAutoCompleteFn;
 
   constructor() {
     super();
@@ -43,7 +43,7 @@ export default class Command extends SlashCommandBuilder {
   }
 
   autoComplete(fn: CommandRunAutoCompleteFn) {
-    this.autocomplete = fn;
+    this.autocompleteFn = fn;
     return this;
   }
 
@@ -70,16 +70,16 @@ export default class Command extends SlashCommandBuilder {
    * DO NOT USE
    * Internal method to execute the function
    */
-  executeAutoComplete(client: BotClient, interaction: CommandInteraction) {
-    if (
-      this.autocomplete &&
-      interaction instanceof ChatInputCommandInteraction
-    ) {
-      return this.autocomplete(client, interaction);
+  executeAutoComplete(client: BotClient, interaction: AutocompleteInteraction) {
+    if (!this.autocompleteFn) {
+      client.logger.error(
+        `The command ${this.name} has no function to execute!`,
+      );
+      return interaction.respond([
+        { name: "Autocomplete not found", value: "Autocomplete not found" },
+      ]);
     }
-    if (interaction instanceof CommandInteraction) {
-      return interaction.reply("Aucune action définie");
-    }
+    return this.autocompleteFn(client, interaction);
   }
 
   getDiscordCommand() {

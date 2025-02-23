@@ -7,4 +7,16 @@ export default new SubCommandGroup()
   .addSubcommand((sub) =>
     sub.setName("select").setDescription("Create select menu"),
   )
-  .addSubcommand((sub) => sub.setName("modal").setDescription("Create modal"));
+  .addSubcommand((sub) => sub.setName("modal").setDescription("Create modal"))
+  .addSubcommand((sub) =>
+    sub
+      .setName("autocomplete")
+      .setDescription("Create autocomplete")
+      .addStringOption((option) =>
+        option
+          .setName("input")
+          .setDescription("This is an input")
+          .setAutocomplete(true)
+          .setRequired(true),
+      ),
+  );
