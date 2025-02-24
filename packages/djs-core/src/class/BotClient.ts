@@ -22,7 +22,11 @@ import { pathToFileURL } from "node:url";
 import ModalMiddleware from "./middlewares/ModalMiddleware";
 import SelectMiddleware from "./middlewares/SelectMiddleware";
 
-type Middlewares = ComandMiddleware | ButtonMiddleware | ModalMiddleware | SelectMiddleware
+type Middlewares =
+  | ComandMiddleware
+  | ButtonMiddleware
+  | ModalMiddleware
+  | SelectMiddleware;
 export default class BotClient extends Client {
   logger: Logger = new Logger();
   config: Config | null = null;
