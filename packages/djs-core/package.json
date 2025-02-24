@@ -20,9 +20,6 @@
     "chalk": "4.1.2",
     "discord.js": "14.18.0"
   },
-  "devDependencies": {
-    "@djs-core/cli": "workspace:*"
-  },
   "engines": {
     "node": ">=18.6.0"
   },

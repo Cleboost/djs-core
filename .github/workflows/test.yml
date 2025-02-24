@@ -1,4 +1,4 @@
-name: Build and Test
+name: Test
 
 on:
    pull_request:
@@ -29,8 +29,8 @@ jobs:
            with:
               node-version: "22.x"
 
-         - name: Install pnpm
-           run: npm install -g pnpm
+         - name: Setup pnpm
+           uses: pnpm/action-setup@v4
 
          - name: Install dependencies & test
            run: pnpm it --no-frozen-lockfile

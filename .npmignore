@@ -11,10 +11,7 @@ node_modules/
 
 header.txt
 tsconfig.json
-tsup-dev.config.ts
-tsup-prod.config.ts
 eslint.config.mjs
 .prettierrc
 .prettierignore
 jest.config.js
-act.exe
