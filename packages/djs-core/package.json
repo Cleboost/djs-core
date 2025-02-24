@@ -1,0 +1,27 @@
+{
+  "name": "djs-core",
+  "version": "2.4.7",
+  "description": "A core library for Discord.js projects",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "Cleboost",
+  "repository": {
+    "url": "https://github.com/djs-core/djs-core"
+  },
+  "bugs": {
+    "url": "https://github.com/djs-core/djs-core/issues"
+  },
+  "scripts": {
+    "dev": "tsup --config tsup-dev.config.ts",
+    "build": "tsup --config tsup-prod.config.ts",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "dependencies": {
+    "chalk": "4.1.2",
+    "discord.js": "14.18.0"
+  },
+  "engines": {
+    "node": ">=18.6.0"
+  },
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
+}

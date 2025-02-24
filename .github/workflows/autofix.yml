@@ -27,8 +27,8 @@ jobs:
         with:
           node-version: "22.x"
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Install dependencies for linting
         run: pnpm install --no-frozen-lockfile
@@ -37,6 +37,6 @@ jobs:
         run: pnpm run lint:fix
 
       - name: Run Prettier
-        run: pnpm run prettier:fix
+        run: pnpm run pretty:fix
 
       - uses: autofix-ci/action@551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef

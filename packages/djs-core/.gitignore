@@ -1,0 +1,9 @@
+# Project
+dist/
+node_modules/
+*.tgz
+
+# IDE
+.vscode/
+.idea/
+DS_Store

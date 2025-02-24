@@ -1,4 +1,3 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { SubCommand } from "djs-core";
 
 export default new SubCommand()

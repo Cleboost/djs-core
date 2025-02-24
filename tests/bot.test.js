@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
 
-const { BotClient } = require("../dist/index");
+const { BotClient } = require("djs-core");
 
 jest.mock("discord.js", () => {
   const actualDiscordJs = jest.requireActual("discord.js");
