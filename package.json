@@ -20,7 +20,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "pretty": "prettier . --check",
-    "pretty:fix": "prettier . --write"  
+    "pretty:fix": "prettier . --write"
   },
   "packageManager": "pnpm@10.4.1",
   "pnpm": {
