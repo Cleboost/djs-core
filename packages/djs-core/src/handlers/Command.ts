@@ -53,9 +53,7 @@ export default class CommandHandler {
     });
   }
 
-  async eventAutocomplete() {
-
-  }
+  async eventAutocomplete() {}
 
   listCommands(): Command[] {
     return Array.from(this.commands.values());

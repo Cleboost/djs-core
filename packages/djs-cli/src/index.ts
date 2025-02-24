@@ -198,7 +198,7 @@ program
         .replace(/\\/g, "/")}";\n`;
       iCounter++;
     }
-    content += "export {\n"
+    content += "export {\n";
     for (const i of Array(iCounter).keys()) {
       content += `${getCharFromIndex(i)},\n`;
     }
@@ -259,7 +259,6 @@ program
   });
 
 program.parse(process.argv);
-
 
 function getCharFromIndex(index: number) {
   //0 => a

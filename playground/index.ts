@@ -1,5 +1,5 @@
-import {BotClient} from 'djs-core';
-import {config} from 'dotenv';
+import { BotClient } from "djs-core";
+import { config } from "dotenv";
 config();
 const zzzz = new BotClient();
 zzzz.start(process.env.TOKEN);
@@ -21,23 +21,4 @@ import o from "./src/middlewares/btn.ts";
 import p from "./src/middlewares/modal.ts";
 import q from "./src/middlewares/select.ts";
 import r from "./src/middlewares/test.ts";
-export {
-a,
-b,
-c,
-d,
-e,
-f,
-g,
-h,
-i,
-j,
-k,
-l,
-m,
-n,
-o,
-p,
-q,
-r,
-};
+export { a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r };
