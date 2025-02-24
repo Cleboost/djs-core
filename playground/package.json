@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "start": "djs-core start",
-    "dev": "djs-core dev",
-    "build": "djs-core build",
+    "startP": "djs-core start",
+    "devP": "djs-core dev",
+    "buildP": "djs-core build -o",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
     "djs-core": "workspace:*",
-    "dotenv": "16.4.7",
-    "discord.js": "14.18.0"
+    "discord.js": "14.18.0",
+    "dotenv": "16.4.7"
   },
   "devDependencies": {
     "typescript": "5.7.2",

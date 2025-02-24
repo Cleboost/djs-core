@@ -9,7 +9,7 @@ import BotClient from "../class/BotClient";
 
 export class Handler {
   protected collection: Collection<string, unknown> = new Collection();
-  client: BotClient;
+  protected client: BotClient;
 
   constructor(client: BotClient) {
     this.client = client;

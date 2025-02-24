@@ -4,87 +4,60 @@
  * Licence: on the GitHub
  */
 
-import { Handler } from "./Handler";
-import path from "path";
-import fs from "node:fs";
 import Command from "../class/interactions/Command";
-import SubCommandGroup from "../class/interactions/SubCommandGroup";
-import { Events, Interaction } from "discord.js";
-import CommandMiddleware from "../class/middlewares/CommandMiddleware";
-import { pathToFileURL } from "node:url";
+import {
+  ChatInputCommandInteraction,
+  Collection,
+  MessageFlags,
+} from "discord.js";
 import { underline } from "chalk";
+import BotClient from "../class/BotClient";
 
-export default class CommandHandler extends Handler {
-  private middleware: Array<CommandMiddleware> = [];
-  async load() {
-    this.middleware = this.client.middlewares.filter(
-      (middleware: unknown) => middleware instanceof CommandMiddleware,
+export default class CommandHandler {
+  private client: BotClient;
+  // private middleware: Array<CommandMiddleware> = [];
+  private commands: Collection<string, Command> = new Collection();
+  constructor(client: BotClient) {
+    this.client = client;
+  }
+  async addInteraction(command: Command) {
+    if (this.commands.has(command.name)) {
+      this.client.logger.warn(
+        `The command ${underline(command.name)} is already loaded! Skipping...`,
+      );
+      return;
+    }
+    return this.commands.set(command.name, command);
+  }
+
+  async eventCommand(interaction: ChatInputCommandInteraction) {
+    const cmd = this.commands.get(interaction.commandName);
+    if (!cmd) return;
+    cmd.execute(this.client, interaction);
+
+    if (this.client.config?.logger?.logCmd)
+      this.client.logger.info(
+        `Command ${underline(interaction.commandName)} used  by ${interaction.user.username} (${interaction.user.id})`,
+      );
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    if (interaction.deferred || interaction.replied) return;
+
+    this.client.logger.warn(
+      `Command (${interaction.commandName}.${interaction.options.getSubcommand()}) took too long to respond, use deferred or reply method within 2 seconds. It could also be an error during execution causing the command to crash and not respond.`,
     );
-
-    /* eslint-disable no-async-promise-executor */
-    return new Promise<void>(async (resolve) => {
-      const commands = path.join(process.cwd(), "interactions", "commands");
-      if (!fs.existsSync(commands)) return resolve();
-      for (const categories of fs.readdirSync(commands)) {
-        for (const command of fs
-          .readdirSync(path.join(commands, categories))
-          .filter((file) => file.endsWith(".js"))) {
-          const cmd = (
-            await import(
-              pathToFileURL(path.join(commands, categories, command)).href
-            )
-          ).default.default;
-          if (cmd instanceof SubCommandGroup) continue;
-          if (!(cmd instanceof Command)) {
-            this.client.logger.error(
-              `The command ${underline(`${categories}/${command}`)} is not correct!`,
-            );
-            continue;
-          }
-          if (this.collection.has(cmd.name)) {
-            this.client.logger.warn(
-              `The command ${underline(cmd.name)} is already loaded! Skipping...`,
-            );
-            continue;
-          }
-          this.collection.set(cmd.name, cmd);
-        }
-      }
-      resolve();
-      return this.event();
+    return interaction.reply({
+      content:
+        "Command took too long to respond or an error occurred during execution (please report this to the bot developer)",
+      flags: [MessageFlags.Ephemeral],
     });
   }
 
-  async event() {
-    this.client.on(
-      Events.InteractionCreate,
-      async (interaction: Interaction) => {
-        // return
-        if (interaction.isAutocomplete()) {
-          const command = this.collection.get(interaction.commandName) as
-            | Command
-            | undefined;
-          if (!command) return;
-          return command.executeAutoComplete(this.client, interaction);
-        }
-        if (!interaction.isCommand()) return;
-        if (interaction.isContextMenuCommand()) return;
-        if (interaction.options.getSubcommand(false)) return;
-        for (const middleware of this.middleware) {
-          if (!(await middleware.execute(interaction))) return;
-        }
-        const command: Command = this.collection.get(
-          interaction.commandName,
-        ) as Command;
-        if (!command) return interaction.reply("Command not found");
+  async eventAutocomplete() {
 
-        command.execute(this.client, interaction);
+  }
 
-        if (this.client.config?.logger?.logCmd)
-          this.client.logger.info(
-            `Command ${underline(interaction.commandName)} used  by ${interaction.user.username} (${interaction.user.id})`,
-          );
-      },
-    );
+  listCommands(): Command[] {
+    return Array.from(this.commands.values());
   }
 }

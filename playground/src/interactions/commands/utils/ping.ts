@@ -4,5 +4,5 @@ export default new Command()
   .setName("ping")
   .setDescription("Pong!")
   .run((client, inteaction) => {
-    inteaction.reply("Pong! coucou");
+    inteaction.reply("Pong! salut");
   });
