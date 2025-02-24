@@ -1,0 +1,10 @@
+# Project
+dist/
+node_modules/
+act.exe
+*.tgz
+
+# IDE
+.vscode/
+.idea/
+DS_Store
