@@ -16,7 +16,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm build && cd playground && pnpm dev",
-    "test": "pnpm run build && jest",
+    "test": "pnpm build && jest",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "pretty": "prettier . --check",
