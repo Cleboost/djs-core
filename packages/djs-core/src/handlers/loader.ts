@@ -24,8 +24,8 @@ export async function loadHandlers(client: BotClient) {
       if (interaction instanceof Command) {
         client.handlers.commands.addInteraction(interaction);
       }
-    }
-    return;
+    }    
+    return client.logger.info("All handlers loaded successfully");
   }
 
   const indexPath = path.join(process.cwd(), "index.js");
@@ -39,6 +39,7 @@ export async function loadHandlers(client: BotClient) {
       client.handlers.commands.addInteraction(exp);
     }
   });
+  return client.logger.info("All handlers loaded successfully");
 }
 
 export function pushToApi(client: BotClient) {
