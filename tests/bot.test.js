@@ -43,7 +43,7 @@ describe("BotClient", () => {
       console.log("Caught error:", error.message);
     }
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Config is not loaded correctly"),
+      expect.stringContaining("Index file not found"),
     );
     expect(exitSpy).toHaveBeenCalledWith(1);
   });

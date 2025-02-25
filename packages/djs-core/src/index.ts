@@ -6,7 +6,7 @@
 
 import BotClient from "./class/BotClient";
 import Command from "./class/interactions/Command";
-import Config from "./types/config";
+import Config from "./class/Config";
 import SubCommand from "./class/interactions/SubCommand";
 import SubCommandGroup from "./class/interactions/SubCommandGroup";
 import Button from "./class/interactions/Button";
@@ -31,5 +31,5 @@ export {
   ButtonMiddleware,
   ModalMiddleware,
   SelectMiddleware,
+  Config,
 };
-export type { Config };

@@ -1,7 +1,7 @@
 import { Config } from "djs-core";
 
-export default {
+export default new Config({
   logger: {
-    logCmd: true,
+    logBtn: true,
   },
-} as Config;
+});

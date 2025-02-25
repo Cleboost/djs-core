@@ -7,12 +7,12 @@
 import { Client, Events, GatewayIntentBits, Partials } from "discord.js";
 import CommandHandler from "../handlers/Command";
 import { Logger } from "./Logger";
-import Config from "../types/config";
+import Config, { ConfigType } from "./Config";
 import ComandMiddleware from "./middlewares/CommandMiddleware";
 import ButtonMiddleware from "./middlewares/ButtonMiddleware";
-// import fs from "node:fs";
-// import path from "path";
-// import { pathToFileURL } from "node:url";
+import fs from "node:fs";
+import path from "path";
+import { pathToFileURL } from "node:url";
 import ModalMiddleware from "./middlewares/ModalMiddleware";
 import SelectMiddleware from "./middlewares/SelectMiddleware";
 import { loadHandlers, pushToApi } from "../handlers/loader";
@@ -28,7 +28,7 @@ type Middlewares =
   | SelectMiddleware;
 export default class BotClient extends Client {
   logger: Logger = new Logger();
-  config: Config | null = null;
+  config: ConfigType = {};
   middlewares: Array<Middlewares> = [];
   handlers: {
     commands: CommandHandler;
@@ -71,6 +71,47 @@ export default class BotClient extends Client {
   }
 
   async start(token: unknown): Promise<void> {
+    if (this.devMode) {
+      if (fs.existsSync(path.join(process.cwd(), "config.js"))) {
+        const configFile: unknown = (
+          await import(pathToFileURL("config.js").href)
+        ).default.default;
+        if (!(configFile instanceof Config)) {
+          this.logger.error("Config file is not correct");
+          return process.exit(1);
+        }
+        this.config = configFile.getConfig();
+      }
+    } else {
+      const indexFilePath = path.join(process.cwd(), "index.js");
+      if (!fs.existsSync(indexFilePath)) {
+        this.logger.error("Index file not found");
+        return process.exit(1);
+      }
+      const indexFile = (await import(pathToFileURL(indexFilePath).href))
+        .default.default;
+      const config = Object.values(indexFile).find((exp): exp is Config => {
+        if (exp instanceof Config) {
+          this.config = exp.getConfig();
+          return true;
+        }
+        return false;
+      });
+
+      if (!config || !(config instanceof Config)) {
+        this.logger.error("Config file is not correct");
+        return process.exit(1);
+      }
+
+      if (this.config === null) {
+        this.logger.error(
+          "Config is not loaded correctly, please check your config file",
+        );
+        return process.exit(1);
+      }
+      this.config = config.getConfig();
+    }
+
     // if (fs.existsSync(path.join(process.cwd(), "config.js"))) {
     //   this.config = (
     //     await import(pathToFileURL(path.join(process.cwd(), "config.js")).href)
@@ -98,16 +139,6 @@ export default class BotClient extends Client {
       this.logger.error("Token must be a string (bot suhut down)");
       return process.exit(1);
     }
-
-    // const handlers: Array<Handler> = [];
-    // const handlerPromises = [
-    //   Promise.resolve(require("../handlers/Command")),
-    //   Promise.resolve(require("../handlers/SubCommand")),
-    //   Promise.resolve(require("../handlers/Button")),
-    //   Promise.resolve(require("../handlers/SelectMenu")),
-    //   Promise.resolve(require("../handlers/Modal")),
-    //   Promise.resolve(require("../handlers/Event")),
-    // ];
 
     // @TODO: Need to e fixed with new no folder structure
     // const middlewaresPath = path.join(process.cwd(), "middlewares");
@@ -145,17 +176,6 @@ export default class BotClient extends Client {
     // }
 
     loadHandlers(this);
-
-    // await Promise.all(handlerPromises).then((modules) => {
-    //   modules.forEach((handlerModule) => {
-    //     const HandlerClass = handlerModule.default;
-    //     const handlerInstance = new HandlerClass(this);
-    //     handlerInstance.load();
-    //     handlers.push(handlerInstance);
-    //   });
-    // });
-
-    // this.logger.info("All handlers loaded successfully");
     await this.login(token).catch((error) => {
       if ((error as { code?: string }).code === "TokenInvalid") {
         this.logger.error(
@@ -170,29 +190,6 @@ export default class BotClient extends Client {
       pushToApi(this);
       eventListener(this);
     });
-
-    // this.once("ready", async () => {
-    //   const commandsList = handlers
-    //     .find((handler) => handler instanceof CommandHandler)
-    //     ?.getCollections()
-    //     .map((command) => (command as Command).getDiscordCommand());
-    //   const subCommandList = (
-    //     (await handlers
-    //       .find((handler) => handler instanceof SubCommandHandler)
-    //       ?.getSubCommandGroupeDiscord()) ?? []
-    //   ).map((subCommand: SubCommandGroup) => subCommand.getDiscordCommand());
-    //   const finalList = (commandsList ?? []).concat(subCommandList ?? []);
-
-    //   this.application?.commands
-    //     .set(finalList as unknown as Command[])
-    //     .catch((e) => {
-    //       this.logger.error("Error while sending commands to Discord");
-    //       console.log(e);
-    //       console.log(subCommandList);
-    //       process.exit(1);
-    //     });
-    //   this.logger.success("Bot is logged as " + this.user?.username);
-    // });
 
     process.on("unhandledRejection", (reason: unknown) => {
       return this.logger.error(`Unhandled Rejection: ${reason}`);

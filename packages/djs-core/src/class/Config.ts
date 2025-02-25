@@ -1,24 +1,53 @@
 export default class Config {
-  private configLogger: ConfigLogger = new ConfigLogger();
-  constructor() {}
-  public logger() {
-    return this.configLogger;
+  private config: ConfigType = {};
+  constructor(config: ConfigType) {
+    this.config = config;
   }
-
-  public getConfig() {
-    return {
-      logger: {
-        logCmd: this.configLogger.logCmd,
-      },
-    };
+  getConfig(): ConfigType {
+    return this.config;
   }
 }
 
-class ConfigLogger {
-  protected logCmd: boolean = false;
-  constructor() {}
+/**
+ * Copyright (c) 2025 Cleboost
+ * External contributor can be found on the GitHub
+ * Licence: on the GitHub
+ */
 
-  setLogCmd(value: boolean) {
-    this.logCmd = value;
-  }
+export interface ConfigType {
+  // Pas sur de ce que je fais donc a revoir en voc discord
+  // permission: {
+  //     roles: {
+  //         [roleName: string]: Snowflake;
+  //     }
+  //     categories: {
+  //         [categoryName: string]: Snowflake;
+  //     }
+  // }
+  logger?: {
+    /**
+     * Log all command executed
+     * @default false
+     * @type {boolean}
+     */
+    logCmd?: boolean;
+    /**
+     * Log all button clicked
+     * @default false
+     * @type {boolean}
+     */
+    logBtn?: boolean;
+    /**
+     * Log all select menu selected
+     * @default false
+     * @type {boolean}
+     */
+    logSelect?: boolean;
+    /**
+     * Log all event handled created
+     * @default false
+     * @type {boolean}
+     */
+    logEvent?: boolean;
+  };
 }
