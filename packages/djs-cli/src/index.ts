@@ -163,24 +163,23 @@ program
   .option("-o, --obfuscate", "Obfuscate the code")
 
   .action(async (options) => {
-    // if (options.obfuscate) {
-    //   console.log(
-    //     chalk.yellow(
-    //       "⚠️  Obfuscation is enabled. Note that this is a experimental feature.",
-    //     ),
-    //   );
-    //   console.log(
-    //     chalk.yellow(
-    //       "This may slow down your bot and make the bundle larger.\n\n",
-    //     ),
-    //   );
-    // }
+    if (options.obfuscate) {
+      console.log(
+        chalk.yellow(
+          "⚠️  Obfuscation is enabled. Note that this is a experimental feature.",
+        ),
+      );
+      console.log(
+        chalk.yellow(
+          "This may slow down your bot and make the bundle larger.\n\n",
+        ),
+      );
+    }
 
     const spinner = ora("✨ Building the bot...").start();
-    //generate all.ts
 
-    if (fs.existsSync(path.join(process.cwd(), "all.ts"))) {
-      fs.unlinkSync(path.join(process.cwd(), "all.ts"));
+    if (fs.existsSync(path.join(process.cwd(), "index.ts"))) {
+      fs.unlinkSync(path.join(process.cwd(), "index.ts"));
     }
 
     const files = recursiveDir(path.join(process.cwd(), "src")).filter((file) =>
@@ -231,14 +230,14 @@ program
     await new Promise((resolve) => bundleEvent.once("end", resolve));
     spinner.succeed(chalk.green("Build complete."));
 
-    // console.log(
-    //   chalk.blue(
-    //     `📦 The bot has been built. You can run the bot using \`${chalk.yellowBright("node index.js")}\` in dist folder`,
-    //   ),
-    // );
-    // console.log(
-    //   chalk.blue("🚀 New features for auto-deploy are comming soon!"),
-    // );
+    console.log(
+      chalk.blue(
+        `📦 The bot has been built. You can run the bot using \`${chalk.yellowBright("node index.js")}\` in dist folder`,
+      ),
+    );
+    console.log(
+      chalk.blue("🚀 New features for auto-deploy are comming soon!"),
+    );
   });
 
 program
