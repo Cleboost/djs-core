@@ -33,4 +33,4 @@ jobs:
            uses: pnpm/action-setup@v4
 
          - name: Install dependencies & test
-           run: pnpm i && pnpm test
+           run: pnpm install --no-frozen-lockfile && pnpm test
