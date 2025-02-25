@@ -1,11 +1,13 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: "[BUG]"
+title: "[<LibName>] - "
 labels: bug
 assignees: Cleboost
 
 ---
+
+[ ] This issue is not duplicate
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -23,6 +25,6 @@ If applicable, add screenshots to help explain your problem.
 
 **Platform:**
  - OS: Windows
-- Djs-core Version : 1.x.x
+ - Lib Version: 1.x.x
  - Discord.js Version: 14.x.x
- - Version [e.g. 22]
+ - Node Version: 22.x.x
