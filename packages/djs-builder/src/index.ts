@@ -57,39 +57,28 @@ function bundleBot(config: Config): BundlerReadable {
       });
     }
 
-    if (config.obfuscation || typeof config.obfuscation === "object" && config.production) {
+    if (
+      config.obfuscation ||
+      (typeof config.obfuscation === "object" && config.production)
+    ) {
       stream.emit("step", { id: "obfuscation", status: "start" });
-      // for (const file of globSync(`${config.dist || "dist"}/**/*.js`)) {
-      //   const code = fs.readFileSync(file, "utf-8");
-      //   const obfuscated = obfuscate(code, {
-      //     target: "node",
-      //     compact: true,
-      //     controlFlowFlattening: true,
-      //     stringArray: true,
-      //     stringArrayThreshold: 1,
-      //     stringArrayEncoding: ["rc4"],
-      //     simplify: true,
-      //   });
-      //   fs.writeFileSync(file, obfuscated.getObfuscatedCode());
-      //   if (config.log === "extend") {
-      //     stream.emit("step", {
-      //       id: "obfuscation",
-      //       status: "progress",
-      //       message: file,
-      //     });
-      //   }
-      // }
-      const index = fs.readFileSync(`${config.dist || "dist"}/index.js`, "utf-8");
+      const index = fs.readFileSync(
+        `${config.dist || "dist"}/index.js`,
+        "utf-8",
+      );
       const obfuscated = obfuscate(index, {
         target: "node",
-            compact: true,
-            controlFlowFlattening: true,
-            stringArray: true,
-            stringArrayThreshold: 1,
-            stringArrayEncoding: ["rc4"],
-            simplify: true,
-      })
-      fs.writeFileSync(`${config.dist || "dist"}/index.js`, obfuscated.getObfuscatedCode());
+        compact: true,
+        controlFlowFlattening: true,
+        stringArray: true,
+        stringArrayThreshold: 1,
+        stringArrayEncoding: ["rc4"],
+        simplify: true,
+      });
+      fs.writeFileSync(
+        `${config.dist || "dist"}/index.js`,
+        obfuscated.getObfuscatedCode(),
+      );
       if (config.log === "extend") {
         stream.emit("step", {
           id: "obfuscation",

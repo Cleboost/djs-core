@@ -5,7 +5,7 @@
   "scripts": {
     "startP": "djs-core start",
     "devP": "djs-core dev",
-    "buildP": "djs-core build -o",
+    "buildP": "djs-core build",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {

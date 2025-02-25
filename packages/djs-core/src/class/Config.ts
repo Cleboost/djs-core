@@ -7,10 +7,10 @@ export default class Config {
 
   public getConfig() {
     return {
-        logger: {
-            logCmd: this.configLogger.logCmd
-        }
-    }
+      logger: {
+        logCmd: this.configLogger.logCmd,
+      },
+    };
   }
 }
 
