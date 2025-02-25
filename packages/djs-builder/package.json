@@ -24,7 +24,7 @@
   "dependencies": {
     "glob": "11.0.1",
     "javascript-obfuscator": "4.1.1",
-    "tsup": "8.3.6"
+    "tsup": "8.4.0"
   },
   "engines": {
     "node": ">=18.6.0"
