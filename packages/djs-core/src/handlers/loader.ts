@@ -24,7 +24,7 @@ export async function loadHandlers(client: BotClient) {
       if (interaction instanceof Command) {
         client.handlers.commands.addInteraction(interaction);
       }
-    }    
+    }
     return client.logger.info("All handlers loaded successfully");
   }
 
