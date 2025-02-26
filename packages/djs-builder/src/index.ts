@@ -41,7 +41,6 @@ function bundleBot(config: Config): BundlerReadable {
         entry: config.files,
         minify: config.minify ?? false,
         dts: false,
-        bundle: true,
         splitting: false,
         keepNames: true,
       });
