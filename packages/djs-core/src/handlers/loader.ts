@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import Command from "../class/interactions/Command";
 import SubCommandGroup from "../class/interactions/SubCommandGroup";
+import SubCommand from "../class/interactions/SubCommand";
 
 export async function loadHandlers(client: BotClient) {
   if (client.devMode) {
@@ -22,9 +23,8 @@ export async function loadHandlers(client: BotClient) {
           console.error(`Error loading interaction ${filePath}:`, err),
         );
 
-      if (interaction instanceof Command) {
-        client.handlers.commands.addInteraction(interaction);
-      }
+      if (!interaction) continue;
+      registerInteraction(client, interaction);
     }
     return client.logger.info("All handlers loaded successfully");
   }
@@ -36,16 +36,28 @@ export async function loadHandlers(client: BotClient) {
     (m) => m.default,
   );
   Object.values(index).forEach((exp) => {
-    if (exp instanceof Command) {
-      client.handlers.commands.addInteraction(exp);
-    }
+    registerInteraction(client, exp);
   });
   return client.logger.info("All handlers loaded successfully");
+}
+
+function registerInteraction(
+  client: BotClient,
+  interaction: Command | SubCommandGroup | SubCommand | unknown,
+) {
+  if (interaction instanceof Command) {
+    return client.handlers.commands.addInteraction(interaction);
+  } else if (interaction instanceof SubCommandGroup) {
+    return client.handlers.subCommands.addSubCommandGroup(interaction);
+  } else if (interaction instanceof SubCommand) {
+    return client.handlers.subCommands.addSubCommand(interaction);
+  }
 }
 
 export function pushToApi(client: BotClient) {
   const commandList: Array<Command | SubCommandGroup> = [
     client.handlers.commands.listCommands(),
+    client.handlers.subCommands.listSubCommands(),
   ].flat();
   client.application?.commands.set(commandList).catch(console.error);
 }

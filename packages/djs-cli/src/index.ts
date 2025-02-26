@@ -11,7 +11,7 @@ import path from "path";
 import ora from "ora";
 import chokidar from "chokidar";
 import fs from "fs";
-import { BotClient, Command } from "djs-core";
+import { BotClient, Command, SubCommand } from "djs-core";
 import dotenv from "dotenv";
 import { pathToFileURL } from "url";
 
@@ -177,6 +177,8 @@ program
 
         if (file instanceof Command)
           return bot.handlers.commands.reloadInteraction(file);
+        if (file instanceof SubCommand)
+          return bot.handlers.subCommands.reloadSubCommand(file);
       });
     });
   });

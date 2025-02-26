@@ -16,7 +16,6 @@ import { pushToApi } from "./loader";
 
 export default class CommandHandler {
   private client: BotClient;
-  // private middleware: Array<CommandMiddleware> = [];
   private commands: Collection<string, Command> = new Collection();
   constructor(client: BotClient) {
     this.client = client;

@@ -7,6 +7,15 @@
 import { SubCommand } from "djs-core";
 
 export default new SubCommand()
+  .setName("autocomplete")
+  .setParent("handler")
+  .setDescription("Create autocomplete")
+  .addStringOption((option) =>
+    option
+      .setName("input")
+      .setDescription("Input")
+      .setRequired(true)
+  )
   .run((client, interaction) => {
     const input = interaction.options.getString("input");
     return interaction.reply({

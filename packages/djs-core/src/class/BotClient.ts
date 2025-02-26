@@ -18,6 +18,7 @@ import SelectMiddleware from "./middlewares/SelectMiddleware";
 import { loadHandlers, pushToApi } from "../handlers/loader";
 import { eventListener } from "../handlers/events";
 import process from "node:process";
+import SubCommandHandler from "../handlers/SubCommand";
 
 interface BotClientArgs {
   dev?: boolean;
@@ -34,8 +35,11 @@ export default class BotClient extends Client {
   middlewares: Array<Middlewares> = [];
   handlers: {
     commands: CommandHandler;
-    // subCommands: SubCommandHandler;
-  } = { commands: new CommandHandler(this) };
+    subCommands: SubCommandHandler;
+  } = {
+    commands: new CommandHandler(this),
+    subCommands: new SubCommandHandler(this),
+  };
   cwdPath: string = process.cwd();
   devMode: boolean = false;
   constructor({ dev, path }: BotClientArgs = {}) {
