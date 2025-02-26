@@ -2,9 +2,9 @@
   "name": "@djs-core/builder",
   "version": "1.3.0",
   "description": "Builder for djs-core",
+  "author": "Cleboost",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "author": "Cleboost",
   "repository": {
     "url": "https://github.com/Cleboost/djs-core",
     "directory": "packages/djs-builder"
@@ -12,17 +12,17 @@
   "bugs": {
     "url": "https://github.com/Cleboost/djs-core/issues"
   },
+  "engines": {
+    "node": ">=18.6.0"
+  },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "tsup src/index.ts --dts --format cjs --out-dir dist --clean",
-    "build": "tsup src/index.ts --dts --minify --format cjs --out-dir dist --clean",
-    "preinstall": "npx only-allow pnpm"
+    "build": "tsup src/index.ts --dts --minify --format cjs --out-dir dist --clean"
   },
   "dependencies": {
     "glob": "11.0.1",
     "javascript-obfuscator": "4.1.1",
     "tsup": "8.4.0"
-  },
-  "engines": {
-    "node": ">=18.6.0"
   }
 }

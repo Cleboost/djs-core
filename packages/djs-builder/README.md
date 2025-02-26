@@ -12,9 +12,9 @@ This library is a part of the **djs-core** project, which aims to provide a modu
 ## Features
 
 - 🚀 Builds quickly and efficiently
-- 🔄 Supports hot-reloading for developmente
+- 🔄 Supports hot-reloading for development
 - 🔒 Supports code obfuscation to protect your source code
-- 📁 Supports single file output (coming soon)
+- 📁 Supports single file output
 
 ## Getting Started
 
