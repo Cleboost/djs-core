@@ -16,7 +16,9 @@ export class Logger {
   }
 
   error(error: Error): void {
-    console.log(bgRed(white(" ✖ ")) + " " + error.message + "\n" + error.stack);
+    console.log(
+      bgRed(white(" ✖ ")) + " " + error.message + "\n" + error.stack,
+    );
   }
 
   warn(message: string): void {

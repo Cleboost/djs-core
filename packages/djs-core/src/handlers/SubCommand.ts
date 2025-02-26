@@ -89,7 +89,11 @@ export default class SubCommandHandler extends Handler {
       // return this.client.logger.error(
       //   `SubCommand ${interaction.options.getSubcommand()} not found`,
       // );
-      return this.client.logger.error(new Error(`SubCommand ${interaction.options.getSubcommand()} not found`));
+      return this.client.logger.error(
+        new Error(
+          `SubCommand ${interaction.options.getSubcommand()} not found`,
+        ),
+      );
 
     if (interaction.isChatInputCommand()) {
       subCommand.execute(this.client, interaction);

@@ -126,7 +126,9 @@ export default class BotClient extends Client {
 
     if (!token) {
       this.logger.error(
-        new Error("Token not provided, please check your config (bot suhut down)"),
+        new Error(
+          "Token not provided, please check your config (bot suhut down)",
+        ),
       );
       return process.exit(1);
     }
@@ -170,7 +172,9 @@ export default class BotClient extends Client {
     await this.login(token).catch((error) => {
       if ((error as { code?: string }).code === "TokenInvalid") {
         this.logger.error(
-          new Error("Token is invalid, please check your config (bot suhut down)"),
+          new Error(
+            "Token is invalid, please check your config (bot suhut down)",
+          ),
         );
       }
       process.exit(1);

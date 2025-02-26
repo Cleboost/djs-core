@@ -47,7 +47,9 @@ export default class SubCommand extends SlashCommandSubcommandBuilder {
 
   execute(client: BotClient, interaction: ChatInputCommandInteraction) {
     if (!this.runFn) {
-      client.logger.error(new Error("The subcommand has no function to execute"));
+      client.logger.error(
+        new Error("The subcommand has no function to execute"),
+      );
       return interaction.reply({
         content: "The subcommand has no function to execute!",
         flags: [MessageFlags.Ephemeral],
@@ -58,7 +60,9 @@ export default class SubCommand extends SlashCommandSubcommandBuilder {
 
   executeAutoComplete(client: BotClient, interaction: AutocompleteInteraction) {
     if (!this.autoCompleteFn) {
-      client.logger.error(new Error("The subcommand has no function to execute"));
+      client.logger.error(
+        new Error("The subcommand has no function to execute"),
+      );
       return interaction.respond([
         {
           name: "The subcommand has no function to execute!",

@@ -10,6 +10,7 @@ export function eventListener(client: BotClient) {
       return;
     }
     if (interaction.isAutocomplete()) return;
-    if (interaction.isModalSubmit()) return client.handlers.modals.event(interaction);
+    if (interaction.isModalSubmit())
+      return client.handlers.modals.event(interaction);
   });
 }
