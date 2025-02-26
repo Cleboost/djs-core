@@ -6,7 +6,7 @@
 
 import { Handler } from "./Handler";
 import SubCommandGroup from "../class/interactions/SubCommandGroup";
-import { Interaction } from "discord.js";
+import { ChatInputCommandInteraction } from "discord.js";
 import SubCommand from "../class/interactions/SubCommand";
 import { underline } from "chalk";
 import { pushToApi } from "./loader";
@@ -77,7 +77,7 @@ export default class SubCommandHandler extends Handler {
     }
   }
 
-  async eventSubCommand(interaction: Interaction) {
+  async eventSubCommand(interaction: ChatInputCommandInteraction) {
     if (interaction.isAutocomplete() || interaction.isContextMenuCommand())
       return;
     if (!("options" in interaction)) return;
@@ -86,9 +86,10 @@ export default class SubCommandHandler extends Handler {
       `${interaction.commandName}.${interaction.options.getSubcommand()}`,
     );
     if (!subCommand || !(subCommand instanceof SubCommand))
-      return this.client.logger.error(
-        `SubCommand ${interaction.options.getSubcommand()} not found`,
-      );
+      // return this.client.logger.error(
+      //   `SubCommand ${interaction.options.getSubcommand()} not found`,
+      // );
+      return this.client.logger.error(new Error(`SubCommand ${interaction.options.getSubcommand()} not found`));
 
     if (interaction.isChatInputCommand()) {
       subCommand.execute(this.client, interaction);

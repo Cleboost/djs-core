@@ -29,7 +29,8 @@ export default class SelectMenu {
   execute(client: BotClient, interaction: AnySelectMenuInteraction) {
     if (!this.runFn) {
       client.logger.error(
-        `The select menu ${this.customId} has no function to execute!`,
+        new Error(`The select menu ${this.customId} has no function to execute
+        `),
       );
       return interaction.reply({
         content: `The select menu ${this.customId} has no function to execute!`,

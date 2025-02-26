@@ -29,7 +29,8 @@ export default class Modal {
   execute(client: BotClient, interaction: ModalSubmitInteraction) {
     if (!this.runFn) {
       client.logger.error(
-        `The modal ${this.customId} has no function to execute!`,
+        new Error(`The modal ${this.customId} has no function to execute
+        `),
       );
       return interaction.reply({
         content: `The modal ${this.customId} has no function to execute!`,

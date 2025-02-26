@@ -55,7 +55,7 @@ export default class Command extends SlashCommandBuilder {
   execute(client: BotClient, interaction: ChatInputCommandInteraction) {
     if (!this.runFn) {
       client.logger.error(
-        `The command ${this.name} has no function to execute!`,
+        new Error(`The command ${this.name} has no function to execute`),
       );
       return interaction.reply({
         content: `The command ${this.name} has no function to execute!`,
@@ -73,7 +73,7 @@ export default class Command extends SlashCommandBuilder {
   executeAutoComplete(client: BotClient, interaction: AutocompleteInteraction) {
     if (!this.autocompleteFn) {
       client.logger.error(
-        `The command ${this.name} has no function to execute!`,
+        new Error(`The command ${this.name} has no autocomplete function`),
       );
       return interaction.respond([
         { name: "Autocomplete not found", value: "Autocomplete not found" },

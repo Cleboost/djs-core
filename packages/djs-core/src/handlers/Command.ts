@@ -17,30 +17,34 @@ import { pushToApi } from "./loader";
 export default class CommandHandler {
   private client: BotClient;
   private commands: Collection<string, Command> = new Collection();
+
   constructor(client: BotClient) {
     this.client = client;
   }
-  async addInteraction(command: Command) {
+
+  addInteraction(command: Command) {
     if (this.commands.has(command.name)) {
       this.client.logger.warn(
         `The command ${underline(command.name)} is already loaded! Skipping...`,
       );
       return;
     }
-    return this.commands.set(command.name, command);
+    this.commands.set(command.name, command);
+    return;
   }
 
-  async removeInteraction(command: Command) {
+  removeInteraction(command: Command) {
     if (!this.commands.has(command.name)) {
       this.client.logger.warn(
         `The command ${underline(command.name)} is not loaded! Skipping...`,
       );
       return;
     }
-    return this.commands.delete(command.name);
+    this.commands.delete(command.name);
+    return;
   }
 
-  async reloadInteraction(command: Command) {
+  reloadInteraction(command: Command) {
     const existingCommand = this.commands.find(
       (cmd) => cmd.name === command.name,
     );
@@ -51,9 +55,10 @@ export default class CommandHandler {
       );
       this.addInteraction(command);
       pushToApi(this.client);
-      return this.client.logger.info(
+      this.client.logger.info(
         `Command ${underline(command.name)} added successfully, and pushed to API. You may reload your Discord client to see the changes.`,
       );
+      return;
     }
 
     if (existingCommand.name !== command.name) {
@@ -62,8 +67,9 @@ export default class CommandHandler {
       );
     }
 
-    await this.removeInteraction(existingCommand);
-    return this.addInteraction(command);
+    this.removeInteraction(existingCommand);
+    this.addInteraction(command);
+    return;
   }
 
   async eventCommand(interaction: ChatInputCommandInteraction) {
@@ -82,11 +88,12 @@ export default class CommandHandler {
     this.client.logger.warn(
       `Command (${interaction.commandName}.${interaction.options.getSubcommand()}) took too long to respond, use deferred or reply method within 2 seconds. It could also be an error during execution causing the command to crash and not respond.`,
     );
-    return interaction.reply({
+    await interaction.reply({
       content:
         "Command took too long to respond or an error occurred during execution (please report this to the bot developer)",
       flags: [MessageFlags.Ephemeral],
     });
+    return;
   }
 
   async eventAutocomplete() {}

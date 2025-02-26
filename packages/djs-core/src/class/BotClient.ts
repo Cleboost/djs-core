@@ -19,6 +19,7 @@ import { loadHandlers, pushToApi } from "../handlers/loader";
 import { eventListener } from "../handlers/events";
 import process from "node:process";
 import SubCommandHandler from "../handlers/SubCommand";
+import ModalHandler from "../handlers/Modal";
 
 interface BotClientArgs {
   dev?: boolean;
@@ -33,12 +34,10 @@ export default class BotClient extends Client {
   logger: Logger = new Logger();
   config: ConfigType = {};
   middlewares: Array<Middlewares> = [];
-  handlers: {
-    commands: CommandHandler;
-    subCommands: SubCommandHandler;
-  } = {
+  handlers = {
     commands: new CommandHandler(this),
     subCommands: new SubCommandHandler(this),
+    modals: new ModalHandler(this),
   };
   cwdPath: string = process.cwd();
   devMode: boolean = false;
@@ -76,8 +75,6 @@ export default class BotClient extends Client {
     });
     if (dev) this.devMode = true;
     if (path) this.cwdPath = path;
-
-    console.log(this.cwdPath);
   }
 
   async start(token: string): Promise<void> {
@@ -88,7 +85,7 @@ export default class BotClient extends Client {
           await import(pathToFileURL(configPath).href)
         ).default.default;
         if (!(configFile instanceof Config)) {
-          this.logger.error("Config file is not correct");
+          this.logger.error(new Error("Config file is not correct"));
           return process.exit(1);
         }
         this.config = configFile.getConfig();
@@ -96,11 +93,15 @@ export default class BotClient extends Client {
     } else {
       const indexFilePath = path.join(this.cwdPath, "index.js");
       if (!fs.existsSync(indexFilePath)) {
-        this.logger.error("Index file not found");
+        this.logger.error(new Error("Index file not found"));
         return process.exit(1);
       }
       const indexFile = (await import(pathToFileURL(indexFilePath).href))
-        .default.default;
+        .default;
+      if (!indexFile) {
+        this.logger.error(new Error("Index file is not correct"));
+        return process.exit(1);
+      }
       const config = Object.values(indexFile).find((exp): exp is Config => {
         if (exp instanceof Config) {
           this.config = exp.getConfig();
@@ -110,13 +111,13 @@ export default class BotClient extends Client {
       });
 
       if (!config || !(config instanceof Config)) {
-        this.logger.error("Config file is not correct");
+        this.logger.error(new Error("Config file is not correct"));
         return process.exit(1);
       }
 
       if (this.config === null) {
         this.logger.error(
-          "Config is not loaded correctly, please check your config file",
+          new Error("Config file is not correct, please check your config"),
         );
         return process.exit(1);
       }
@@ -125,7 +126,7 @@ export default class BotClient extends Client {
 
     if (!token) {
       this.logger.error(
-        "No token provided, please check your token (bot suhut down)",
+        new Error("Token not provided, please check your config (bot suhut down)"),
       );
       return process.exit(1);
     }
@@ -169,7 +170,7 @@ export default class BotClient extends Client {
     await this.login(token).catch((error) => {
       if ((error as { code?: string }).code === "TokenInvalid") {
         this.logger.error(
-          "Invalid token provided, please check your token (bot suhut down)",
+          new Error("Token is invalid, please check your config (bot suhut down)"),
         );
       }
       process.exit(1);
@@ -182,12 +183,12 @@ export default class BotClient extends Client {
     });
 
     process.on("unhandledRejection", (reason: unknown) => {
-      return this.logger.error(`Unhandled Rejection: ${reason}`);
+      return this.logger.error(reason as Error);
     });
 
     process.on("uncaughtException", (error: Error) => {
       console.error(error);
-      return this.logger.error(`Uncaught Exception: ${error.message}`);
+      return this.logger.error(error);
     });
   }
 }

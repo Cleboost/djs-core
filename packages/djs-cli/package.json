@@ -9,14 +9,15 @@
     "djs-core": "dist/index.js"
   },
   "repository": {
-    "url": "https://github.com/djs-core/djs-cli"
+    "url": "https://github.com/Cleboost/djs-core",
+    "directory": "packages/djs-cli"
   },
   "bugs": {
-    "url": "https://github.com/djs-core/djs-cli/issues"
+    "url": "https://github.com/Cleboost/djs-core/issues"
   },
   "scripts": {
-    "dev": "tsup --config tsup-dev.config.ts",
-    "build": "tsup --config tsup-prod.config.ts",
+    "dev": "tsup src/index.ts --dts --format cjs --out-dir dist",
+    "build": "tsup src/index.ts --dts --minify --format cjs --out-dir dist",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {

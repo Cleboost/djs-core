@@ -11,7 +11,7 @@ import path from "path";
 import ora from "ora";
 import chokidar from "chokidar";
 import fs from "fs";
-import { BotClient, Command, SubCommand } from "djs-core";
+import { BotClient, Command, Modal, SubCommand } from "djs-core";
 import dotenv from "dotenv";
 import { pathToFileURL } from "url";
 
@@ -79,9 +79,7 @@ program
     });
     const bot: BotClient = new BotClient({ dev: true, path: devPath });
 
-    const srcDir = path.resolve(process.cwd(), "src");
-    console.log(`📁 Setting up watcher for: ${srcDir}`);
-    const watcher = chokidar.watch(srcDir, {
+    const watcher = chokidar.watch(path.resolve(process.cwd(), "src"), {
       ignoreInitial: false,
       cwd: process.cwd(),
       ignored: (path) => path.includes("node_modules") || path.endsWith(".js"),
@@ -92,9 +90,6 @@ program
       bot.start(process.env.TOKEN as string);
       spinner.succeed(chalk.green("Bot started in development mode."));
       console.log(chalk.blue("🔍 Watching for changes..."));
-      console.log(
-        chalk.blue("🚀 New features for auto-reload are comming soon!"),
-      );
     });
 
     watcher.on("unlink", async (filePath) => {
@@ -179,6 +174,8 @@ program
           return bot.handlers.commands.reloadInteraction(file);
         if (file instanceof SubCommand)
           return bot.handlers.subCommands.reloadSubCommand(file);
+        if (file instanceof Modal)
+          return bot.handlers.modals.reloadInteraction(file);
       });
     });
   });

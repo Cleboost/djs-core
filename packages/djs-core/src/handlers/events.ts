@@ -6,8 +6,10 @@ export function eventListener(client: BotClient) {
     if (interaction.isContextMenuCommand()) return;
     if (interaction.isCommand()) {
       client.handlers.commands.eventCommand(interaction);
-      return client.handlers.subCommands.eventSubCommand(interaction);
+      client.handlers.subCommands.eventSubCommand(interaction);
+      return;
     }
     if (interaction.isAutocomplete()) return;
+    if (interaction.isModalSubmit()) return client.handlers.modals.event(interaction);
   });
 }

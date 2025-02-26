@@ -49,5 +49,11 @@ export interface ConfigType {
      * @type {boolean}
      */
     logEvent?: boolean;
+    /**
+     * Log all modal opened
+     * @default false
+     * @type {boolean}
+     */
+    logModal?: boolean;
   };
 }

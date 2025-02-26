@@ -6,19 +6,15 @@
   "types": "dist/index.d.ts",
   "author": "Cleboost",
   "repository": {
-    "url": "https://github.com/djs-core/djs-builder"
+    "url": "https://github.com/Cleboost/djs-core",
+    "directory": "packages/djs-builder"
   },
   "bugs": {
-    "url": "https://github.com/djs-core/djs-builder/issues"
+    "url": "https://github.com/Cleboost/djs-core/issues"
   },
   "scripts": {
-    "dev": "tsup --config tsup-dev.config.ts",
-    "build": "tsup --config tsup-prod.config.ts",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
-    "prettier": "prettier . --check",
-    "prettier:fix": "prettier . --write",
-    "test": "npm run build",
+    "dev": "tsup src/index.ts --dts --format cjs --out-dir dist --clean",
+    "build": "tsup src/index.ts --dts --minify --format cjs --out-dir dist --clean",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {

@@ -15,8 +15,9 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "dev": "pnpm build && cd playground && pnpm devP",
-    "dev:build": "pnpm build && cd playground && pnpm buildP",
+    "devR": "pnpm -r dev",
+    "playground:dev": "pnpm devR && cd playground && pnpm devP",
+    "playground:build": "pnpm devR && cd playground && pnpm buildP",
     "test": "pnpm build && jest",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",

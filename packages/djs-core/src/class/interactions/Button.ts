@@ -29,7 +29,8 @@ export default class Button {
   async execute(client: BotClient, interaction: ButtonInteraction) {
     if (!this.runFn) {
       client.logger.error(
-        `The button ${this.customId} has no function to execute!`,
+        new Error(`The button ${this.customId} has no function to execute
+        `),
       );
       return interaction.reply({
         content: `The button ${this.customId} has no function to execute!`,

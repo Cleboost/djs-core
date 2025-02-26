@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import Command from "../class/interactions/Command";
 import SubCommandGroup from "../class/interactions/SubCommandGroup";
 import SubCommand from "../class/interactions/SubCommand";
+import Modal from "../class/interactions/Modal";
 
 export async function loadHandlers(client: BotClient) {
   if (client.devMode) {
@@ -43,7 +44,7 @@ export async function loadHandlers(client: BotClient) {
 
 function registerInteraction(
   client: BotClient,
-  interaction: Command | SubCommandGroup | SubCommand | unknown,
+  interaction: Command | SubCommandGroup | SubCommand | Modal | unknown,
 ) {
   if (interaction instanceof Command) {
     return client.handlers.commands.addInteraction(interaction);
@@ -51,7 +52,10 @@ function registerInteraction(
     return client.handlers.subCommands.addSubCommandGroup(interaction);
   } else if (interaction instanceof SubCommand) {
     return client.handlers.subCommands.addSubCommand(interaction);
+  } else if (interaction instanceof Modal) {
+    return client.handlers.modals.addInteraction(interaction);
   }
+  return;
 }
 
 export function pushToApi(client: BotClient) {
@@ -61,8 +65,6 @@ export function pushToApi(client: BotClient) {
   ].flat();
   client.application?.commands.set(commandList).catch(console.error);
 }
-
-// export function loadMiddlewares(client: BotClient) {}
 
 function recursiveDir(dirPath: string): string[] {
   const files = fs.readdirSync(dirPath);
