@@ -11,10 +11,7 @@ export default new SubCommand()
   .setParent("handler")
   .setDescription("Create autocomplete")
   .addStringOption((option) =>
-    option
-      .setName("input")
-      .setDescription("Input")
-      .setRequired(true)
+    option.setName("input").setDescription("Input").setRequired(true),
   )
   .run((client, interaction) => {
     const input = interaction.options.getString("input");
