@@ -20,7 +20,7 @@ export default [
     plugins: {
       headers,
     },
-    files: ["packages/*src/**/*"],
+    files: ["packages/*src/**/*", "playground/**/*"],
     rules: {
       "no-restricted-syntax": [
         "error",

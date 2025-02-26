@@ -17,9 +17,11 @@ import ModalMiddleware from "./middlewares/ModalMiddleware";
 import SelectMiddleware from "./middlewares/SelectMiddleware";
 import { loadHandlers, pushToApi } from "../handlers/loader";
 import { eventListener } from "../handlers/events";
+import process from "node:process";
 
 interface BotClientArgs {
   dev?: boolean;
+  path?: string;
 }
 type Middlewares =
   | ComandMiddleware
@@ -34,8 +36,9 @@ export default class BotClient extends Client {
     commands: CommandHandler;
     // subCommands: SubCommandHandler;
   } = { commands: new CommandHandler(this) };
+  cwdPath: string = process.cwd();
   devMode: boolean = false;
-  constructor({ dev }: BotClientArgs = {}) {
+  constructor({ dev, path }: BotClientArgs = {}) {
     super({
       intents: [
         GatewayIntentBits.DirectMessageReactions,
@@ -68,13 +71,17 @@ export default class BotClient extends Client {
       ],
     });
     if (dev) this.devMode = true;
+    if (path) this.cwdPath = path;
+
+    console.log(this.cwdPath);
   }
 
-  async start(token: unknown): Promise<void> {
+  async start(token: string): Promise<void> {
     if (this.devMode) {
-      if (fs.existsSync(path.join(process.cwd(), "config.js"))) {
+      const configPath = path.join(this.cwdPath, "config.js");
+      if (fs.existsSync(configPath)) {
         const configFile: unknown = (
-          await import(pathToFileURL("config.js").href)
+          await import(pathToFileURL(configPath).href)
         ).default.default;
         if (!(configFile instanceof Config)) {
           this.logger.error("Config file is not correct");
@@ -83,7 +90,7 @@ export default class BotClient extends Client {
         this.config = configFile.getConfig();
       }
     } else {
-      const indexFilePath = path.join(process.cwd(), "index.js");
+      const indexFilePath = path.join(this.cwdPath, "index.js");
       if (!fs.existsSync(indexFilePath)) {
         this.logger.error("Index file not found");
         return process.exit(1);
@@ -112,22 +119,6 @@ export default class BotClient extends Client {
       this.config = config.getConfig();
     }
 
-    // if (fs.existsSync(path.join(process.cwd(), "config.js"))) {
-    //   this.config = (
-    //     await import(pathToFileURL(path.join(process.cwd(), "config.js")).href)
-    //   ).default.default;
-    // }
-    // if (this.config === null) {
-    //   this.logger.error(
-    //     "Config is not loaded correctly, please check your config file",
-    //   );
-    //   return process.exit(1);
-    // }
-    // if (typeof this.config !== "object") {
-    //   this.logger.error("Config must be an object");
-    //   return process.exit(1);
-    // }
-
     if (!token) {
       this.logger.error(
         "No token provided, please check your token (bot suhut down)",
@@ -135,12 +126,7 @@ export default class BotClient extends Client {
       return process.exit(1);
     }
 
-    if (typeof token !== "string") {
-      this.logger.error("Token must be a string (bot suhut down)");
-      return process.exit(1);
-    }
-
-    // @TODO: Need to e fixed with new no folder structure
+    // @TODO: Need to be fixed with new no folder structure
     // const middlewaresPath = path.join(process.cwd(), "middlewares");
     // if (fs.existsSync(middlewaresPath)) {
     //   await fs.promises

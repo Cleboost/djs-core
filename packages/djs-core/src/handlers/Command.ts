@@ -12,6 +12,7 @@ import {
 } from "discord.js";
 import { underline } from "chalk";
 import BotClient from "../class/BotClient";
+import { pushToApi } from "./loader";
 
 export default class CommandHandler {
   private client: BotClient;
@@ -28,6 +29,42 @@ export default class CommandHandler {
       return;
     }
     return this.commands.set(command.name, command);
+  }
+
+  async removeInteraction(command: Command) {
+    if (!this.commands.has(command.name)) {
+      this.client.logger.warn(
+        `The command ${underline(command.name)} is not loaded! Skipping...`,
+      );
+      return;
+    }
+    return this.commands.delete(command.name);
+  }
+
+  async reloadInteraction(command: Command) {
+    const existingCommand = this.commands.find(
+      (cmd) => cmd.name === command.name,
+    );
+
+    if (!existingCommand) {
+      this.client.logger.warn(
+        `The command ${underline(command.name)} is not loaded! Adding instead...`,
+      );
+      this.addInteraction(command);
+      pushToApi(this.client);
+      return this.client.logger.info(
+        `Command ${underline(command.name)} added successfully, and pushed to API. You may reload your Discord client to see the changes.`,
+      );
+    }
+
+    if (existingCommand.name !== command.name) {
+      this.client.logger.info(
+        `Command name changed: ${underline(existingCommand.name)} -> ${underline(command.name)}`,
+      );
+    }
+
+    await this.removeInteraction(existingCommand);
+    return this.addInteraction(command);
   }
 
   async eventCommand(interaction: ChatInputCommandInteraction) {

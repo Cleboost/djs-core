@@ -9,10 +9,11 @@ import chalk from "chalk";
 import bundleBot from "@djs-core/builder";
 import path from "path";
 import ora from "ora";
-// import chokidar from "chokidar";
+import chokidar from "chokidar";
 import fs from "fs";
-import { BotClient } from "djs-core";
+import { BotClient, Command } from "djs-core";
 import dotenv from "dotenv";
+import { pathToFileURL } from "url";
 
 if (require.main !== module) {
   console.error(chalk.red("❌ This file should be run as a CLI tool."));
@@ -71,97 +72,119 @@ program
       }
     });
     await new Promise((resolve) => bundleEvent.once("end", resolve));
-    process.chdir(path.join(process.cwd(), ".dev"));
+    const devPath = path.join(process.cwd(), ".dev");
 
     dotenv.config({
-      path: path.join(process.cwd(), ".env"),
+      path: path.join(devPath, ".env"),
     });
-    const bot = new BotClient({ dev: true });
-    bot.start(process.env.TOKEN);
-    bot.once("ready", () => {
+    const bot: BotClient = new BotClient({ dev: true, path: devPath });
+
+    const srcDir = path.resolve(process.cwd(), "src");
+    console.log(`📁 Setting up watcher for: ${srcDir}`);
+    const watcher = chokidar.watch(srcDir, {
+      ignoreInitial: false,
+      cwd: process.cwd(),
+      ignored: (path) => path.includes("node_modules") || path.endsWith(".js"),
+      persistent: true,
+    });
+
+    watcher.once("ready", () => {
+      bot.start(process.env.TOKEN as string);
       spinner.succeed(chalk.green("Bot started in development mode."));
       console.log(chalk.blue("🔍 Watching for changes..."));
+      console.log(
+        chalk.blue("🚀 New features for auto-reload are comming soon!"),
+      );
     });
 
-    // let bot = spawn("node", ["index.js"], {
-    //   stdio: "inherit",
-    //   cwd: path.join(process.cwd(), ".dev"),
-    // });
+    watcher.on("unlink", async (filePath) => {
+      console.log(
+        chalk.yellow(
+          `🗑️ File ${filePath.replaceAll("\\", "/").replace("src/", "").replace(".ts", ".js")} deleted.`,
+        ),
+      );
+      const rPath = path.join(
+        ".dev",
+        filePath
+          .replaceAll("\\", "/")
+          .replace("src/", "")
+          .replace(".ts", ".js"),
+      );
 
-    // const reloadBot = () => {
-    //   bot.kill();
-    //   const newBot = spawn("node", ["index.js"], {
-    //     stdio: "inherit",
-    //     cwd: path.join(process.cwd(), ".dev"),
-    //   });
-    //   bot = newBot;
-    // };
+      if (!fs.existsSync(rPath)) return;
+      fs.unlinkSync(rPath);
 
-    // const watcher = chokidar.watch("src", {
-    //   ignoreInitial: true,
-    //   cwd: process.cwd(),
-    //   ignored: (path) => path.includes("node_modules") || path.endsWith(".js"),
-    //   persistent: true,
-    // });
+      const cachedModule =
+        require.cache[require.resolve(path.join(process.cwd(), rPath))];
+      if (cachedModule) {
+        const interaction = cachedModule.exports.default;
+        switch (interaction.constructor.name) {
+          case "Command":
+            bot.handlers.commands.removeInteraction(interaction);
+            break;
+          default:
+            break;
+        }
+        delete require.cache[require.resolve(path.join(process.cwd(), rPath))];
+        return console.log(
+          chalk.green(`✅ Successfully removed the interaction from the bot.`),
+        );
+      }
+    });
 
-    // watcher.once("ready", () => {
-    //   spinner.succeed(chalk.green("Bot started in development mode."));
-    //   console.log(chalk.blue("🔍 Watching for changes..."));
-    // });
+    watcher.on("change", async (filePath) => {
+      console.log(
+        chalk.yellow(
+          `🔄 File ${filePath.replaceAll("\\", "/").replace("src/", "").replace(".ts", ".js")} changed.`,
+        ),
+      );
+      const buildEvent = bundleBot({
+        files: [filePath.replaceAll("\\", "/")],
+        dist: path.join(".dev", path.dirname(filePath).replace("src", "")),
+        clean: false,
+      });
 
-    // watcher.on("unlink", (filePath) => {
-    //   console.log(
-    //     chalk.yellow(
-    //       `🗑️ File ${filePath.replaceAll("\\", "/").replace("src/", "").replace(".ts", ".js")} deleted.`,
-    //     ),
-    //   );
-    //   const rPath = path.join(
-    //     ".dev",
-    //     filePath
-    //       .replaceAll("\\", "/")
-    //       .replace("src/", "")
-    //       .replace(".ts", ".js"),
-    //   );
-    //   if (!fs.existsSync(rPath)) return;
-    //   fs.unlinkSync(rPath);
-    //   reloadBot();
-    // });
+      buildEvent.on("step", (step) => {
+        if (step.status === "error") {
+          console.log(
+            chalk.red(
+              "❌ An error occurred while building the bot. Please check the logs above. The bot will not be reloaded until the error is fixed.",
+            ),
+          );
+          buildEvent.removeAllListeners();
+          return;
+        }
+      });
 
-    // watcher.on("change", async (filePath) => {
-    //   console.log(
-    //     chalk.yellow(
-    //       `🔄 File ${filePath.replaceAll("\\", "/").replace("src/", "").replace(".ts", ".js")} changed.`,
-    //     ),
-    //   );
-    //   const buildEvent = bundleBot({
-    //     files: [filePath.replaceAll("\\", "/")],
-    //     dist: path.join(".dev", path.dirname(filePath).replace("src", "")),
-    //     clean: false,
-    //   });
+      buildEvent.once("end", async () => {
+        const compiledFilePath = path.join(
+          process.cwd(),
+          ".dev",
+          filePath
+            .replaceAll("\\", "/")
+            .replace("src/", "")
+            .replace(".ts", ".js"),
+        );
 
-    //   buildEvent.on("step", (step) => {
-    //     if (step.status === "error") {
-    //       console.log(
-    //         chalk.red(
-    //           "❌ An error occurred while building the bot. Please check the logs above. The bot will not be reloaded until the error is fixed.",
-    //         ),
-    //       );
-    //       buildEvent.removeAllListeners();
-    //       return;
-    //     }
-    //   });
+        const fileURL = pathToFileURL(compiledFilePath).href;
 
-    //   buildEvent.once("end", () => {
-    //     reloadBot();
-    //   });
-    // });
+        if (require.cache[require.resolve(compiledFilePath)]) {
+          delete require.cache[require.resolve(compiledFilePath)];
+        }
+
+        const file = (await import(`${fileURL}?update=${Date.now()}`)).default
+          .default;
+
+        if (file instanceof Command)
+          return bot.handlers.commands.reloadInteraction(file);
+      });
+    });
   });
 
 program
   .command("build")
   .description("Build the bot")
   .option("-o, --obfuscate", "Obfuscate the code")
-
   .action(async (options) => {
     if (options.obfuscate) {
       console.log(
@@ -260,10 +283,6 @@ program
 program.parse(process.argv);
 
 function getCharFromIndex(index: number) {
-  //0 => a
-  //1 => b
-  //27 => aa
-  //28 => ab
   const charCode = 97 + index;
   return String.fromCharCode(charCode);
 }

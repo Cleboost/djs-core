@@ -7,12 +7,13 @@ import SubCommandGroup from "../class/interactions/SubCommandGroup";
 
 export async function loadHandlers(client: BotClient) {
   if (client.devMode) {
-    const interactionsPath = path.join(process.cwd(), "interactions");
+    const interactionsPath = path.join(client.cwdPath, "interactions");
     if (!fs.existsSync(interactionsPath)) {
       return console.log("No interactions found.");
     }
 
     const interactionsFilePath = recursiveDir(interactionsPath);
+
     for (const filePath of interactionsFilePath) {
       if (!filePath.endsWith(".js")) continue;
       const interaction = await import(pathToFileURL(filePath).href)
@@ -28,7 +29,7 @@ export async function loadHandlers(client: BotClient) {
     return client.logger.info("All handlers loaded successfully");
   }
 
-  const indexPath = path.join(process.cwd(), "index.js");
+  const indexPath = path.join(client.cwdPath, "index.js");
   if (!fs.existsSync(indexPath))
     return console.error("index.js not found in production.");
   const index = await import(pathToFileURL(indexPath).href).then(
