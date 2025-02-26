@@ -4,107 +4,63 @@
  * Licence: on the GitHub
  */
 
-import { Handler } from "./Handler";
-import path from "path";
-import fs from "node:fs";
-import { Events, Interaction } from "discord.js";
+import { Collection, MessageFlags, ButtonInteraction } from "discord.js";
 import Button from "../class/interactions/Button";
-import { pathToFileURL } from "node:url";
 import { underline } from "chalk";
-import ButtonMiddleware from "../class/middlewares/ButtonMiddleware";
+import BotClient from "../class/BotClient";
+export default class ButtonHandler {
+  private buttons = new Collection<string, Button>();
+  private client: BotClient;
 
-export default class ButtonHandler extends Handler {
-  private middleware: Array<ButtonMiddleware> = [];
-  async load() {
-    this.middleware = this.client.middlewares.filter(
-      (middleware: unknown) => middleware instanceof ButtonMiddleware,
-    );
-
-    /* eslint-disable no-async-promise-executor */
-    return new Promise<void>(async (resolve) => {
-      const buttonsDir = path.join(process.cwd(), "interactions", "buttons");
-      if (!fs.existsSync(buttonsDir)) return resolve();
-      for (const button of fs.readdirSync(buttonsDir)) {
-        if (fs.lstatSync(path.join(buttonsDir, button)).isDirectory()) {
-          for (const buttonInSub of fs.readdirSync(
-            path.join(buttonsDir, button),
-          )) {
-            const buttonClass = (
-              await import(
-                pathToFileURL(path.join(buttonsDir, button, buttonInSub)).href
-              )
-            ).default.default;
-            if (!(buttonClass instanceof Button)) {
-              this.client.logger.error(
-                `The button ${underline(`${button}/${buttonInSub}`)} is not correct!`,
-              );
-              continue;
-            }
-
-            if (this.collection.has(`${button}:${buttonClass.getCustomId()}`)) {
-              this.client.logger.warn(
-                `The button ${underline(`${button}:${buttonClass.getCustomId()}`)} is already loaded! Skipping...`,
-              );
-              continue;
-            }
-
-            this.collection.set(
-              `${button}:${buttonClass.getCustomId()}`,
-              buttonClass,
-            );
-          }
-        }
-
-        if (!button.endsWith(".js")) continue;
-        const cmd = (
-          await import(pathToFileURL(path.join(buttonsDir, button)).href)
-        ).default.default;
-        if (!(cmd instanceof Button)) {
-          this.client.logger.error(
-            `The button ${underline(button)} is not correct!`,
-          );
-          continue;
-        }
-        const customID = cmd.getCustomId();
-        if (!customID) {
-          this.client.logger.error(
-            `The button ${underline(button)} has no customId!`,
-          );
-          continue;
-        }
-
-        if (this.collection.has(customID)) {
-          this.client.logger.warn(
-            `The button ${underline(customID)} is already loaded! Skipping...`,
-          );
-          continue;
-        }
-
-        this.collection.set(customID, cmd);
-      }
-      resolve();
-      return this.event();
-    });
+  constructor(client: BotClient) {
+    this.client = client;
   }
 
-  async event() {
-    this.client.on(
-      Events.InteractionCreate,
-      async (interaction: Interaction) => {
-        if (!interaction.isButton()) return;
-        for (const middleware of this.middleware) {
-          if (!(await middleware.execute(interaction))) return;
-        }
-        const button: Button | undefined = this.collection.get(
-          interaction.customId,
-        ) as Button | undefined;
-        if (!button) return;
-        button.execute(this.client, interaction);
-        if (this.client.config?.logger?.logBtn)
-          this.client.logger.info(
-            `Button ${underline(interaction.customId)} used by ${interaction.user.username} (${interaction.user.id})`,
-          );
-      },
-    );
+  addInteraction(button: Button) {
+    const customId = button.getCustomId();
+    if (this.buttons.has(customId)) {
+      this.client.logger.warn(
+        `The button ${underline(customId)} is already loaded! Skipping...`,
+      );
+      return;
+    }
+    this.buttons.set(customId, button);
+  }
+
+  removeInteraction(button: Button) {
+    const customId = button.getCustomId();
+    if (!this.buttons.has(customId)) {
+      this.client.logger.warn(
+        `The button ${underline(customId)} is not loaded! Skipping...`,
+      );
+      return;
+    }
+    this.buttons.delete(customId);
+  }
+
+  reloadInteraction(button: Button) {
+    if (!this.buttons.has(button.getCustomId())) {
+      this.client.logger.warn(
+        `The button ${underline(button.getCustomId())} is not loaded! Adding instead...`,
+      );
+      this.addInteraction(button);
+      return;
+    }
+    this.removeInteraction(button);
+    this.addInteraction(button);
+  }
+
+  async event(interaction: ButtonInteraction) {
+    const button = this.buttons.get(interaction.customId);
+    if (!button)
+      return interaction.reply({
+        content: "This button is not available",
+        flags: [MessageFlags.Ephemeral],
+      });
+    button.execute(this.client, interaction);
+    if (this.client.config?.logger?.logBtn)
+      this.client.logger.info(
+        `Button ${underline(interaction.customId)} used by ${interaction.user.username} (${interaction.user.id})`,
+      );
   }
 }

@@ -40,7 +40,7 @@ export default class Button {
     return this.runFn(client, interaction);
   }
 
-  getCustomId() {
-    return this.customId;
+  getCustomId(): string {
+    return this.customId || "";
   }
 }

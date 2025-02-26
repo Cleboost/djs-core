@@ -6,6 +6,8 @@ import Command from "../class/interactions/Command";
 import SubCommandGroup from "../class/interactions/SubCommandGroup";
 import SubCommand from "../class/interactions/SubCommand";
 import Modal from "../class/interactions/Modal";
+import Button from "../class/interactions/Button";
+import SelectMenu from "../class/interactions/SelectMenu";
 
 export async function loadHandlers(client: BotClient) {
   if (client.devMode) {
@@ -44,7 +46,14 @@ export async function loadHandlers(client: BotClient) {
 
 function registerInteraction(
   client: BotClient,
-  interaction: Command | SubCommandGroup | SubCommand | Modal | unknown,
+  interaction:
+    | Command
+    | SubCommandGroup
+    | SubCommand
+    | Modal
+    | Button
+    | SelectMenu
+    | unknown,
 ) {
   if (interaction instanceof Command) {
     return client.handlers.commands.addInteraction(interaction);
@@ -54,6 +63,10 @@ function registerInteraction(
     return client.handlers.subCommands.addSubCommand(interaction);
   } else if (interaction instanceof Modal) {
     return client.handlers.modals.addInteraction(interaction);
+  } else if (interaction instanceof Button) {
+    return client.handlers.buttons.addInteraction(interaction);
+  } else if (interaction instanceof SelectMenu) {
+    return client.handlers.selectMenus.addInteraction(interaction);
   }
   return;
 }

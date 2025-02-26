@@ -20,6 +20,8 @@ import { eventListener } from "../handlers/events";
 import process from "node:process";
 import SubCommandHandler from "../handlers/SubCommand";
 import ModalHandler from "../handlers/Modal";
+import ButtonHandler from "../handlers/Button";
+import SelectMenuHandler from "../handlers/SelectMenu";
 
 interface BotClientArgs {
   dev?: boolean;
@@ -38,6 +40,8 @@ export default class BotClient extends Client {
     commands: new CommandHandler(this),
     subCommands: new SubCommandHandler(this),
     modals: new ModalHandler(this),
+    buttons: new ButtonHandler(this),
+    selectMenus: new SelectMenuHandler(this),
   };
   cwdPath: string = process.cwd();
   devMode: boolean = false;
@@ -132,41 +136,6 @@ export default class BotClient extends Client {
       );
       return process.exit(1);
     }
-
-    // @TODO: Need to be fixed with new no folder structure
-    // const middlewaresPath = path.join(process.cwd(), "middlewares");
-    // if (fs.existsSync(middlewaresPath)) {
-    //   await fs.promises
-    //     .readdir(middlewaresPath)
-    //     .then(async (files: string[]) => {
-    //       for (const file of files) {
-    //         if (!file.endsWith(".js")) {
-    //           this.logger.warn(`The file ${file} is not a middleware`);
-    //           return;
-    //         }
-    //         const middleware = (
-    //           await import(pathToFileURL(path.join(middlewaresPath, file)).href)
-    //         ).default.default;
-    //         if (
-    //           !(middleware instanceof ComandMiddleware) &&
-    //           !(middleware instanceof ButtonMiddleware) &&
-    //           !(middleware instanceof ModalMiddleware) &&
-    //           !(middleware instanceof SelectMiddleware)
-    //         ) {
-    //           this.logger.error(`The middleware ${file} is not correct!`);
-    //           return;
-    //         }
-    //         this.middlewares.push(middleware);
-    //       }
-    //     })
-    //     .then(() => {
-    //       if (this.middlewares.length === 0) return;
-    //       this.logger.info("All middlewares loaded successfully");
-    //     })
-    //     .catch((error: Error) => {
-    //       this.logger.error(`Error loading middlewares: ${error.message}`);
-    //     });
-    // }
 
     loadHandlers(this);
     await this.login(token).catch((error) => {

@@ -11,7 +11,14 @@ import path from "path";
 import ora from "ora";
 import chokidar from "chokidar";
 import fs from "fs";
-import { BotClient, Command, Modal, SubCommand } from "djs-core";
+import {
+  BotClient,
+  Command,
+  Modal,
+  SubCommand,
+  Button,
+  SelectMenu,
+} from "djs-core";
 import dotenv from "dotenv";
 import { pathToFileURL } from "url";
 
@@ -176,6 +183,12 @@ program
           return bot.handlers.subCommands.reloadSubCommand(file);
         if (file instanceof Modal)
           return bot.handlers.modals.reloadInteraction(file);
+        if (file instanceof Button)
+          return bot.handlers.buttons.reloadInteraction(file);
+        if (file instanceof SelectMenu)
+          return bot.handlers.selectMenus.reloadInteraction(file);
+
+        console.log(chalk.yellow("⚠️ Unknown file type, skipping hot reload"));
       });
     });
   });
@@ -275,7 +288,7 @@ program
       chalk.yellow(
         "🚧 Fast deploy options will be available in upcoming versions.",
       ),
-    );
+    ); // console.log(chalk.green("✨ Deploying the bot..."));
     // console.log(chalk.green("✨ Deploying the bot..."));
   });
 

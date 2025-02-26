@@ -4,87 +4,69 @@
  * Licence: on the GitHub
  */
 
-import { Handler } from "./Handler";
-import path from "path";
-import fs from "node:fs";
-import { Events, Interaction, MessageFlags } from "discord.js";
+import { Collection, MessageFlags, AnySelectMenuInteraction } from "discord.js";
 import SelectMenu from "../class/interactions/SelectMenu";
-import { pathToFileURL } from "node:url";
 import { underline } from "chalk";
-import { SelectMiddleware } from "..";
+import BotClient from "../class/BotClient";
+export default class SelectMenuHandler {
+  private selectMenus = new Collection<string, SelectMenu>();
+  private client: BotClient;
 
-export default class SelectMenuHandler extends Handler {
-  private middleware: Array<SelectMiddleware> = [];
-  async load() {
-    this.middleware = this.client.middlewares.filter(
-      (middleware: unknown) => middleware instanceof SelectMiddleware,
-    );
-
-    /* eslint-disable no-async-promise-executor */
-    return new Promise<void>(async (resolve) => {
-      const selectDir = path.join(process.cwd(), "interactions", "selects");
-      if (!fs.existsSync(selectDir)) return resolve();
-      for (const selectType of fs.readdirSync(selectDir)) {
-        for (const selectMenu of fs.readdirSync(
-          path.join(selectDir, selectType),
-        )) {
-          if (!selectMenu.endsWith(".js")) continue;
-          const selectMenuClass = (
-            await import(
-              pathToFileURL(path.join(selectDir, selectType, selectMenu)).href
-            )
-          ).default.default;
-          if (!(selectMenuClass instanceof SelectMenu)) {
-            this.client.logger.error(
-              `The select menu ${underline(`${selectType}/${selectMenu}`)} is not correct!`,
-            );
-            continue;
-          }
-
-          const customID = selectMenuClass.getCustomId();
-          if (!customID) {
-            this.client.logger.error(
-              `The select menu  ${underline(`${selectType}/${selectMenu}`)} has no customId!`,
-            );
-            continue;
-          }
-          if (this.collection.has(customID)) {
-            this.client.logger.warn(
-              `The select menu  ${underline(`${selectType}:${selectMenuClass.getCustomId()}`)} is already loaded! Skipping...`,
-            );
-            continue;
-          }
-          this.collection.set(customID, selectMenuClass);
-        }
-      }
-      resolve();
-      return this.event();
-    });
+  constructor(client: BotClient) {
+    this.client = client;
   }
 
-  async event() {
-    this.client.on(
-      Events.InteractionCreate,
-      async (interaction: Interaction) => {
-        if (!interaction.isAnySelectMenu()) return;
-        for (const middleware of this.middleware) {
-          if (!(await middleware.execute(interaction))) return;
-        }
-        const select = this.collection.get(interaction.customId) as
-          | SelectMenu
-          | undefined;
+  addInteraction(selectMenu: SelectMenu) {
+    const customId = selectMenu.getCustomId();
+    if (!customId) {
+      this.client.logger.error(
+        new Error(`The select menu ${customId} has no customId`),
+      );
+      return;
+    }
+    if (this.selectMenus.has(customId)) {
+      this.client.logger.warn(
+        `The select menu ${underline(customId)} is already loaded! Skipping...`,
+      );
+      return;
+    }
+    this.selectMenus.set(customId, selectMenu);
+  }
 
-        if (!select)
-          return interaction.reply({
-            content: "This select menu is not available",
-            flags: [MessageFlags.Ephemeral],
-          });
-        select.execute(this.client, interaction);
-        if (this.client.config?.logger?.logSelect)
-          this.client.logger.info(
-            `Select menu ${underline(interaction.customId)} used by ${interaction.user.username} (${interaction.user.id})`,
-          );
-      },
-    );
+  removeInteraction(selectMenu: SelectMenu) {
+    const customId = selectMenu.getCustomId();
+    if (!this.selectMenus.has(customId)) {
+      this.client.logger.warn(
+        `The select menu ${underline(customId)} is not loaded! Skipping...`,
+      );
+      return;
+    }
+    this.selectMenus.delete(customId);
+  }
+
+  reloadInteraction(selectMenu: SelectMenu) {
+    if (!this.selectMenus.has(selectMenu.getCustomId())) {
+      this.client.logger.warn(
+        `The select menu ${underline(selectMenu.getCustomId())} is not loaded! Adding instead...`,
+      );
+      this.addInteraction(selectMenu);
+      return;
+    }
+    this.removeInteraction(selectMenu);
+    this.addInteraction(selectMenu);
+  }
+
+  async event(interaction: AnySelectMenuInteraction) {
+    const selectMenu = this.selectMenus.get(interaction.customId);
+    if (!selectMenu)
+      return interaction.reply({
+        content: "This select menu is not available",
+        flags: [MessageFlags.Ephemeral],
+      });
+    selectMenu.execute(this.client, interaction);
+    if (this.client.config?.logger?.logSelect)
+      this.client.logger.info(
+        `Select menu ${underline(interaction.customId)} used by ${interaction.user.username} (${interaction.user.id})`,
+      );
   }
 }

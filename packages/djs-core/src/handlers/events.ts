@@ -1,8 +1,8 @@
-import { Events } from "discord.js";
+import { Events, Interaction } from "discord.js";
 import BotClient from "../class/BotClient";
 
 export function eventListener(client: BotClient) {
-  client.on(Events.InteractionCreate, (interaction) => {
+  client.on(Events.InteractionCreate, (interaction: Interaction) => {
     if (interaction.isContextMenuCommand()) return;
     if (interaction.isCommand()) {
       client.handlers.commands.eventCommand(interaction);
@@ -12,5 +12,9 @@ export function eventListener(client: BotClient) {
     if (interaction.isAutocomplete()) return;
     if (interaction.isModalSubmit())
       return client.handlers.modals.event(interaction);
+    if (interaction.isButton())
+      return client.handlers.buttons.event(interaction);
+    if (interaction.isAnySelectMenu())
+      return client.handlers.selectMenus.event(interaction);
   });
 }
