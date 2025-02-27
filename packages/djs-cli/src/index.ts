@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /**
  * Copyright (c) 2025 Cleboost
  * External contributor can be found on the GitHub
@@ -27,7 +29,7 @@ if (require.main !== module) {
   process.exit(1);
 }
 
-program.name("djs-core cli").version("0.0.1");
+program.name("djs-core").version("0.0.1");
 
 program
   .command("init")
