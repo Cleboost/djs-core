@@ -24,7 +24,7 @@
     "pretty": "prettier . --check",
     "pretty:fix": "prettier . --write"
   },
-  "packageManager": "pnpm@10.5.1",
+  "packageManager": "pnpm@10.5.2",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@djs-core/builder",
