@@ -40,7 +40,7 @@ export default class SelectMenu {
     return this.runFn(client, interaction);
   }
 
-  getCustomId() {
-    return `string:${this.customId}`;
+  getCustomId(): string {
+    return this.customId || "";
   }
 }

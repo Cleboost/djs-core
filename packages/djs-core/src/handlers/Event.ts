@@ -4,48 +4,54 @@
  * Licence: on the GitHub
  */
 
-import { Handler } from "./Handler";
-import path from "path";
-import fs from "node:fs";
 import { ClientEvents } from "discord.js";
-import { pathToFileURL } from "node:url";
-import EventListner from "../class/interactions/Event";
-import { underline } from "chalk";
+import BotClient from "../class/BotClient";
+import EventListener from "../class/interactions/Event";
 
-export default class EventHandler extends Handler {
-  async load() {
-    /* eslint-disable no-async-promise-executor */
-    return new Promise<void>(async (resolve) => {
-      const eventsDir = path.join(process.cwd(), "events");
-      if (!fs.existsSync(eventsDir)) return resolve();
-      for (const eventFile of fs.readdirSync(eventsDir)) {
-        const event = (
-          await import(pathToFileURL(path.join(eventsDir, eventFile)).href)
-        ).default.default;
-        if (!(event instanceof EventListner)) {
-          this.client.logger.error(
-            `The event ${underline(eventFile)} is not correct!`,
-          );
-          continue;
-        }
+export default class EventHandler {
+  // Stocke l'instance de l'EventListener et la fonction callback associée
+  private events: Map<
+    keyof ClientEvents,
+    { instance: EventListener; handler: (...args: unknown[]) => unknown }
+  > = new Map();
+  private client: BotClient;
 
-        if (event.getEvent()) {
-          const eventName = event.getEvent();
-          if (eventName) {
-            this.client.on(
-              eventName as keyof ClientEvents,
-              (...args: unknown[]) => {
-                return event.execute(this.client, ...args);
-              },
-            );
-          } else {
-            this.client.logger.error("The event has no event to listen to!");
-          }
-        } else {
-          this.client.logger.error("The event has no event to listen to!");
-        }
-      }
-      return resolve();
-    });
+  constructor(client: BotClient) {
+    this.client = client;
+  }
+
+  addEvent(event: EventListener) {
+    const evt = event.getEvent();
+    if (!evt) {
+      return this.client.logger.warn(`Un événement n'a pas d'événement défini`);
+    }
+    const handler = (...args: unknown[]) => event.execute(this.client, ...args);
+    this.client.on(evt as keyof ClientEvents, handler);
+    this.events.set(evt as keyof ClientEvents, { instance: event, handler });
+  }
+
+  removeEvent(event: keyof ClientEvents) {
+    const data = this.events.get(event);
+    if (!data) {
+      return this.client.logger.warn(
+        `L'événement ${event} n'est pas enregistré`,
+      );
+    }
+    this.client.off(event, data.handler);
+    this.events.delete(event);
+  }
+
+  reloadEvent(event: keyof ClientEvents) {
+    const data = this.events.get(event);
+    if (!data) {
+      return this.client.logger.warn(
+        `L'événement ${event} n'est pas enregistré`,
+      );
+    }
+    this.client.off(event, data.handler);
+    const newHandler = (...args: unknown[]) =>
+      data.instance.execute(this.client, ...args);
+    this.client.on(event, newHandler);
+    this.events.set(event, { instance: data.instance, handler: newHandler });
   }
 }

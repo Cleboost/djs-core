@@ -8,10 +8,11 @@ import SubCommand from "../class/interactions/SubCommand";
 import Modal from "../class/interactions/Modal";
 import Button from "../class/interactions/Button";
 import SelectMenu from "../class/interactions/SelectMenu";
+import EventListner from "../class/interactions/Event";
 
 export async function loadHandlers(client: BotClient) {
   if (client.devMode) {
-    const interactionsPath = path.join(client.cwdPath, "interactions");
+    const interactionsPath = path.join(client.cwdPath);
     if (!fs.existsSync(interactionsPath)) {
       return console.log("No interactions found.");
     }
@@ -67,6 +68,8 @@ function registerInteraction(
     return client.handlers.buttons.addInteraction(interaction);
   } else if (interaction instanceof SelectMenu) {
     return client.handlers.selectMenus.addInteraction(interaction);
+  } else if (interaction instanceof EventListner) {
+    return client.handlers.events.addEvent(interaction);
   }
   return;
 }

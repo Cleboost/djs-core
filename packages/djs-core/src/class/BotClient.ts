@@ -22,6 +22,7 @@ import SubCommandHandler from "../handlers/SubCommand";
 import ModalHandler from "../handlers/Modal";
 import ButtonHandler from "../handlers/Button";
 import SelectMenuHandler from "../handlers/SelectMenu";
+import EventHandler from "../handlers/Event";
 
 interface BotClientArgs {
   dev?: boolean;
@@ -42,6 +43,7 @@ export default class BotClient extends Client {
     modals: new ModalHandler(this),
     buttons: new ButtonHandler(this),
     selectMenus: new SelectMenuHandler(this),
+    events: new EventHandler(this),
   };
   cwdPath: string = process.cwd();
   devMode: boolean = false;
