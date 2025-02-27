@@ -9,7 +9,6 @@ import BotClient from "../class/BotClient";
 import EventListener from "../class/interactions/Event";
 
 export default class EventHandler {
-  // Stocke l'instance de l'EventListener et la fonction callback associée
   private events: Map<
     keyof ClientEvents,
     { instance: EventListener; handler: (...args: unknown[]) => unknown }
