@@ -43,6 +43,7 @@ function bundleBot(config: Config): BundlerReadable {
         dts: false,
         splitting: false,
         keepNames: true,
+        treeshake: true,
       });
       stream.emit("step", { id: "bundle", status: "done" });
     } catch (error) {
