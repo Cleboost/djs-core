@@ -2,7 +2,7 @@
   "private": true,
   "devDependencies": {
     "@eslint/js": "9.22.0",
-    "@types/node": "22.13.9",
+    "@types/node": "22.13.10",
     "eslint": "9.22.0",
     "eslint-plugin-headers": "1.2.1",
     "globals": "16.0.0",
