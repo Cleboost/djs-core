@@ -27,7 +27,7 @@
     "chalk": "4.1.2",
     "chokidar": "4.0.3",
     "commander": "13.1.0",
-    "inquirer": "12.5.0",
+    "inquirer": "12.5.2",
     "ora": "5.4.1",
     "dotenv": "16.4.7"
   },
