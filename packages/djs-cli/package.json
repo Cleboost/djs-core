@@ -29,7 +29,7 @@
     "commander": "13.1.0",
     "inquirer": "12.5.2",
     "ora": "5.4.1",
-    "dotenv": "16.4.7"
+    "dotenv": "16.5.0"
   },
   "engines": {
     "node": ">=18.6.0"
