@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --dts --minify --format cjs --out-dir dist",
-    "watch": "tsup src/index.ts --dts --format cjs --out-dir dist --watch",
+    "watch": "tsup src/index.ts --dts --format cjs --out-dir dist --watch src/**/*",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {

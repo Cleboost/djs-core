@@ -51,13 +51,13 @@ importers:
   packages/djs-builder:
     dependencies:
       glob:
-        specifier: 11.0.1
+        specifier: ^11.0.1
         version: 11.0.1
       javascript-obfuscator:
-        specifier: 4.1.1
+        specifier: ^4.1.1
         version: 4.1.1
       tsup:
-        specifier: 8.4.0
+        specifier: ^8.4.0
         version: 8.4.0(typescript@5.8.3)
 
   packages/djs-cli:
@@ -66,34 +66,34 @@ importers:
         specifier: workspace:^2.0.0
         version: link:../djs-builder
       chalk:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2
       chokidar:
-        specifier: 4.0.3
+        specifier: ^4.0.3
         version: 4.0.3
       commander:
-        specifier: 13.1.0
+        specifier: ^13.1.0
         version: 13.1.0
       djs-core:
         specifier: workspace:^4.0.0
         version: link:../djs-core
       dotenv:
-        specifier: 16.5.0
+        specifier: ^16.5.0
         version: 16.5.0
       inquirer:
-        specifier: 12.5.2
+        specifier: ^12.5.2
         version: 12.5.2(@types/node@22.14.1)
       ora:
-        specifier: 5.4.1
+        specifier: ^5.4.1
         version: 5.4.1
 
   packages/djs-core:
     dependencies:
       chalk:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2
       discord.js:
-        specifier: 14.18.0
+        specifier: ^14.18.0
         version: 14.18.0
 
   playground:
