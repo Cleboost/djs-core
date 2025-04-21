@@ -3,6 +3,7 @@ dist/
 node_modules/
 act.exe
 *.tgz
+.turbo
 
 # IDE
 .vscode/

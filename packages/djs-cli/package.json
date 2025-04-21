@@ -17,19 +17,20 @@
     "url": "https://github.com/Cleboost/djs-core/issues"
   },
   "scripts": {
-    "dev": "tsup src/index.ts --dts --format cjs --out-dir dist",
-    "build": "tsup src/index.ts --dts --minify --format cjs --out-dir dist",
+    "build": "tsup src/index.ts --dts --format cjs --out-dir dist --clean --minify",
+    "watch": "tsup src/index.ts --dts --format cjs --out-dir dist --watch",
+    "clean": "rimraf dist .turbo",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
     "@djs-core/builder": "workspace:^2.0.0",
     "djs-core": "workspace:^4.0.0",
-    "chalk": "4.1.2",
-    "chokidar": "4.0.3",
-    "commander": "13.1.0",
-    "inquirer": "12.5.2",
-    "ora": "5.4.1",
-    "dotenv": "16.5.0"
+    "chalk": "^4.1.2",
+    "chokidar": "^4.0.3",
+    "commander": "^13.1.0",
+    "inquirer": "^12.5.2",
+    "ora": "^5.4.1",
+    "dotenv": "^16.5.0"
   },
   "engines": {
     "node": ">=18.6.0"

@@ -16,13 +16,14 @@
     "node": ">=18.6.0"
   },
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "dev": "tsup src/index.ts --dts --format cjs --out-dir dist --clean",
-    "build": "tsup src/index.ts --dts --minify --format cjs --out-dir dist --clean"
+    "watch": "tsup src/index.ts --dts --format cjs --out-dir dist --watch",
+    "build": "tsup src/index.ts --dts --minify --format cjs --out-dir dist --clean",
+    "clean": "rimraf dist .turbo",
+    "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "glob": "11.0.1",
-    "javascript-obfuscator": "4.1.1",
-    "tsup": "8.4.0"
+    "glob": "^11.0.1",
+    "javascript-obfuscator": "^4.1.1",
+    "tsup": "^8.4.0"
   }
 }
