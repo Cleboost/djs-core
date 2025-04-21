@@ -1,4 +1,4 @@
-name: autofix.ci
+name: Lint
 
 on:
   pull_request:
@@ -34,9 +34,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Run ESLint
-        run: pnpm run lint:fix
+        run: pnpm run lint
 
       - name: Run Prettier
-        run: pnpm run pretty:fix
-
-      - uses: autofix-ci/action@551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef
+        run: pnpm run pretty
