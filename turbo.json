@@ -1,38 +1,26 @@
 {
-    "$schema": "https://turbo.build/schema.json",
-    "globalDependencies": [
-        "tsconfig.json"
-    ],
-    "tasks": {
-        "build": {
-            "dependsOn": [
-                "^build"
-            ],
-            "outputs": [
-                "dist/**"
-            ],
-            "cache": true
-        },
-        "dev": {
-            "dependsOn": [
-                "^build"
-            ],
-            "cache": false,
-            "persistent": true,
-            "outputs": [
-                "dist/**"
-            ]
-        },
-        "watch": {
-            "cache": false,
-            "persistent": true,
-            "outputs": [
-                "dist/**"
-            ]
-        },
-        "clean": {
-            "cache": false,
-            "outputs": []
-        }
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["tsconfig.json"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "cache": true
+    },
+    "dev": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true,
+      "outputs": ["dist/**"]
+    },
+    "watch": {
+      "cache": false,
+      "persistent": true,
+      "outputs": ["dist/**"]
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
     }
+  }
 }
