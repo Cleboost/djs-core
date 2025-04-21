@@ -34,7 +34,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Run ESLint
-        run: pnpm run lint
+        run: pnpm run lint:check
 
       - name: Run Prettier
-        run: pnpm run pretty
+        run: pnpm run pretty:check

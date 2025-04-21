@@ -22,7 +22,9 @@
     "playground:dev": "turbo run dev --filter=playground...",
     "playground:build": "turbo run build --filter=playground...",
     "lint": "eslint --fix .",
-    "pretty": "prettier . --write"
+    "pretty": "prettier . --write",
+    "lint:check": "eslint .",
+    "pretty:check": "prettier . --check"
   },
   "packageManager": "pnpm@10.9.0",
   "pnpm": {
