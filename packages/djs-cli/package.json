@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --dts --format cjs --out-dir dist --clean --minify",
-    "watch": "tsup src/index.ts --dts --format cjs --out-dir dist --watch",
+    "watch": "tsup src/index.ts --dts --format cjs --out-dir dist --watch src/**/*",
     "clean": "rimraf dist .turbo",
     "preinstall": "npx only-allow pnpm"
   },
