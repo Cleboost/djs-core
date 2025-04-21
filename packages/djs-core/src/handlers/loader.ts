@@ -9,6 +9,7 @@ import Modal from "../class/interactions/Modal";
 import Button from "../class/interactions/Button";
 import SelectMenu from "../class/interactions/SelectMenu";
 import EventListner from "../class/interactions/Event";
+import ContextMenu from "../class/interactions/ContextMenu";
 
 export async function loadHandlers(client: BotClient) {
   if (client.devMode) {
@@ -54,6 +55,7 @@ function registerInteraction(
     | Modal
     | Button
     | SelectMenu
+    | ContextMenu
     | unknown,
 ) {
   if (interaction instanceof Command) {
@@ -70,14 +72,17 @@ function registerInteraction(
     return client.handlers.selectMenus.addInteraction(interaction);
   } else if (interaction instanceof EventListner) {
     return client.handlers.events.addEvent(interaction);
+  } else if (interaction instanceof ContextMenu) {
+    return client.handlers.contextMenu.addInteraction(interaction);
   }
   return;
 }
 
 export function pushToApi(client: BotClient) {
-  const commandList: Array<Command | SubCommandGroup> = [
+  const commandList: Array<Command | SubCommandGroup | ContextMenu> = [
     client.handlers.commands.listCommands(),
     client.handlers.subCommands.listSubCommands(),
+    client.handlers.contextMenu.listCommands(),
   ].flat();
   client.application?.commands.set(commandList).catch(console.error);
 }

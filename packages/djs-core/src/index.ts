@@ -17,6 +17,7 @@ import CommandMiddleware from "./class/middlewares/CommandMiddleware";
 import ButtonMiddleware from "./class/middlewares/ButtonMiddleware";
 import ModalMiddleware from "./class/middlewares/ModalMiddleware";
 import SelectMiddleware from "./class/middlewares/SelectMiddleware";
+import ContextMenu from "./class/interactions/ContextMenu";
 
 export {
   BotClient,
@@ -32,4 +33,5 @@ export {
   ModalMiddleware,
   SelectMiddleware,
   Config,
+  ContextMenu,
 };

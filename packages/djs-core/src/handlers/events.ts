@@ -3,7 +3,10 @@ import BotClient from "../class/BotClient";
 
 export function eventListener(client: BotClient) {
   client.on(Events.InteractionCreate, (interaction: Interaction) => {
-    if (interaction.isContextMenuCommand()) return;
+    if (interaction.isContextMenuCommand()) {
+      client.handlers.contextMenu.eventContextMenu(interaction);
+      return;
+    }
     if (interaction.isCommand()) {
       client.handlers.commands.eventCommand(interaction);
       client.handlers.subCommands.eventSubCommand(interaction);

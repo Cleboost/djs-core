@@ -20,6 +20,7 @@ import {
   SubCommand,
   Button,
   SelectMenu,
+  ContextMenu,
 } from "djs-core";
 import dotenv from "dotenv";
 import { pathToFileURL } from "url";
@@ -189,6 +190,8 @@ program
           return bot.handlers.buttons.reloadInteraction(file);
         if (file instanceof SelectMenu)
           return bot.handlers.selectMenus.reloadInteraction(file);
+        if (file instanceof ContextMenu)
+          return bot.handlers.contextMenu.reloadInteraction(file);
 
         console.log(chalk.yellow("⚠️ Unknown file type, skipping hot reload"));
       });
