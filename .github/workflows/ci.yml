@@ -12,7 +12,7 @@ jobs:
   autofix:
     runs-on: ubuntu-latest
     concurrency:
-      group: autofix-${{ github.ref_name }}
+      group: build-${{ github.ref_name }}
       cancel-in-progress: true
 
     permissions:
