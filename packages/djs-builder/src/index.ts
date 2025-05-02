@@ -7,10 +7,7 @@
 import { build } from "tsup";
 import { Config } from "./config";
 import { Readable } from "stream";
-// import { obfuscate } from "javascript-obfuscator";
-// import { globSync } from "glob";
 import fs from "fs";
-// import path from "path";
 import { BundlerReadable } from "./readable";
 import { obfuscate } from "javascript-obfuscator";
 
