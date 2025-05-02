@@ -1,6 +1,6 @@
 {
   "name": "@djs-core/cli",
-  "version": "2.1.4",
+  "version": "2.2.4",
   "description": "CLI for djs-core",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,8 +23,8 @@
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "@djs-core/builder": "workspace:^2.0.0",
-    "djs-core": "workspace:^4.0.0",
+    "@djs-core/builder": "workspace:latest",
+    "djs-core": "workspace:latest",
     "chalk": "^4.1.2",
     "chokidar": "^4.0.3",
     "commander": "^13.1.0",

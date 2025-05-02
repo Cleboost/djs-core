@@ -1,6 +1,6 @@
 {
   "name": "@djs-core/builder",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Builder for djs-core",
   "author": "Cleboost",
   "main": "dist/index.js",
