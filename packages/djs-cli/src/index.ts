@@ -59,6 +59,36 @@ program
     //   console.log(chalk.red("❌ An error occurred while starting the bot."));
     //   process.exit(1);
     // }
+    const spinner = ora("✨ Starting the bot...").start();
+    const bundleEvent = bundleBot({
+      files: ["src/**/*.ts"],
+      artefact: ["src/.env"],
+    }).on("step", (step) => {
+      if (step.status === "error") {
+        console.log(
+          chalk.red(
+            "❌ An error occurred while building the bot. Please check the logs above.",
+          ),
+        );
+        return process.exit(1);
+      }
+    });
+    await new Promise((resolve) => bundleEvent.once("end", resolve));
+    const devPath = path.join(process.cwd(), ".dev");
+    dotenv.config({
+      path: path.join(devPath, ".env"),
+    });
+
+    const bot: BotClient = new BotClient({ dev: true, path: devPath });
+    bot.start(process.env.TOKEN as string);
+    spinner.succeed(chalk.green("Bot started successfully."));
+    console.log(
+      chalk.blue(
+        `🚀 The bot is running. You can stop it using ${chalk.yellowBright(
+          "Ctrl + C",
+        )} or ${chalk.yellowBright("Cmd + C")}.`,
+      ),
+    );
   });
 
 program
