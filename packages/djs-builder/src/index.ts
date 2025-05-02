@@ -105,29 +105,6 @@ function bundleBot(config: Config): BundlerReadable {
       }
     }
 
-    // if (config.production) {
-    //   stream.emit("step", { id: "production", status: "start" });
-    //   const packageJson = JSON.parse(fs.readFileSync("package.json", "utf-8"));
-    //   delete packageJson.devDependencies;
-    //   delete packageJson.scripts;
-    //   packageJson.main = "index.js";
-    //   packageJson.scripts = {
-    //     start: "node index.js",
-    //   };
-    //   fs.writeFileSync(
-    //     path.join(config.dist || "dist", "package.json"),
-    //     JSON.stringify(packageJson, null, 2),
-    //   );
-    //   if (config.log === "extend") {
-    //     stream.emit("step", {
-    //       id: "production",
-    //       status: "progress",
-    //       message: "package.json",
-    //     });
-    //   }
-    //   stream.emit("step", { id: "production", status: "done" });
-    // }
-
     stream.emit("end");
     stream.push(null);
   })();
