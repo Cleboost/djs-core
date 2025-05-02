@@ -296,8 +296,8 @@ program
       obfuscation: options.obfuscate || false,
       minify: true,
     });
-
     await new Promise((resolve) => bundleEvent.once("end", resolve));
+    fs.unlinkSync(path.join(process.cwd(), "index.ts"));
     spinner.succeed(chalk.green("Build complete."));
 
     console.log(
