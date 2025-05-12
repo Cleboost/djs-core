@@ -17,6 +17,7 @@ import {
   SlashCommandRoleOption,
   SlashCommandMentionableOption,
   AutocompleteInteraction,
+  SlashCommandAttachmentOption,
 } from "discord.js";
 import BotClient from "../BotClient";
 
@@ -138,6 +139,14 @@ declare module "discord.js" {
         | ((
             builder: SlashCommandMentionableOption,
           ) => SlashCommandMentionableOption),
+    ): this;
+
+    addAttachmentOption(
+      input:
+        | SlashCommandAttachmentOption
+        | ((
+            builder: SlashCommandAttachmentOption,
+          ) => SlashCommandAttachmentOption),
     ): this;
   }
 }
