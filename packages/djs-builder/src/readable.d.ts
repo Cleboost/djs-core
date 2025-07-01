@@ -7,7 +7,7 @@
 import { Readable } from "stream";
 
 export interface Step {
-  id: "bundle" | "obfuscation" | "artefact";
+  id: "bundle" | "obfuscation" | "artefact" | "docker";
   status: "start" | "progress" | "done" | "error";
   message?: string;
 }

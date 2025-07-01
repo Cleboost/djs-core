@@ -15,6 +15,7 @@ This library is a part of the **djs-core** project, which aims to provide a modu
 - 🔄 Supports hot-reloading for developmente
 - 🔒 Supports code obfuscation to protect your source code
 - 📁 Supports single file output (coming soon)
+- 🐳 **NEW**: Docker containerization support for easy deployment
 
 ## Getting Started
 
