@@ -6,7 +6,6 @@
 
 import fs from "fs";
 import path from "path";
-import { pathToFileURL } from "url";
 
 interface ValidationError {
   file: string;
@@ -44,7 +43,7 @@ export async function validateInteractions(srcPath: string): Promise<ValidationR
       if (interaction) {
         interactions.push(interaction);
       }
-    } catch (error) {
+    } catch {
       // Skip files that aren't interaction files or have syntax errors
       continue;
     }
