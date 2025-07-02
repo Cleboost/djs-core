@@ -130,7 +130,7 @@ async function analyzeInteractionFile(
     data.id = extractContextMenuName(content);
     data.hasRunMethod = hasRunMethod(content);
   } else if (interactionType === "SubCommand") {
-    data.id = extractCommandName(content);
+    data.id = extractSubCommandFullId(content);
     data.hasRunMethod = hasRunMethod(content);
   } else if (interactionType === "SubCommandGroup") {
     data.id = extractCommandName(content);
@@ -176,6 +176,16 @@ function extractContextMenuName(content: string): string | undefined {
   return match ? match[1] : undefined;
 }
 
+function extractSubCommandFullId(content: string): string | undefined {
+  const nameMatch = content.match(/\.setName\(["']([^"']+)["']\)/);
+  const parentMatch = content.match(/\.setParent\(["']([^"']+)["']\)/);
+  
+  if (nameMatch && parentMatch) {
+    return `${parentMatch[1]}.${nameMatch[1]}`;
+  }
+  return nameMatch ? nameMatch[1] : undefined;
+}
+
 function hasRunMethod(content: string): boolean {
   // Remove comments and strings to avoid false positives
   const cleanContent = content
@@ -193,11 +203,17 @@ function checkDuplicateIds(
   interactions: InteractionData[],
   errors: ValidationError[],
 ) {
-  const idMap = new Map<string, InteractionData[]>();
+  // Group interactions by type first, then by ID
+  const typeIdMap = new Map<string, Map<string, InteractionData[]>>();
 
-  // Group interactions by ID
+  // Group interactions by type and ID
   for (const interaction of interactions) {
     if (interaction.id) {
+      if (!typeIdMap.has(interaction.type)) {
+        typeIdMap.set(interaction.type, new Map());
+      }
+      
+      const idMap = typeIdMap.get(interaction.type)!;
       if (!idMap.has(interaction.id)) {
         idMap.set(interaction.id, []);
       }
@@ -205,20 +221,22 @@ function checkDuplicateIds(
     }
   }
 
-  // Find duplicates
-  for (const [id, interactionList] of idMap) {
-    if (interactionList.length > 1) {
-      for (const interaction of interactionList) {
-        const otherFiles = interactionList
-          .filter((i) => i.file !== interaction.file)
-          .map((i) => path.relative(process.cwd(), i.file))
-          .join(", ");
+  // Find duplicates within each interaction type
+  for (const [interactionType, idMap] of typeIdMap) {
+    for (const [id, interactionList] of idMap) {
+      if (interactionList.length > 1) {
+        for (const interaction of interactionList) {
+          const otherFiles = interactionList
+            .filter((i) => i.file !== interaction.file)
+            .map((i) => path.relative(process.cwd(), i.file))
+            .join(", ");
 
-        errors.push({
-          file: path.relative(process.cwd(), interaction.file),
-          message: `Duplicate ID "${id}" found in: ${otherFiles}`,
-          type: "duplicate_id",
-        });
+          errors.push({
+            file: path.relative(process.cwd(), interaction.file),
+            message: `Duplicate ${interactionType} ID "${id}" found in: ${otherFiles}`,
+            type: "duplicate_id",
+          });
+        }
       }
     }
   }
