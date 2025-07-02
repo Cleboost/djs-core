@@ -45,17 +45,17 @@ export interface ExtensionManifest {
  */
 export abstract class ExtensionDev {
   abstract manifest: ExtensionManifest;
-  
+
   /**
    * Called when the extension is loaded in development mode
    */
   abstract onLoad(): void | Promise<void>;
-  
+
   /**
    * Called when the extension is unloaded in development mode
    */
   abstract onUnload(): void | Promise<void>;
-  
+
   /**
    * Called when the extension is reloaded in development mode
    */
@@ -70,22 +70,22 @@ export abstract class ExtensionDev {
  */
 export abstract class ExtensionBuild {
   abstract manifest: ExtensionManifest;
-  
+
   /**
    * Called before the build starts
    */
   onPreBuild?(config: unknown): void | Promise<void>;
-  
+
   /**
    * Called after the build completes
    */
   onPostBuild?(config: unknown): void | Promise<void>;
-  
+
   /**
    * Called to transform files during build
    */
   onTransform?(filePath: string, content: string): string | Promise<string>;
-  
+
   /**
    * Called to add files to the build
    */
@@ -98,12 +98,12 @@ export abstract class ExtensionBuild {
  */
 export abstract class ExtensionRuntime {
   abstract manifest: ExtensionManifest;
-  
+
   /**
    * Called when the extension is initialized at runtime
    */
   abstract onInit(): void | Promise<void>;
-  
+
   /**
    * Called when the bot shuts down
    */

@@ -18,7 +18,13 @@ import ButtonMiddleware from "./class/middlewares/ButtonMiddleware";
 import ModalMiddleware from "./class/middlewares/ModalMiddleware";
 import SelectMiddleware from "./class/middlewares/SelectMiddleware";
 import ContextMenu from "./class/interactions/ContextMenu";
-import { ExtensionManifest, ExtensionDev, ExtensionBuild, ExtensionRuntime, Extension } from "./class/Extension";
+import {
+  ExtensionManifest,
+  ExtensionDev,
+  ExtensionBuild,
+  ExtensionRuntime,
+  Extension,
+} from "./class/Extension";
 
 export {
   BotClient,
@@ -37,13 +43,6 @@ export {
   ContextMenu,
 };
 
-export type {
-  ExtensionManifest,
-  Extension,
-};
+export type { ExtensionManifest, Extension };
 
-export {
-  ExtensionDev,
-  ExtensionBuild,
-  ExtensionRuntime,
-};
+export { ExtensionDev, ExtensionBuild, ExtensionRuntime };

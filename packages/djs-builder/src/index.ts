@@ -50,7 +50,6 @@ function bundleBot(config: Config): BundlerReadable {
 
       // Call post-build hooks from extensions
       await callPostBuildHooks(config);
-
     } catch (error) {
       stream.emit("step", {
         id: "bundle",

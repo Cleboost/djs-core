@@ -118,7 +118,8 @@ program
       const extensionWatcher = chokidar.watch(extensionsPath, {
         ignoreInitial: true,
         cwd: process.cwd(),
-        ignored: (path) => path.includes("node_modules") || path.endsWith(".js"),
+        ignored: (path) =>
+          path.includes("node_modules") || path.endsWith(".js"),
         persistent: true,
       });
 
@@ -127,13 +128,23 @@ program
         const pathParts = filePath.split(path.sep);
         if (pathParts.length >= 2 && pathParts[0] === "extensions") {
           const extensionName = pathParts[1];
-          console.log(chalk.yellow(`🔄 Extension ${extensionName} changed, reloading...`));
-          
+          console.log(
+            chalk.yellow(`🔄 Extension ${extensionName} changed, reloading...`),
+          );
+
           try {
             await bot.handlers.extensions.reloadExtension(extensionName);
-            console.log(chalk.green(`✅ Extension ${extensionName} reloaded successfully`));
+            console.log(
+              chalk.green(
+                `✅ Extension ${extensionName} reloaded successfully`,
+              ),
+            );
           } catch (error) {
-            console.log(chalk.red(`❌ Failed to reload extension ${extensionName}: ${error}`));
+            console.log(
+              chalk.red(
+                `❌ Failed to reload extension ${extensionName}: ${error}`,
+              ),
+            );
           }
         }
       });
@@ -378,38 +389,42 @@ extensionCommand
   .description("Create a new extension")
   .option("-a, --author <author>", "Extension author")
   .option("-d, --description <description>", "Extension description")
-  .action(async (name: string, options: { author?: string; description?: string }) => {
-    const spinner = ora(`Creating extension ${name}...`).start();
-    
-    try {
-      const extensionsDir = path.join(process.cwd(), "extensions");
-      const extensionPath = path.join(extensionsDir, name);
-      
-      if (fs.existsSync(extensionPath)) {
-        spinner.fail(chalk.red(`Extension ${name} already exists`));
-        return;
-      }
+  .action(
+    async (
+      name: string,
+      options: { author?: string; description?: string },
+    ) => {
+      const spinner = ora(`Creating extension ${name}...`).start();
 
-      // Create extension directory
-      fs.mkdirSync(extensionPath, { recursive: true });
+      try {
+        const extensionsDir = path.join(process.cwd(), "extensions");
+        const extensionPath = path.join(extensionsDir, name);
 
-      // Create manifest
-      const manifest = {
-        name,
-        version: "1.0.0",
-        author: options.author || "Unknown",
-        packageId: name.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
-        description: options.description || `Extension ${name}`,
-        djsCoreVersion: "^4.0.0"
-      };
+        if (fs.existsSync(extensionPath)) {
+          spinner.fail(chalk.red(`Extension ${name} already exists`));
+          return;
+        }
 
-      fs.writeFileSync(
-        path.join(extensionPath, "manifest.json"),
-        JSON.stringify(manifest, null, 2)
-      );
+        // Create extension directory
+        fs.mkdirSync(extensionPath, { recursive: true });
 
-      // Create template files
-      const devTemplate = `/**
+        // Create manifest
+        const manifest = {
+          name,
+          version: "1.0.0",
+          author: options.author || "Unknown",
+          packageId: name.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+          description: options.description || `Extension ${name}`,
+          djsCoreVersion: "^4.0.0",
+        };
+
+        fs.writeFileSync(
+          path.join(extensionPath, "manifest.json"),
+          JSON.stringify(manifest, null, 2),
+        );
+
+        // Create template files
+        const devTemplate = `/**
  * Development code for ${name} extension
  * Handles hot reload functionality
  */
@@ -435,7 +450,7 @@ export default class ${name}Dev extends ExtensionDev {
   }
 }`;
 
-      const buildTemplate = `/**
+        const buildTemplate = `/**
  * Build code for ${name} extension
  * Handles build-time interactions
  */
@@ -461,7 +476,7 @@ export default class ${name}Build extends ExtensionBuild {
   }
 }`;
 
-      const runtimeTemplate = `/**
+        const runtimeTemplate = `/**
  * Runtime code for ${name} extension
  * This gets bundled in production mode
  */
@@ -482,32 +497,39 @@ export default class ${name}Runtime extends ExtensionRuntime {
   }
 }`;
 
-      fs.writeFileSync(path.join(extensionPath, "dev.ts"), devTemplate);
-      fs.writeFileSync(path.join(extensionPath, "build.ts"), buildTemplate);
-      fs.writeFileSync(path.join(extensionPath, "runtime.ts"), runtimeTemplate);
+        fs.writeFileSync(path.join(extensionPath, "dev.ts"), devTemplate);
+        fs.writeFileSync(path.join(extensionPath, "build.ts"), buildTemplate);
+        fs.writeFileSync(
+          path.join(extensionPath, "runtime.ts"),
+          runtimeTemplate,
+        );
 
-      spinner.succeed(chalk.green(`Extension ${name} created successfully`));
-      console.log(chalk.blue(`📁 Extension created at: ${extensionPath}`));
-      console.log(chalk.blue("📝 Edit the files to implement your extension logic"));
-    } catch (error) {
-      spinner.fail(chalk.red(`Failed to create extension: ${error}`));
-    }
-  });
+        spinner.succeed(chalk.green(`Extension ${name} created successfully`));
+        console.log(chalk.blue(`📁 Extension created at: ${extensionPath}`));
+        console.log(
+          chalk.blue("📝 Edit the files to implement your extension logic"),
+        );
+      } catch (error) {
+        spinner.fail(chalk.red(`Failed to create extension: ${error}`));
+      }
+    },
+  );
 
 extensionCommand
   .command("list")
   .description("List all extensions")
   .action(() => {
     const extensionsDir = path.join(process.cwd(), "extensions");
-    
+
     if (!fs.existsSync(extensionsDir)) {
       console.log(chalk.yellow("No extensions directory found"));
       return;
     }
 
-    const extensions = fs.readdirSync(extensionsDir, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
+    const extensions = fs
+      .readdirSync(extensionsDir, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
 
     if (extensions.length === 0) {
       console.log(chalk.yellow("No extensions found"));
@@ -516,11 +538,19 @@ extensionCommand
 
     console.log(chalk.blue("📦 Found extensions:"));
     for (const extensionName of extensions) {
-      const manifestPath = path.join(extensionsDir, extensionName, "manifest.json");
+      const manifestPath = path.join(
+        extensionsDir,
+        extensionName,
+        "manifest.json",
+      );
       if (fs.existsSync(manifestPath)) {
         try {
           const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-          console.log(chalk.green(`  • ${manifest.name} v${manifest.version} (${manifest.packageId})`));
+          console.log(
+            chalk.green(
+              `  • ${manifest.name} v${manifest.version} (${manifest.packageId})`,
+            ),
+          );
           if (manifest.description) {
             console.log(chalk.gray(`    ${manifest.description}`));
           }
@@ -538,18 +568,19 @@ extensionCommand
   .description("Validate all extensions")
   .action(() => {
     const spinner = ora("Validating extensions...").start();
-    
+
     try {
       const extensionsDir = path.join(process.cwd(), "extensions");
-      
+
       if (!fs.existsSync(extensionsDir)) {
         spinner.succeed(chalk.yellow("No extensions directory found"));
         return;
       }
 
-      const extensions = fs.readdirSync(extensionsDir, { withFileTypes: true })
-        .filter(dirent => dirent.isDirectory())
-        .map(dirent => dirent.name);
+      const extensions = fs
+        .readdirSync(extensionsDir, { withFileTypes: true })
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name);
 
       let validCount = 0;
       let invalidCount = 0;
@@ -558,7 +589,7 @@ extensionCommand
       for (const extensionName of extensions) {
         const extensionPath = path.join(extensionsDir, extensionName);
         const manifestPath = path.join(extensionPath, "manifest.json");
-        
+
         if (!fs.existsSync(manifestPath)) {
           errors.push(`${extensionName}: Missing manifest.json`);
           invalidCount++;
@@ -567,23 +598,29 @@ extensionCommand
 
         try {
           const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-          
+
           // Validate required fields
           const required = ["name", "version", "author", "packageId"];
-          const missing = required.filter(field => !manifest[field]);
-          
+          const missing = required.filter((field) => !manifest[field]);
+
           if (missing.length > 0) {
-            errors.push(`${extensionName}: Missing required fields: ${missing.join(", ")}`);
+            errors.push(
+              `${extensionName}: Missing required fields: ${missing.join(", ")}`,
+            );
             invalidCount++;
             continue;
           }
 
           // Check for required files
           const requiredFiles = ["dev.ts", "build.ts", "runtime.ts"];
-          const missingFiles = requiredFiles.filter(file => !fs.existsSync(path.join(extensionPath, file)));
-          
+          const missingFiles = requiredFiles.filter(
+            (file) => !fs.existsSync(path.join(extensionPath, file)),
+          );
+
           if (missingFiles.length > 0) {
-            errors.push(`${extensionName}: Missing files: ${missingFiles.join(", ")}`);
+            errors.push(
+              `${extensionName}: Missing files: ${missingFiles.join(", ")}`,
+            );
             invalidCount++;
             continue;
           }

@@ -26,7 +26,10 @@ interface ExtensionBuildModule {
   manifest: ExtensionManifest;
 }
 
-export async function processExtensions(config: Config, stream: BundlerReadable): Promise<void> {
+export async function processExtensions(
+  config: Config,
+  stream: BundlerReadable,
+): Promise<void> {
   if (config.processExtensions === false) {
     return;
   }
@@ -48,12 +51,17 @@ export async function processExtensions(config: Config, stream: BundlerReadable)
   stream.emit("step", { id: "extensions", status: "start" });
 
   try {
-    const extensionDirs = fs.readdirSync(extensionsPath, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
+    const extensionDirs = fs
+      .readdirSync(extensionsPath, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
 
     for (const extensionDir of extensionDirs) {
-      await processExtension(path.join(extensionsPath, extensionDir), config, stream);
+      await processExtension(
+        path.join(extensionsPath, extensionDir),
+        config,
+        stream,
+      );
     }
 
     stream.emit("step", { id: "extensions", status: "done" });
@@ -61,12 +69,19 @@ export async function processExtensions(config: Config, stream: BundlerReadable)
     stream.emit("step", {
       id: "extensions",
       status: "error",
-      message: error instanceof Error ? error.message : "Unknown error during extension processing",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Unknown error during extension processing",
     });
   }
 }
 
-async function processExtension(extensionPath: string, config: Config, stream: BundlerReadable): Promise<void> {
+async function processExtension(
+  extensionPath: string,
+  config: Config,
+  stream: BundlerReadable,
+): Promise<void> {
   try {
     // Check for manifest
     const manifestPath = path.join(extensionPath, "manifest.json");
@@ -81,7 +96,9 @@ async function processExtension(extensionPath: string, config: Config, stream: B
       return;
     }
 
-    const manifest: ExtensionManifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+    const manifest: ExtensionManifest = JSON.parse(
+      fs.readFileSync(manifestPath, "utf-8"),
+    );
 
     if (config.log === "extend") {
       stream.emit("step", {
@@ -94,7 +111,9 @@ async function processExtension(extensionPath: string, config: Config, stream: B
     // Check for build file
     const buildPath = path.join(extensionPath, "build.ts");
     if (fs.existsSync(buildPath)) {
-      const buildModule: ExtensionBuildModule = await import(pathToFileURL(buildPath).href);
+      const buildModule: ExtensionBuildModule = await import(
+        pathToFileURL(buildPath).href
+      );
       if (buildModule.default) {
         const buildExtension = new buildModule.default();
 
@@ -112,7 +131,7 @@ async function processExtension(extensionPath: string, config: Config, stream: B
               if (fs.existsSync(filePath)) {
                 const destPath = `${config.dist || "dist"}/${path.basename(file)}`;
                 fs.copyFileSync(filePath, destPath);
-                
+
                 if (config.log === "extend") {
                   stream.emit("step", {
                     id: "extensions",
@@ -128,8 +147,12 @@ async function processExtension(extensionPath: string, config: Config, stream: B
         // Call post-build hook (will be called after main build)
         if (buildExtension.onPostBuild) {
           // Store for later execution
-          (config as Record<string, unknown>).__extensionPostBuildHooks = (config as Record<string, unknown>).__extensionPostBuildHooks || [];
-          ((config as Record<string, unknown>).__extensionPostBuildHooks as (() => void)[]).push(() => buildExtension.onPostBuild!(config));
+          (config as Record<string, unknown>).__extensionPostBuildHooks =
+            (config as Record<string, unknown>).__extensionPostBuildHooks || [];
+          (
+            (config as Record<string, unknown>)
+              .__extensionPostBuildHooks as (() => void)[]
+          ).push(() => buildExtension.onPostBuild!(config));
         }
       }
     }
@@ -139,14 +162,14 @@ async function processExtension(extensionPath: string, config: Config, stream: B
     if (fs.existsSync(runtimePath)) {
       const destPath = `${config.dist || "dist"}/extensions/${manifest.packageId}/runtime.js`;
       const destDir = path.dirname(destPath);
-      
+
       if (!fs.existsSync(destDir)) {
         fs.mkdirSync(destDir, { recursive: true });
       }
 
       // Copy the file (it will be processed by the main build)
       config.files.push(runtimePath);
-      
+
       if (config.log === "extend") {
         stream.emit("step", {
           id: "extensions",
@@ -159,13 +182,12 @@ async function processExtension(extensionPath: string, config: Config, stream: B
     // Copy manifest to dist
     const manifestDestPath = `${config.dist || "dist"}/extensions/${manifest.packageId}/manifest.json`;
     const manifestDestDir = path.dirname(manifestDestPath);
-    
+
     if (!fs.existsSync(manifestDestDir)) {
       fs.mkdirSync(manifestDestDir, { recursive: true });
     }
-    
-    fs.copyFileSync(manifestPath, manifestDestPath);
 
+    fs.copyFileSync(manifestPath, manifestDestPath);
   } catch (error) {
     stream.emit("step", {
       id: "extensions",

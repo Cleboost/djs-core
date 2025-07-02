@@ -4,7 +4,12 @@
  * Licence: on the GitHub
  */
 
-import { Extension, ExtensionManifest, ExtensionDev, ExtensionRuntime } from "../class/Extension";
+import {
+  Extension,
+  ExtensionManifest,
+  ExtensionDev,
+  ExtensionRuntime,
+} from "../class/Extension";
 import BotClient from "../class/BotClient";
 import fs from "node:fs";
 import path from "node:path";
@@ -15,8 +20,10 @@ import { Collection } from "discord.js";
 export default class ExtensionHandler {
   private client: BotClient;
   private extensions: Collection<string, Extension> = new Collection();
-  private loadedDevExtensions: Collection<string, ExtensionDev> = new Collection();
-  private loadedRuntimeExtensions: Collection<string, ExtensionRuntime> = new Collection();
+  private loadedDevExtensions: Collection<string, ExtensionDev> =
+    new Collection();
+  private loadedRuntimeExtensions: Collection<string, ExtensionRuntime> =
+    new Collection();
 
   constructor(client: BotClient) {
     this.client = client;
@@ -27,15 +34,18 @@ export default class ExtensionHandler {
    */
   async loadExtensions(extensionsDir: string = "extensions"): Promise<void> {
     const extensionsPath = path.join(this.client.cwdPath, extensionsDir);
-    
+
     if (!fs.existsSync(extensionsPath)) {
-      this.client.logger.info("No extensions directory found, skipping extension loading");
+      this.client.logger.info(
+        "No extensions directory found, skipping extension loading",
+      );
       return;
     }
 
-    const extensionDirs = fs.readdirSync(extensionsPath, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
+    const extensionDirs = fs
+      .readdirSync(extensionsPath, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
 
     for (const extensionDir of extensionDirs) {
       await this.loadExtension(path.join(extensionsPath, extensionDir));
@@ -50,12 +60,16 @@ export default class ExtensionHandler {
       // Check for manifest file
       const manifestPath = path.join(extensionPath, "manifest.json");
       if (!fs.existsSync(manifestPath)) {
-        this.client.logger.warn(`Extension at ${extensionPath} missing manifest.json, skipping`);
+        this.client.logger.warn(
+          `Extension at ${extensionPath} missing manifest.json, skipping`,
+        );
         return;
       }
 
-      const manifest: ExtensionManifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-      
+      const manifest: ExtensionManifest = JSON.parse(
+        fs.readFileSync(manifestPath, "utf-8"),
+      );
+
       // Validate manifest
       if (!this.validateManifest(manifest)) {
         return;
@@ -84,26 +98,32 @@ export default class ExtensionHandler {
       }
 
       // Load runtime part
-      const runtimePath = this.client.devMode 
+      const runtimePath = this.client.devMode
         ? path.join(extensionPath, "runtime.ts")
         : path.join(extensionPath, "runtime.js");
-      
+
       if (fs.existsSync(runtimePath)) {
         const runtimeModule = await import(pathToFileURL(runtimePath).href);
         if (runtimeModule.default) {
           extension.runtime = new runtimeModule.default();
           if (extension.runtime) {
             await extension.runtime.onInit();
-            this.loadedRuntimeExtensions.set(manifest.packageId, extension.runtime);
+            this.loadedRuntimeExtensions.set(
+              manifest.packageId,
+              extension.runtime,
+            );
           }
         }
       }
 
       this.extensions.set(manifest.packageId, extension);
-      this.client.logger.success(`Extension ${underline(manifest.name)} v${manifest.version} loaded successfully`);
-
+      this.client.logger.success(
+        `Extension ${underline(manifest.name)} v${manifest.version} loaded successfully`,
+      );
     } catch (error) {
-      this.client.logger.error(new Error(`Failed to load extension at ${extensionPath}: ${error}`));
+      this.client.logger.error(
+        new Error(`Failed to load extension at ${extensionPath}: ${error}`),
+      );
     }
   }
 
@@ -133,10 +153,13 @@ export default class ExtensionHandler {
       }
 
       this.extensions.delete(packageId);
-      this.client.logger.success(`Extension ${underline(extension.manifest.name)} unloaded successfully`);
-
+      this.client.logger.success(
+        `Extension ${underline(extension.manifest.name)} unloaded successfully`,
+      );
     } catch (error) {
-      this.client.logger.error(new Error(`Failed to unload extension ${packageId}: ${error}`));
+      this.client.logger.error(
+        new Error(`Failed to unload extension ${packageId}: ${error}`),
+      );
     }
   }
 
@@ -145,7 +168,9 @@ export default class ExtensionHandler {
    */
   async reloadExtension(packageId: string): Promise<void> {
     if (!this.client.devMode) {
-      this.client.logger.warn("Extension reloading is only available in development mode");
+      this.client.logger.warn(
+        "Extension reloading is only available in development mode",
+      );
       return;
     }
 
@@ -159,9 +184,13 @@ export default class ExtensionHandler {
     if (devExtension) {
       try {
         await devExtension.onReload();
-        this.client.logger.success(`Extension ${underline(extension.manifest.name)} reloaded successfully`);
+        this.client.logger.success(
+          `Extension ${underline(extension.manifest.name)} reloaded successfully`,
+        );
       } catch (error) {
-        this.client.logger.error(new Error(`Failed to reload extension ${packageId}: ${error}`));
+        this.client.logger.error(
+          new Error(`Failed to reload extension ${packageId}: ${error}`),
+        );
       }
     }
   }
@@ -193,14 +222,27 @@ export default class ExtensionHandler {
    * Validate extension manifest
    */
   private validateManifest(manifest: ExtensionManifest): boolean {
-    if (!manifest.name || !manifest.version || !manifest.author || !manifest.packageId) {
-      this.client.logger.error(new Error("Extension manifest is missing required fields (name, version, author, packageId)"));
+    if (
+      !manifest.name ||
+      !manifest.version ||
+      !manifest.author ||
+      !manifest.packageId
+    ) {
+      this.client.logger.error(
+        new Error(
+          "Extension manifest is missing required fields (name, version, author, packageId)",
+        ),
+      );
       return false;
     }
 
     // Check if packageId is already in use
     if (this.extensions.has(manifest.packageId)) {
-      this.client.logger.error(new Error(`Extension with packageId ${manifest.packageId} is already loaded`));
+      this.client.logger.error(
+        new Error(
+          `Extension with packageId ${manifest.packageId} is already loaded`,
+        ),
+      );
       return false;
     }
 
@@ -219,7 +261,9 @@ export default class ExtensionHandler {
       if (this.extensions.has(incompatibleId)) {
         const incompatibleExt = this.extensions.get(incompatibleId)!;
         this.client.logger.error(
-          new Error(`Extension ${manifest.name} is incompatible with loaded extension ${incompatibleExt.manifest.name}`)
+          new Error(
+            `Extension ${manifest.name} is incompatible with loaded extension ${incompatibleExt.manifest.name}`,
+          ),
         );
         return true;
       }
