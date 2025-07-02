@@ -45,33 +45,6 @@ program
   .command("start")
   .description("Start the bot")
   .action(async () => {
-    // Validate interactions before starting
-    console.log(chalk.blue("🔍 Validating interactions..."));
-    const validationResult = await validateInteractions(
-      path.join(process.cwd(), "src"),
-    );
-
-    if (!validationResult.success) {
-      console.log(
-        chalk.red("❌ Validation failed! Found the following issues:\n"),
-      );
-
-      for (const error of validationResult.errors) {
-        const icon =
-          error.type === "duplicate_id"
-            ? "🔄"
-            : error.type === "button_format"
-              ? "🔘"
-              : "⚠️";
-        console.log(chalk.red(`${icon} ${error.file}: ${error.message}`));
-      }
-
-      console.log(chalk.red("\n💡 Please fix these issues before starting."));
-      return process.exit(1);
-    }
-
-    console.log(chalk.green("✅ All interactions validated successfully!"));
-
     const spinner = ora("✨ Starting the bot...").start();
     const bundleEvent = bundleBot({
       files: ["src/**/*.ts"],
@@ -108,36 +81,6 @@ program
   .command("dev")
   .description("Start the bot in development mode")
   .action(async () => {
-    // Validate interactions before starting dev mode
-    console.log(chalk.blue("🔍 Validating interactions..."));
-    const validationResult = await validateInteractions(
-      path.join(process.cwd(), "src"),
-    );
-
-    if (!validationResult.success) {
-      console.log(
-        chalk.yellow("⚠️ Validation found issues that should be fixed:\n"),
-      );
-
-      for (const error of validationResult.errors) {
-        const icon =
-          error.type === "duplicate_id"
-            ? "🔄"
-            : error.type === "button_format"
-              ? "🔘"
-              : "⚠️";
-        console.log(chalk.yellow(`${icon} ${error.file}: ${error.message}`));
-      }
-
-      console.log(
-        chalk.yellow(
-          "\n💡 Please fix these issues when possible. Continuing with development mode...\n",
-        ),
-      );
-    } else {
-      console.log(chalk.green("✅ All interactions validated successfully!"));
-    }
-
     const spinner = ora("✨ Starting the bot in development mode...").start();
     const bundleEvent = bundleBot({
       files: ["src/**/*.ts"],
