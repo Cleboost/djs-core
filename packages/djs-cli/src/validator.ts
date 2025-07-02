@@ -29,13 +29,15 @@ interface InteractionData {
 /**
  * Validates all interaction files before production build
  */
-export async function validateInteractions(srcPath: string): Promise<ValidationResult> {
+export async function validateInteractions(
+  srcPath: string,
+): Promise<ValidationResult> {
   const errors: ValidationError[] = [];
   const interactions: InteractionData[] = [];
-  
+
   // Get all TypeScript files recursively
   const files = getTypeScriptFiles(srcPath);
-  
+
   // Analyze each file
   for (const file of files) {
     try {
@@ -48,64 +50,66 @@ export async function validateInteractions(srcPath: string): Promise<ValidationR
       continue;
     }
   }
-  
+
   // Check for duplicate IDs
   checkDuplicateIds(interactions, errors);
-  
+
   // Check button format
   checkButtonFormat(interactions, errors);
-  
+
   // Check missing methods
   checkMissingMethods(interactions, errors);
-  
+
   return {
     success: errors.length === 0,
-    errors
+    errors,
   };
 }
 
 function getTypeScriptFiles(dirPath: string): string[] {
   const files: string[] = [];
-  
+
   if (!fs.existsSync(dirPath)) {
     return files;
   }
-  
+
   const items = fs.readdirSync(dirPath);
-  
+
   for (const item of items) {
     const fullPath = path.join(dirPath, item);
     const stat = fs.statSync(fullPath);
-    
+
     if (stat.isDirectory()) {
       files.push(...getTypeScriptFiles(fullPath));
     } else if (stat.isFile() && item.endsWith(".ts")) {
       files.push(fullPath);
     }
   }
-  
+
   return files;
 }
 
-async function analyzeInteractionFile(filePath: string): Promise<InteractionData | null> {
+async function analyzeInteractionFile(
+  filePath: string,
+): Promise<InteractionData | null> {
   const content = fs.readFileSync(filePath, "utf-8");
-  
+
   // Skip files that don't import from djs-core
   if (!content.includes("djs-core")) {
     return null;
   }
-  
+
   // Detect interaction type based on imports and content
   const interactionType = detectInteractionType(content);
   if (!interactionType) {
     return null;
   }
-  
+
   const data: InteractionData = {
     file: filePath,
-    type: interactionType
+    type: interactionType,
   };
-  
+
   // Extract ID based on interaction type
   if (interactionType === "Button") {
     data.id = extractButtonCustomId(content);
@@ -132,7 +136,7 @@ async function analyzeInteractionFile(filePath: string): Promise<InteractionData
     data.id = extractCommandName(content);
     data.hasRunMethod = hasRunMethod(content);
   }
-  
+
   return data;
 }
 
@@ -175,19 +179,22 @@ function extractContextMenuName(content: string): string | undefined {
 function hasRunMethod(content: string): boolean {
   // Remove comments and strings to avoid false positives
   const cleanContent = content
-    .replace(/\/\*[\s\S]*?\*\//g, '') // Remove block comments
-    .replace(/\/\/.*$/gm, '') // Remove line comments
+    .replace(/\/\*[\s\S]*?\*\//g, "") // Remove block comments
+    .replace(/\/\/.*$/gm, "") // Remove line comments
     .replace(/"(?:[^"\\]|\\.)*"/g, '""') // Remove string contents
     .replace(/'(?:[^'\\]|\\.)*'/g, "''") // Remove string contents
-    .replace(/`(?:[^`\\]|\\.)*`/g, '``'); // Remove template string contents
-  
+    .replace(/`(?:[^`\\]|\\.)*`/g, "``"); // Remove template string contents
+
   // Look for .run( pattern
   return /\.run\s*\(/s.test(cleanContent);
 }
 
-function checkDuplicateIds(interactions: InteractionData[], errors: ValidationError[]) {
+function checkDuplicateIds(
+  interactions: InteractionData[],
+  errors: ValidationError[],
+) {
   const idMap = new Map<string, InteractionData[]>();
-  
+
   // Group interactions by ID
   for (const interaction of interactions) {
     if (interaction.id) {
@@ -197,57 +204,72 @@ function checkDuplicateIds(interactions: InteractionData[], errors: ValidationEr
       idMap.get(interaction.id)!.push(interaction);
     }
   }
-  
+
   // Find duplicates
   for (const [id, interactionList] of idMap) {
     if (interactionList.length > 1) {
       for (const interaction of interactionList) {
         const otherFiles = interactionList
-          .filter(i => i.file !== interaction.file)
-          .map(i => path.relative(process.cwd(), i.file))
+          .filter((i) => i.file !== interaction.file)
+          .map((i) => path.relative(process.cwd(), i.file))
           .join(", ");
-        
+
         errors.push({
           file: path.relative(process.cwd(), interaction.file),
           message: `Duplicate ID "${id}" found in: ${otherFiles}`,
-          type: "duplicate_id"
+          type: "duplicate_id",
         });
       }
     }
   }
 }
 
-function checkButtonFormat(interactions: InteractionData[], errors: ValidationError[]) {
-  const buttons = interactions.filter(i => i.type === "Button");
-  
+function checkButtonFormat(
+  interactions: InteractionData[],
+  errors: ValidationError[],
+) {
+  const buttons = interactions.filter((i) => i.type === "Button");
+
   for (const button of buttons) {
     if (!button.hasCustomId) {
       errors.push({
         file: path.relative(process.cwd(), button.file),
         message: "Button is missing setCustomId() call",
-        type: "button_format"
+        type: "button_format",
       });
     }
-    
+
     if (!button.hasRunMethod) {
       errors.push({
         file: path.relative(process.cwd(), button.file),
         message: "Button is missing run() method",
-        type: "button_format"
+        type: "button_format",
       });
     }
   }
 }
 
-function checkMissingMethods(interactions: InteractionData[], errors: ValidationError[]) {
-  const typesRequiringRun = ["Command", "Modal", "SelectMenu", "ContextMenu", "SubCommand"];
-  
+function checkMissingMethods(
+  interactions: InteractionData[],
+  errors: ValidationError[],
+) {
+  const typesRequiringRun = [
+    "Command",
+    "Modal",
+    "SelectMenu",
+    "ContextMenu",
+    "SubCommand",
+  ];
+
   for (const interaction of interactions) {
-    if (typesRequiringRun.includes(interaction.type) && !interaction.hasRunMethod) {
+    if (
+      typesRequiringRun.includes(interaction.type) &&
+      !interaction.hasRunMethod
+    ) {
       errors.push({
         file: path.relative(process.cwd(), interaction.file),
         message: `${interaction.type} is missing run() method`,
-        type: "missing_method"
+        type: "missing_method",
       });
     }
   }
