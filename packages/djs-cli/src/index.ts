@@ -65,11 +65,6 @@ program
       artefact: ["src/.env"],
     }).on("step", (step) => {
       if (step.status === "error") {
-        console.log(
-          chalk.red(
-            "❌ An error occurred while building the bot. Please check the logs above.",
-          ),
-        );
         return process.exit(1);
       }
     });
@@ -102,11 +97,6 @@ program
       dist: ".dev",
     }).on("step", (step) => {
       if (step.status === "error") {
-        console.log(
-          chalk.red(
-            "❌ An error occurred while building the bot. Please check the logs above. The bot will not be reloaded until the error is fixed.",
-          ),
-        );
         console.log(chalk.red("❌ Please fix the error and relaunch cli."));
         return process.exit(1);
       }
@@ -181,11 +171,6 @@ program
 
       buildEvent.on("step", (step) => {
         if (step.status === "error") {
-          console.log(
-            chalk.red(
-              "❌ An error occurred while building the bot. Please check the logs above. The bot will not be reloaded until the error is fixed.",
-            ),
-          );
           buildEvent.removeAllListeners();
           return;
         }
