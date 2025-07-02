@@ -15,7 +15,7 @@ The **djs-core** project is designed to provide a robust and flexible foundation
 
 - 🔧 **Modular Architecture**: Easily extend and customize the bot's functionality.
 - ⚡ **High Performance**: Optimized for speed and efficiency.
-- 📦 **Rich Plugin System**: Integrate various plugins to enhance your bot's capabilities. (Planned)
+- 📦 **Rich Extension System**: Create and integrate extensions with hot reload support and build-time hooks.
 - 🔒 **Secure**: Built with security best practices in mind.
 
 ## Getting Started
