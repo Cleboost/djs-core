@@ -232,6 +232,7 @@ program
   .command("build")
   .description("Build the bot")
   .option("-o, --obfuscate", "Obfuscate the code")
+  .option("-d, --docker", "Generate Docker files for containerization")
   .action(async (options) => {
     if (options.obfuscate) {
       console.log(
@@ -244,6 +245,15 @@ program
           "This may slow down your bot and make the bundle larger.\n\n",
         ),
       );
+    }
+
+    if (options.docker) {
+      console.log(
+        chalk.blue(
+          "🐳 Docker mode enabled. Generating Docker files for containerization...",
+        ),
+      );
+      console.log();
     }
 
     const spinner = ora("✨ Building the bot...").start();
@@ -295,6 +305,7 @@ program
       production: true,
       obfuscation: options.obfuscate || false,
       minify: true,
+      docker: options.docker || false,
     });
     await new Promise((resolve) => bundleEvent.once("end", resolve));
     fs.unlinkSync(path.join(process.cwd(), "index.ts"));
@@ -305,6 +316,13 @@ program
         `📦 The bot has been built. You can run the bot using \`${chalk.yellowBright("node index.js")}\` in dist folder`,
       ),
     );
+    if (options.docker) {
+      console.log(
+        chalk.blue(
+          `🐳 Docker files generated! You can build and run with: \`${chalk.yellowBright("docker-compose up --build")}\``,
+        ),
+      );
+    }
     console.log(
       chalk.blue("🚀 New features for auto-deploy are comming soon!"),
     );

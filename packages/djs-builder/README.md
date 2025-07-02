@@ -15,12 +15,57 @@ This library is a part of the **djs-core** project, which aims to provide a modu
 - 🔄 Supports hot-reloading for development
 - 🔒 Supports code obfuscation to protect your source code
 - 📁 Supports single file output
+- 🐳 **NEW**: Docker containerization support for easy deployment
 
 ## Getting Started
 
 To get started with **djs-core**, follow these steps:
 
 In writing
+
+### Docker Support
+
+The builder now supports generating Docker files for easy containerization of your Discord bot. Simply enable the Docker option in your configuration:
+
+```javascript
+import bundleBot from '@djs-core/builder';
+
+const stream = bundleBot({
+  files: ['src/index.ts'],
+  docker: true, // Enable Docker generation
+  production: true
+});
+```
+
+Or with custom Docker configuration:
+
+```javascript
+const stream = bundleBot({
+  files: ['src/index.ts'],
+  docker: {
+    baseImage: 'node:18-alpine',
+    port: 3000,
+    compose: true,
+    env: {
+      NODE_ENV: 'production',
+      BOT_TOKEN: '${BOT_TOKEN}'
+    },
+    packages: ['curl', 'git']
+  },
+  production: true
+});
+```
+
+This will generate:
+- `Dockerfile` - Optimized Docker image configuration
+- `.dockerignore` - Files to exclude from Docker build
+- `docker-compose.yml` - Docker Compose configuration for easy deployment
+- `package.json` - Production dependencies file (if not present)
+
+You can then build and run your bot with:
+```bash
+docker-compose up --build
+```
 
 ## Contributing
 
