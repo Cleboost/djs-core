@@ -48,4 +48,14 @@ export interface Config {
    * @default true
    */
   clean?: boolean;
+  /**
+   * Extensions directory path
+   * @default "extensions"
+   */
+  extensionsDir?: string;
+  /**
+   * Process extensions during build
+   * @default true
+   */
+  processExtensions?: boolean;
 }

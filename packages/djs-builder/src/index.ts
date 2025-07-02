@@ -10,6 +10,7 @@ import { Readable } from "stream";
 import fs from "fs";
 import { BundlerReadable } from "./readable";
 import { obfuscate } from "javascript-obfuscator";
+import { processExtensions, callPostBuildHooks } from "./extensions";
 
 function bundleBot(config: Config): BundlerReadable {
   const stream = new Readable({
@@ -30,6 +31,9 @@ function bundleBot(config: Config): BundlerReadable {
 
   (async () => {
     try {
+      // Process extensions before building
+      await processExtensions(config, stream);
+
       await build({
         format: config.format || ["cjs"],
         outDir: config.dist || "dist",
@@ -43,6 +47,10 @@ function bundleBot(config: Config): BundlerReadable {
         treeshake: config.production ?? false,
       });
       stream.emit("step", { id: "bundle", status: "done" });
+
+      // Call post-build hooks from extensions
+      await callPostBuildHooks(config);
+
     } catch (error) {
       stream.emit("step", {
         id: "bundle",

@@ -112,6 +112,33 @@ program
       persistent: true,
     });
 
+    // Watch extensions directory for changes
+    const extensionsPath = path.resolve(process.cwd(), "extensions");
+    if (fs.existsSync(extensionsPath)) {
+      const extensionWatcher = chokidar.watch(extensionsPath, {
+        ignoreInitial: true,
+        cwd: process.cwd(),
+        ignored: (path) => path.includes("node_modules") || path.endsWith(".js"),
+        persistent: true,
+      });
+
+      extensionWatcher.on("change", async (filePath) => {
+        // Reload extensions on file change
+        const pathParts = filePath.split(path.sep);
+        if (pathParts.length >= 2 && pathParts[0] === "extensions") {
+          const extensionName = pathParts[1];
+          console.log(chalk.yellow(`🔄 Extension ${extensionName} changed, reloading...`));
+          
+          try {
+            await bot.handlers.extensions.reloadExtension(extensionName);
+            console.log(chalk.green(`✅ Extension ${extensionName} reloaded successfully`));
+          } catch (error) {
+            console.log(chalk.red(`❌ Failed to reload extension ${extensionName}: ${error}`));
+          }
+        }
+      });
+    }
+
     watcher.once("ready", () => {
       bot.start(process.env.TOKEN as string);
       spinner.succeed(chalk.green("Bot started in development mode."));
@@ -338,6 +365,247 @@ program
       ),
     ); // console.log(chalk.green("✨ Deploying the bot..."));
     // console.log(chalk.green("✨ Deploying the bot..."));
+  });
+
+// Extension commands
+const extensionCommand = program
+  .command("extension")
+  .alias("ext")
+  .description("Manage extensions");
+
+extensionCommand
+  .command("create <name>")
+  .description("Create a new extension")
+  .option("-a, --author <author>", "Extension author")
+  .option("-d, --description <description>", "Extension description")
+  .action(async (name: string, options: { author?: string; description?: string }) => {
+    const spinner = ora(`Creating extension ${name}...`).start();
+    
+    try {
+      const extensionsDir = path.join(process.cwd(), "extensions");
+      const extensionPath = path.join(extensionsDir, name);
+      
+      if (fs.existsSync(extensionPath)) {
+        spinner.fail(chalk.red(`Extension ${name} already exists`));
+        return;
+      }
+
+      // Create extension directory
+      fs.mkdirSync(extensionPath, { recursive: true });
+
+      // Create manifest
+      const manifest = {
+        name,
+        version: "1.0.0",
+        author: options.author || "Unknown",
+        packageId: name.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+        description: options.description || `Extension ${name}`,
+        djsCoreVersion: "^4.0.0"
+      };
+
+      fs.writeFileSync(
+        path.join(extensionPath, "manifest.json"),
+        JSON.stringify(manifest, null, 2)
+      );
+
+      // Create template files
+      const devTemplate = `/**
+ * Development code for ${name} extension
+ * Handles hot reload functionality
+ */
+
+import { ExtensionDev } from "djs-core";
+
+export default class ${name}Dev extends ExtensionDev {
+  manifest = ${JSON.stringify(manifest, null, 2)};
+
+  async onLoad(): Promise<void> {
+    console.log("Extension ${name} loaded in development mode");
+    // Add your development logic here
+  }
+
+  async onUnload(): Promise<void> {
+    console.log("Extension ${name} unloaded from development mode");
+    // Clean up development resources here
+  }
+
+  async onReload(): Promise<void> {
+    console.log("Extension ${name} reloaded in development mode");
+    // Handle hot reload logic here
+  }
+}`;
+
+      const buildTemplate = `/**
+ * Build code for ${name} extension
+ * Handles build-time interactions
+ */
+
+import { ExtensionBuild } from "djs-core";
+
+export default class ${name}Build extends ExtensionBuild {
+  manifest = ${JSON.stringify(manifest, null, 2)};
+
+  async onPreBuild(config: any): Promise<void> {
+    console.log("Extension ${name} pre-build hook");
+    // Add your pre-build logic here
+  }
+
+  async onPostBuild(config: any): Promise<void> {
+    console.log("Extension ${name} post-build hook");
+    // Add your post-build logic here
+  }
+
+  async onAddFiles(): Promise<string[]> {
+    // Return array of additional files to include in build
+    return [];
+  }
+}`;
+
+      const runtimeTemplate = `/**
+ * Runtime code for ${name} extension
+ * This gets bundled in production mode
+ */
+
+import { ExtensionRuntime } from "djs-core";
+
+export default class ${name}Runtime extends ExtensionRuntime {
+  manifest = ${JSON.stringify(manifest, null, 2)};
+
+  async onInit(): Promise<void> {
+    console.log("Extension ${name} initialized at runtime");
+    // Add your runtime logic here
+  }
+
+  async onShutdown(): Promise<void> {
+    console.log("Extension ${name} shutting down");
+    // Clean up runtime resources here
+  }
+}`;
+
+      fs.writeFileSync(path.join(extensionPath, "dev.ts"), devTemplate);
+      fs.writeFileSync(path.join(extensionPath, "build.ts"), buildTemplate);
+      fs.writeFileSync(path.join(extensionPath, "runtime.ts"), runtimeTemplate);
+
+      spinner.succeed(chalk.green(`Extension ${name} created successfully`));
+      console.log(chalk.blue(`📁 Extension created at: ${extensionPath}`));
+      console.log(chalk.blue("📝 Edit the files to implement your extension logic"));
+    } catch (error) {
+      spinner.fail(chalk.red(`Failed to create extension: ${error}`));
+    }
+  });
+
+extensionCommand
+  .command("list")
+  .description("List all extensions")
+  .action(() => {
+    const extensionsDir = path.join(process.cwd(), "extensions");
+    
+    if (!fs.existsSync(extensionsDir)) {
+      console.log(chalk.yellow("No extensions directory found"));
+      return;
+    }
+
+    const extensions = fs.readdirSync(extensionsDir, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name);
+
+    if (extensions.length === 0) {
+      console.log(chalk.yellow("No extensions found"));
+      return;
+    }
+
+    console.log(chalk.blue("📦 Found extensions:"));
+    for (const extensionName of extensions) {
+      const manifestPath = path.join(extensionsDir, extensionName, "manifest.json");
+      if (fs.existsSync(manifestPath)) {
+        try {
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+          console.log(chalk.green(`  • ${manifest.name} v${manifest.version} (${manifest.packageId})`));
+          if (manifest.description) {
+            console.log(chalk.gray(`    ${manifest.description}`));
+          }
+        } catch {
+          console.log(chalk.red(`  • ${extensionName} (invalid manifest)`));
+        }
+      } else {
+        console.log(chalk.red(`  • ${extensionName} (no manifest)`));
+      }
+    }
+  });
+
+extensionCommand
+  .command("validate")
+  .description("Validate all extensions")
+  .action(() => {
+    const spinner = ora("Validating extensions...").start();
+    
+    try {
+      const extensionsDir = path.join(process.cwd(), "extensions");
+      
+      if (!fs.existsSync(extensionsDir)) {
+        spinner.succeed(chalk.yellow("No extensions directory found"));
+        return;
+      }
+
+      const extensions = fs.readdirSync(extensionsDir, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+
+      let validCount = 0;
+      let invalidCount = 0;
+      const errors: string[] = [];
+
+      for (const extensionName of extensions) {
+        const extensionPath = path.join(extensionsDir, extensionName);
+        const manifestPath = path.join(extensionPath, "manifest.json");
+        
+        if (!fs.existsSync(manifestPath)) {
+          errors.push(`${extensionName}: Missing manifest.json`);
+          invalidCount++;
+          continue;
+        }
+
+        try {
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+          
+          // Validate required fields
+          const required = ["name", "version", "author", "packageId"];
+          const missing = required.filter(field => !manifest[field]);
+          
+          if (missing.length > 0) {
+            errors.push(`${extensionName}: Missing required fields: ${missing.join(", ")}`);
+            invalidCount++;
+            continue;
+          }
+
+          // Check for required files
+          const requiredFiles = ["dev.ts", "build.ts", "runtime.ts"];
+          const missingFiles = requiredFiles.filter(file => !fs.existsSync(path.join(extensionPath, file)));
+          
+          if (missingFiles.length > 0) {
+            errors.push(`${extensionName}: Missing files: ${missingFiles.join(", ")}`);
+            invalidCount++;
+            continue;
+          }
+
+          validCount++;
+        } catch {
+          errors.push(`${extensionName}: Invalid manifest.json`);
+          invalidCount++;
+        }
+      }
+
+      spinner.succeed(chalk.green(`Extension validation complete`));
+      console.log(chalk.green(`✅ Valid extensions: ${validCount}`));
+      if (invalidCount > 0) {
+        console.log(chalk.red(`❌ Invalid extensions: ${invalidCount}`));
+        for (const error of errors) {
+          console.log(chalk.red(`  • ${error}`));
+        }
+      }
+    } catch (error) {
+      spinner.fail(chalk.red(`Validation failed: ${error}`));
+    }
   });
 
 program.parse(process.argv);

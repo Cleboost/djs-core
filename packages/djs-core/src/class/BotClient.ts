@@ -24,6 +24,7 @@ import ButtonHandler from "../handlers/Button";
 import SelectMenuHandler from "../handlers/SelectMenu";
 import EventHandler from "../handlers/Event";
 import ContetxtMenuHandler from "../handlers/ContextMenu";
+import ExtensionHandler from "../handlers/Extension";
 
 interface BotClientArgs {
   dev?: boolean;
@@ -46,6 +47,7 @@ export default class BotClient extends Client {
     selectMenus: new SelectMenuHandler(this),
     events: new EventHandler(this),
     contextMenu: new ContetxtMenuHandler(this),
+    extensions: new ExtensionHandler(this),
   };
   cwdPath: string = process.cwd();
   devMode: boolean = false;
@@ -142,6 +144,7 @@ export default class BotClient extends Client {
     }
 
     loadHandlers(this);
+    await this.handlers.extensions.loadExtensions();
     await this.login(token).catch((error) => {
       if ((error as { code?: string }).code === "TokenInvalid") {
         this.logger.error(
@@ -166,6 +169,19 @@ export default class BotClient extends Client {
     process.on("uncaughtException", (error: Error) => {
       console.error(error);
       return this.logger.error(error);
+    });
+
+    // Graceful shutdown
+    process.on("SIGINT", async () => {
+      this.logger.info("Received SIGINT, shutting down gracefully...");
+      await this.handlers.extensions.shutdown();
+      process.exit(0);
+    });
+
+    process.on("SIGTERM", async () => {
+      this.logger.info("Received SIGTERM, shutting down gracefully...");
+      await this.handlers.extensions.shutdown();
+      process.exit(0);
     });
   }
 }
