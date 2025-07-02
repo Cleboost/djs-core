@@ -179,7 +179,7 @@ function extractContextMenuName(content: string): string | undefined {
 function extractSubCommandFullId(content: string): string | undefined {
   const nameMatch = content.match(/\.setName\(["']([^"']+)["']\)/);
   const parentMatch = content.match(/\.setParent\(["']([^"']+)["']\)/);
-  
+
   if (nameMatch && parentMatch) {
     return `${parentMatch[1]}.${nameMatch[1]}`;
   }
@@ -212,7 +212,7 @@ function checkDuplicateIds(
       if (!typeIdMap.has(interaction.type)) {
         typeIdMap.set(interaction.type, new Map());
       }
-      
+
       const idMap = typeIdMap.get(interaction.type)!;
       if (!idMap.has(interaction.id)) {
         idMap.set(interaction.id, []);
