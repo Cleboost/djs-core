@@ -31,7 +31,8 @@
     "onlyBuiltDependencies": [
       "@djs-core/builder",
       "esbuild",
-      "javascript-obfuscator"
+      "javascript-obfuscator",
+      "unrs-resolver"
     ]
   }
 }
