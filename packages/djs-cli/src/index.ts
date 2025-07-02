@@ -24,6 +24,7 @@ import {
 } from "djs-core";
 import dotenv from "dotenv";
 import { pathToFileURL } from "url";
+import { validateInteractions } from "./validator";
 
 if (require.main !== module) {
   console.error(chalk.red("❌ This file should be run as a CLI tool."));
@@ -44,21 +45,6 @@ program
   .command("start")
   .description("Start the bot")
   .action(async () => {
-    // console.log(chalk.green("✨ Starting the bot..."));
-    // const bundleEvent = bundleBot({
-    //   files: ["src/**/*.ts"],
-    //   artefact: ["src/.env"],
-    // });
-    // await new Promise((resolve) => bundleEvent.once("end", resolve));
-    // try {
-    //   execSync("node index.js", {
-    //     stdio: "inherit",
-    //     cwd: path.join(process.cwd(), "dist"),
-    //   });
-    // } catch {
-    //   console.log(chalk.red("❌ An error occurred while starting the bot."));
-    //   process.exit(1);
-    // }
     const spinner = ora("✨ Starting the bot...").start();
     const bundleEvent = bundleBot({
       files: ["src/**/*.ts"],
@@ -245,6 +231,33 @@ program
         ),
       );
     }
+
+    // Validate interactions before building
+    console.log(chalk.blue("🔍 Validating interactions..."));
+    const validationResult = await validateInteractions(
+      path.join(process.cwd(), "src"),
+    );
+
+    if (!validationResult.success) {
+      console.log(
+        chalk.red("❌ Validation failed! Found the following issues:\n"),
+      );
+
+      for (const error of validationResult.errors) {
+        const icon =
+          error.type === "duplicate_id"
+            ? "🔄"
+            : error.type === "button_format"
+              ? "🔘"
+              : "⚠️";
+        console.log(chalk.red(`${icon} ${error.file}: ${error.message}`));
+      }
+
+      console.log(chalk.red("\n💡 Please fix these issues before building."));
+      return process.exit(1);
+    }
+
+    console.log(chalk.green("✅ All interactions validated successfully!"));
 
     const spinner = ora("✨ Building the bot...").start();
 
