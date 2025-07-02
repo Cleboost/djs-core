@@ -1,4 +1,10 @@
 # Ignore artifacts:
 dist/
 .github/
+
+
+# Config files:
 *.yaml
+*.md
+*.json
+eslint.config.mjs
