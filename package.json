@@ -1,6 +1,6 @@
 {
   "name": "djs-core",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "type": "module",
   "bin": {
     "djs-core": "dist/cli/index.js"

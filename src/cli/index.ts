@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Command as Cli } from "commander";
 import inquirer from "inquirer";
 import { mkdirSync, writeFileSync, existsSync } from "fs";
@@ -41,7 +43,7 @@ const program = new Cli();
 program.name("djs-core").description("CLI pour le framework djs-core").version("2.0.0");
 
 /**
- * generate:command – crée un squelette de slash-command
+ * generate:command – creates a slash command skeleton
  */
 program
   .command("generate:command")
