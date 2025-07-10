@@ -15,20 +15,22 @@ function openFile(filePath: string) {
   if (platform === "win32") {
     import { execFile } from "child_process";
     const safeFilePath = resolve(filePath);
-    execFile("cmd", ["/c", "start", "", safeFilePath], (err) => {
+    execFile("cmd", ["/c", "start", "", `"${safeFilePath}"`], (err) => {
       if (err) {
         console.error(`Failed to open file: ${err.message}`);
       }
     });
     return;
   } else if (platform === "darwin") {
-    execFile("open", [filePath], (err) => {
+    const safeFilePath = resolve(filePath);
+    execFile("open", [safeFilePath], (err) => {
       if (err) {
         console.error(`Failed to open file: ${err.message}`);
       }
     });
   } else {
-    execFile("xdg-open", [filePath], (err) => {
+    const safeFilePath = resolve(filePath);
+    execFile("xdg-open", [safeFilePath], (err) => {
       if (err) {
         console.error(`Failed to open file: ${err.message}`);
       }
