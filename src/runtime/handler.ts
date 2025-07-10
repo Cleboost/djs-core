@@ -1,4 +1,4 @@
-import type { Client } from "discord.js";
+import { Client, MessageFlags } from "discord.js";
 import type { BaseEvent } from "./Class/BaseEvent";
 import type { Command } from "./Class/Command";
 import type { Button } from "./Class/Button";
@@ -41,9 +41,9 @@ export function registerHandlers(options: {
       } catch (err) {
         console.error(`Error in the command ${cmd.name}:`, err);
         if (interaction.replied || interaction.deferred) {
-          await interaction.followUp({ content: "An error occurred…", ephemeral: true });
+          await interaction.followUp({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
         } else {
-          await interaction.reply({ content: "An error occurred…", ephemeral: true });
+          await interaction.reply({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
         }
       }
     } else if (interaction.isButton()) {
@@ -54,9 +54,9 @@ export function registerHandlers(options: {
       } catch (err) {
         console.error(`Error in the button handler for ${interaction.customId}:`, err);
         if (interaction.replied || interaction.deferred) {
-          await interaction.followUp({ content: "An error occurred…", ephemeral: true });
+          await interaction.followUp({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
         } else {
-          await interaction.reply({ content: "An error occurred…", ephemeral: true });
+          await interaction.reply({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
         }
       }
     }
