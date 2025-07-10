@@ -6,14 +6,16 @@ import { spawn } from "child_process";
 
 function openFile(filePath: string) {
   const editor = process.env.VISUAL || process.env.EDITOR;
+  const safeFilePath = resolve(filePath);
   if (editor) {
-    spawn(editor, [filePath], { stdio: "inherit", detached: true });
+    spawn(editor, [safeFilePath], { stdio: "inherit", detached: true });
     return;
   }
   const platform = process.platform;
   if (platform === "win32") {
     import { execFile } from "child_process";
-    execFile("cmd", ["/c", "start", "", filePath], (err) => {
+    const safeFilePath = resolve(filePath);
+    execFile("cmd", ["/c", "start", "", safeFilePath], (err) => {
       if (err) {
         console.error(`Failed to open file: ${err.message}`);
       }
