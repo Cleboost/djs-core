@@ -12,11 +12,25 @@ function openFile(filePath: string) {
   }
   const platform = process.platform;
   if (platform === "win32") {
-    spawn("cmd", ["/c", "start", "", filePath], { detached: true, stdio: "ignore" });
+    import { execFile } from "child_process";
+    execFile("cmd", ["/c", "start", "", filePath], (err) => {
+      if (err) {
+        console.error(`Failed to open file: ${err.message}`);
+      }
+    });
+    return;
   } else if (platform === "darwin") {
-    spawn("open", [filePath], { detached: true, stdio: "ignore" });
+    execFile("open", [filePath], (err) => {
+      if (err) {
+        console.error(`Failed to open file: ${err.message}`);
+      }
+    });
   } else {
-    spawn("xdg-open", [filePath], { detached: true, stdio: "ignore" });
+    execFile("xdg-open", [filePath], (err) => {
+      if (err) {
+        console.error(`Failed to open file: ${err.message}`);
+      }
+    });
   }
 }
 
