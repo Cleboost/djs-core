@@ -1,10 +1,6 @@
 import { resolve } from "path";
 import { spawn, execFile } from "child_process";
 
-/**
- * Ouvre un fichier dans l’éditeur configuré (VISUAL ou EDITOR) ou, à défaut,
- * utilise la commande système appropriée pour afficher le fichier.
- */
 export function openFile(filePath: string) {
   const editor = process.env.VISUAL || process.env.EDITOR;
   const safeFilePath = resolve(filePath);
