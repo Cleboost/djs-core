@@ -5,6 +5,7 @@ import registerGenerateCommand from "./commands/generateCommand";
 import registerDev from "./commands/dev";
 import registerBuild from "./commands/build";
 import registerGenerateEvent from "./commands/generateEvent";
+import registerGenerateButton from "./commands/generateButton";
 
 const program = new Cli();
 program
@@ -14,6 +15,7 @@ program
 
 registerGenerateCommand(program);
 registerGenerateEvent(program);
+registerGenerateButton(program);
 registerDev(program);
 registerBuild(program);
 

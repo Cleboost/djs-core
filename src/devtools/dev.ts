@@ -52,16 +52,20 @@ export async function runDev(projectRoot: string) {
 
   const cmdDir = resolve(root, "src/commands");
   const evtDir = resolve(root, "src/events");
+  const btnDir = resolve(root, "src/buttons");
   const validExt = [".ts", ".js", ".mjs", ".cjs"];
 
   async function scanSources() {
     const commandFiles: string[] = [];
     const eventFiles: string[] = [];
+    const buttonFiles: string[] = [];
     if (existsSync(cmdDir)) collectFiles(cmdDir, (f) => validExt.includes(extname(f)), commandFiles);
     if (existsSync(evtDir)) collectFiles(evtDir, (f) => validExt.includes(extname(f)), eventFiles);
+    if (existsSync(btnDir)) collectFiles(btnDir, (f) => validExt.includes(extname(f)), buttonFiles);
 
     const commands: any[] = [];
     const events: any[] = [];
+    const buttons: any[] = [];
     const meta = new Map<string, { name: string }>();
 
     for (const file of commandFiles) {
@@ -92,19 +96,31 @@ export async function runDev(projectRoot: string) {
       }
     }
 
-    console.log(`🔗 ${commands.length} command(s) | ${events.length} event(s) loaded.`);
-    return { commands, events, meta };
+    for (const file of buttonFiles) {
+      try {
+        const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`);
+        if (mod.default) {
+          buttons.push(mod.default);
+        }
+      } catch (err) {
+        console.error("Error importing", relative(root, file), err);
+      }
+    }
+
+    console.log(`🔗 ${commands.length} command${commands.length === 1 ? "" : "s"} | ${events.length} event${events.length === 1 ? "" : "s"} | ${buttons.length} button${buttons.length === 1 ? "" : "s"} loaded.`);
+    return { commands, events, buttons, meta };
   }
 
   let commands: any[] = [];
   let events: any[] = [];
+  let buttons: any[] = [];
   let fileMeta: Map<string, { name: string }> = new Map();
 
   async function createClient() {
-    ({ commands, events, meta: fileMeta } = await scanSources());
+    ({ commands, events, buttons, meta: fileMeta } = await scanSources());
 
     const client = new Client({ intents: config.intents ?? [] });
-    registerHandlers({ client, commands, events });
+    registerHandlers({ client, commands, events, buttons });
 
     client.once("ready", async () => {
       console.log(`✅ Connected as ${client.user?.tag}`);
@@ -143,7 +159,7 @@ export async function runDev(projectRoot: string) {
   const debounceMap = new Map<string, NodeJS.Timeout>();
 
   const { watch } = await import("fs");
-  const watchDirs = [cmdDir, evtDir];
+  const watchDirs = [cmdDir, evtDir, btnDir];
   for (const dir of watchDirs) {
     if (!existsSync(dir)) continue;
     watch(dir, { recursive: true }, (eventType, filename) => {
@@ -158,7 +174,11 @@ export async function runDev(projectRoot: string) {
         try {
           delete require.cache[require.resolve(filePath)];
           const mod = await import(pathToFileURL(filePath).href + `?t=${Date.now()}`);
-          if (mod.default) {
+
+          const isCommandFile = filePath.startsWith(cmdDir);
+          const isButtonFile = filePath.startsWith(btnDir);
+
+          if (isCommandFile && mod.default) {
             const newInstance = mod.default;
             const newName = newInstance.name ?? newInstance?.data?.name ?? "";
             if (!prevMeta || prevMeta.name !== newName) {
@@ -166,9 +186,14 @@ export async function runDev(projectRoot: string) {
             }
             if (!majorChange) {
               (currentClient as any)._djsCommands.set(newName, newInstance);
-              console.log("🔁 Hot reload applied.");
+              console.log("🔁 Command hot reload applied.");
             }
             fileMeta.set(filePath, { name: newName });
+          } else if (isButtonFile && mod.default) {
+            const newInstance = mod.default;
+            const id = (newInstance as any).customId ?? "";
+            (currentClient as any)._djsButtons.set(id, newInstance);
+            console.log("🔁 Button hot reload applied.");
           } else {
             majorChange = true;
           }
@@ -177,7 +202,7 @@ export async function runDev(projectRoot: string) {
         }
 
         if (majorChange) {
-          console.log("♻️ Full restart triggered – resyncing slash commands…");
+          console.log("♻️ Full restart triggered – resyncing handlers…");
           try {
             currentClient.destroy();
           } catch {}
@@ -186,4 +211,4 @@ export async function runDev(projectRoot: string) {
       }, 300));
     });
   }
-} 
+}
