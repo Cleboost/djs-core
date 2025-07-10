@@ -2,7 +2,7 @@ import { Command as Cli } from "commander";
 import inquirer from "inquirer";
 import { mkdirSync, writeFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
-import { spawn } from "child_process";
+import { spawn, execFile } from "child_process";
 
 function openFile(filePath: string) {
   const editor = process.env.VISUAL || process.env.EDITOR;
@@ -13,7 +13,6 @@ function openFile(filePath: string) {
   }
   const platform = process.platform;
   if (platform === "win32") {
-    import { execFile } from "child_process";
     const safeFilePath = resolve(filePath);
     execFile("cmd", ["/c", "start", "", `"${safeFilePath}"`], (err) => {
       if (err) {
