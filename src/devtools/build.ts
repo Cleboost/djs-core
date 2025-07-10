@@ -13,7 +13,7 @@ function collectFiles(dir: string, matcher: (file: string) => boolean, acc: stri
   }
 }
 
-export async function runBuild(projectRoot: string, opts: { docker?: boolean } = {}) {
+export async function runBuild(projectRoot: string, opts: { docker?: boolean; js?: boolean } = {}) {
   const root = resolve(process.cwd(), projectRoot ?? ".");
 
   const cmdDir = resolve(root, "src/commands");
@@ -92,6 +92,8 @@ client.login(config.token);
   try {
     const userPkgPath = resolve(root, "package.json");
     const userPkg = JSON.parse(await Bun.file(userPkgPath).text());
+    const runtimeCmd = opts.js ? "node" : "bun";
+
     const prodPkg = {
       name: userPkg.name ?? "my-bot",
       version: userPkg.version ?? "1.0.0",
@@ -102,7 +104,7 @@ client.login(config.token);
         ...Object.fromEntries(
           Object.entries(userPkg.scripts ?? {}).filter(([k]) => k !== "build")
         ),
-        start: "bun index.js"
+        start: `${runtimeCmd} index.js`
       },
     };
     writeFileSync(resolve(distDir, "package.json"), JSON.stringify(prodPkg, null, 2));
@@ -121,5 +123,7 @@ client.login(config.token);
   const sizeKB = (statSync(finalFile).size / 1024).toFixed(2);
   const totalInputs = commandFiles.length + eventFiles.length;
 
-  console.log(`✅ Build complete: ${totalInputs} source file(s) compiled → dist/index.js (${sizeKB} KB).${opts.docker ? " Dockerfile generated." : ""}`);
+  const runtimeLabel = opts.js ? "Node.js" : "Bun";
+
+  console.log(`✅ Build complete: ${totalInputs} fichier(s) source compilé(s) → dist/index.js (${sizeKB} KB) [runtime: ${runtimeLabel}].${opts.docker ? " Dockerfile généré." : ""}`);
 } 
