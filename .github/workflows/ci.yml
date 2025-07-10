@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  autofix:
+  build:
     runs-on: ubuntu-latest
     concurrency:
       group: build-${{ github.ref_name }}
