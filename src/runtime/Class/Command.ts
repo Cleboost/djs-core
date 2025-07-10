@@ -1,4 +1,17 @@
 import { type ChatInputCommandInteraction, type Client, SlashCommandBuilder } from "discord.js";
+import type {
+  SlashCommandBooleanOption,
+  SlashCommandChannelOption,
+  SlashCommandIntegerOption,
+  SlashCommandMentionableOption,
+  SlashCommandNumberOption,
+  SlashCommandRoleOption,
+  SlashCommandStringOption,
+  SlashCommandUserOption,
+  SlashCommandAttachmentOption,
+  SlashCommandSubcommandBuilder,
+  SlashCommandSubcommandGroupBuilder,
+} from "discord.js";
 
 export type CommandRunFn = (
   client: Client,
@@ -11,6 +24,88 @@ export class Command extends SlashCommandBuilder {
   run(fn: CommandRunFn): this {
     this._run = fn;
     return this;
+  }
+
+  override setName(name: string): this {
+    return super.setName(name) as unknown as this;
+  }
+
+  override setDescription(description: string): this {
+    return super.setDescription(description) as unknown as this;
+  }
+
+  override addStringOption(
+    input: SlashCommandStringOption | ((builder: SlashCommandStringOption) => SlashCommandStringOption),
+  ): this {
+    return super.addStringOption(input as any) as unknown as this;
+  }
+
+  override addIntegerOption(
+    input: SlashCommandIntegerOption | ((builder: SlashCommandIntegerOption) => SlashCommandIntegerOption),
+  ): this {
+    return super.addIntegerOption(input as any) as unknown as this;
+  }
+
+  override addBooleanOption(
+    input: SlashCommandBooleanOption | ((builder: SlashCommandBooleanOption) => SlashCommandBooleanOption),
+  ): this {
+    return super.addBooleanOption(input as any) as unknown as this;
+  }
+
+  override addNumberOption(
+    input: SlashCommandNumberOption | ((builder: SlashCommandNumberOption) => SlashCommandNumberOption),
+  ): this {
+    return super.addNumberOption(input as any) as unknown as this;
+  }
+
+  override addUserOption(
+    input: SlashCommandUserOption | ((builder: SlashCommandUserOption) => SlashCommandUserOption),
+  ): this {
+    return super.addUserOption(input as any) as unknown as this;
+  }
+
+  override addChannelOption(
+    input: SlashCommandChannelOption | ((builder: SlashCommandChannelOption) => SlashCommandChannelOption),
+  ): this {
+    return super.addChannelOption(input as any) as unknown as this;
+  }
+
+  override addRoleOption(
+    input: SlashCommandRoleOption | ((builder: SlashCommandRoleOption) => SlashCommandRoleOption),
+  ): this {
+    return super.addRoleOption(input as any) as unknown as this;
+  }
+
+  override addMentionableOption(
+    input:
+      | SlashCommandMentionableOption
+      | ((builder: SlashCommandMentionableOption) => SlashCommandMentionableOption),
+  ): this {
+    return super.addMentionableOption(input as any) as unknown as this;
+  }
+
+  override addAttachmentOption(
+    input:
+      | SlashCommandAttachmentOption
+      | ((builder: SlashCommandAttachmentOption) => SlashCommandAttachmentOption),
+  ): this {
+    return super.addAttachmentOption(input as any) as unknown as this;
+  }
+
+  override addSubcommand(
+    input:
+      | SlashCommandSubcommandBuilder
+      | ((builder: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder),
+  ): this {
+    return super.addSubcommand(input as any) as unknown as this;
+  }
+
+  override addSubcommandGroup(
+    input:
+      | SlashCommandSubcommandGroupBuilder
+      | ((builder: SlashCommandSubcommandGroupBuilder) => SlashCommandSubcommandGroupBuilder),
+  ): this {
+    return super.addSubcommandGroup(input as any) as unknown as this;
   }
 
   register?(client: Client): Promise<void> | void;
