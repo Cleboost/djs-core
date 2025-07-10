@@ -1,38 +1,24 @@
 {
-  "private": true,
-  "devDependencies": {
-    "@eslint/js": "9.30.1",
-    "@types/node": "22.15.31",
-    "eslint": "9.30.1",
-    "eslint-plugin-headers": "1.3.3",
-    "globals": "16.2.0",
-    "jest": "30.0.3",
-    "prettier": "3.6.2",
-    "rimraf": "^6.0.1",
-    "ts-jest": "29.3.4",
-    "tsup": "8.5.0",
-    "turbo": "^2.5.0",
-    "typescript": "5.8.3",
-    "typescript-eslint": "8.35.0"
+  "name": "djs-core",
+  "version": "5.0.1",
+  "type": "module",
+  "bin": {
+    "djs-core": "dist/cli/index.js"
   },
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "watch": "turbo run watch",
-    "playground:dev": "turbo run dev --filter=playground...",
-    "playground:build": "turbo run build --filter=playground...",
-    "lint": "eslint --fix .",
-    "pretty": "prettier . --write",
-    "lint:check": "eslint .",
-    "pretty:check": "prettier . --check"
+    "build": "tsup src/**/*.ts --format esm --dts --clean --outDir dist --minify"
   },
-  "packageManager": "pnpm@10.12.1",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@djs-core/builder",
-      "esbuild",
-      "javascript-obfuscator",
-      "unrs-resolver"
-    ]
+  "peerDependencies": {
+    "discord.js": "^14.21.0"    
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "discord.js": "^14.21.0",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "commander": "^14.0.0",
+    "inquirer": "^12.7.0",
+    "tsup": "^8.5.0"
   }
 }
