@@ -38,6 +38,10 @@ export default function registerGenerateEvent(program: Cli) {
       writeFileSync(targetFile, template, { encoding: "utf8" });
 
       console.log(`✅ Event created : ${targetFile}`);
+      if (!/^[a-zA-Z0-9_\-\/.]+$/.test(targetFile)) {
+        console.error("❌ Invalid file path detected.");
+        process.exit(1);
+      }
       openFile(targetFile);
     });
 } 

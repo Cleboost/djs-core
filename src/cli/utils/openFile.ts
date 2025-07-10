@@ -16,10 +16,10 @@ export function openFile(filePath: string) {
 
   const platform = process.platform;
   if (platform === "win32") {
-    execFile("cmd", ["/c", "start", "", safeFilePath]);
+    execFile("cmd", ["/c", "start", "", `"${safeFilePath}"`], { shell: true });
   } else if (platform === "darwin") {
-    execFile("open", [safeFilePath]);
+    execFile("open", [`"${safeFilePath}"`], { shell: true });
   } else {
-    execFile("xdg-open", [safeFilePath]);
+    execFile("xdg-open", [`"${safeFilePath}"`], { shell: true });
   }
 } 
