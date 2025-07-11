@@ -30,7 +30,12 @@ export class PluginManager {
 
   private async ensureRuntimeDeps(projectRoot: string) {
     const pkgPath = resolve(projectRoot, "package.json");
-    let pkgJson: any;
+    type PackageJson = {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+      [key: string]: unknown;
+    };
+    let pkgJson: PackageJson;
     try {
       pkgJson = JSON.parse(await fs.readFile(pkgPath, "utf8"));
     } catch {

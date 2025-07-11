@@ -39,7 +39,7 @@ export class Command extends SlashCommandBuilder {
     if (input instanceof SubCommand) {
       this.subcommands.set(input.name, input);
     }
-    return super.addSubcommand(input as any) as unknown as this;
+    return super.addSubcommand(input as unknown as SlashCommandSubcommandBuilder) as unknown as this;
   }
 
   override addSubcommandGroup(
@@ -51,7 +51,7 @@ export class Command extends SlashCommandBuilder {
     if (input instanceof SubCommandGroup) {
       this.subcommandGroups.set(input.name, input);
     }
-    return super.addSubcommandGroup(input as any) as unknown as this;
+    return super.addSubcommandGroup(input as unknown as SlashCommandSubcommandGroupBuilder) as unknown as this;
   }
 
   getSubcommand(name: string): SubCommand | undefined {
@@ -73,43 +73,43 @@ export class Command extends SlashCommandBuilder {
   override addStringOption(
     input: SlashCommandStringOption | ((builder: SlashCommandStringOption) => SlashCommandStringOption),
   ): this {
-    return super.addStringOption(input as any) as unknown as this;
+    return super.addStringOption(input as unknown as SlashCommandStringOption) as unknown as this;
   }
 
   override addIntegerOption(
     input: SlashCommandIntegerOption | ((builder: SlashCommandIntegerOption) => SlashCommandIntegerOption),
   ): this {
-    return super.addIntegerOption(input as any) as unknown as this;
+    return super.addIntegerOption(input as unknown as SlashCommandIntegerOption) as unknown as this;
   }
 
   override addBooleanOption(
     input: SlashCommandBooleanOption | ((builder: SlashCommandBooleanOption) => SlashCommandBooleanOption),
   ): this {
-    return super.addBooleanOption(input as any) as unknown as this;
+    return super.addBooleanOption(input as unknown as SlashCommandBooleanOption) as unknown as this;
   }
 
   override addNumberOption(
     input: SlashCommandNumberOption | ((builder: SlashCommandNumberOption) => SlashCommandNumberOption),
   ): this {
-    return super.addNumberOption(input as any) as unknown as this;
+    return super.addNumberOption(input as unknown as SlashCommandNumberOption) as unknown as this;
   }
 
   override addUserOption(
     input: SlashCommandUserOption | ((builder: SlashCommandUserOption) => SlashCommandUserOption),
   ): this {
-    return super.addUserOption(input as any) as unknown as this;
+    return super.addUserOption(input as unknown as SlashCommandUserOption) as unknown as this;
   }
 
   override addChannelOption(
     input: SlashCommandChannelOption | ((builder: SlashCommandChannelOption) => SlashCommandChannelOption),
   ): this {
-    return super.addChannelOption(input as any) as unknown as this;
+    return super.addChannelOption(input as unknown as SlashCommandChannelOption) as unknown as this;
   }
 
   override addRoleOption(
     input: SlashCommandRoleOption | ((builder: SlashCommandRoleOption) => SlashCommandRoleOption),
   ): this {
-    return super.addRoleOption(input as any) as unknown as this;
+    return super.addRoleOption(input as unknown as SlashCommandRoleOption) as unknown as this;
   }
 
   override addMentionableOption(
@@ -117,7 +117,7 @@ export class Command extends SlashCommandBuilder {
       | SlashCommandMentionableOption
       | ((builder: SlashCommandMentionableOption) => SlashCommandMentionableOption),
   ): this {
-    return super.addMentionableOption(input as any) as unknown as this;
+    return super.addMentionableOption(input as unknown as SlashCommandMentionableOption) as unknown as this;
   }
 
   override addAttachmentOption(
@@ -125,7 +125,7 @@ export class Command extends SlashCommandBuilder {
       | SlashCommandAttachmentOption
       | ((builder: SlashCommandAttachmentOption) => SlashCommandAttachmentOption),
   ): this {
-    return super.addAttachmentOption(input as any) as unknown as this;
+    return super.addAttachmentOption(input as unknown as SlashCommandAttachmentOption) as unknown as this;
   }
 
   register?(client: Client): Promise<void> | void;

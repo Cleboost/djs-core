@@ -2,11 +2,19 @@ import { readdirSync, existsSync } from "fs";
 import { resolve, extname, relative } from "path";
 import { pathToFileURL } from "url";
 import { Client } from "discord.js";
+import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
+import type { BaseEvent, Button, SelectMenu, Modal } from "../runtime/index.ts";
 import { PluginManager } from "../plugins/manager.ts";
 import { registerHandlers, Command, SubCommand, SubCommandGroup } from "../runtime/index.ts";
 import type { DjsCorePlugin } from "../plugins/types.ts";
 
 type AnyPlugin = DjsCorePlugin;
+interface UserConfig {
+  token: string;
+  intents?: unknown;
+  plugins?: AnyPlugin[];
+  guildIds?: string[];
+}
 
 async function collectFiles(dir: string, matcher: (file: string) => boolean, acc: string[]) {
   const entries = readdirSync(dir, { withFileTypes: true });
@@ -39,7 +47,7 @@ export async function runDev(projectRoot: string) {
 
   const cfgPathTs = resolve(root, "djsconfig.ts");
   const cfgPathJs = resolve(root, "djsconfig.js");
-  let cfgModule: any;
+  let cfgModule: unknown;
   if (existsSync(cfgPathTs)) {
     cfgModule = await import(pathToFileURL(cfgPathTs).href + `?t=${Date.now()}`);
   } else if (existsSync(cfgPathJs)) {
@@ -48,7 +56,7 @@ export async function runDev(projectRoot: string) {
     console.error("❌ No 'djsconfig.(ts|js)' configuration found in", root);
     process.exit(1);
   }
-  const config = cfgModule.default ?? cfgModule;
+  const config: UserConfig = (cfgModule as { default?: UserConfig }).default ?? (cfgModule as UserConfig);
 
   const pluginManager = new PluginManager((config.plugins ?? []) as AnyPlugin[]);
   await pluginManager.runDevHook({ root });
@@ -77,12 +85,12 @@ export async function runDev(projectRoot: string) {
     if (existsSync(selDir)) collectFiles(selDir, (f) => validExt.includes(extname(f)), selectFiles);
     if (existsSync(modalDir)) collectFiles(modalDir, (f) => validExt.includes(extname(f)), modalFiles);
 
-    const events: any[] = [];
-    const buttons: any[] = [];
-    const selectMenus: any[] = [];
-    const modals: any[] = [];
+    const events: BaseEvent[] = [];
+    const buttons: Button[] = [];
+    const selectMenus: SelectMenu[] = [];
+    const modals: Modal[] = [];
 
-    const rawCommandInstances: Array<{ instance: any; file: string }> = [];
+    const rawCommandInstances: Array<{ instance: Command | SubCommand | SubCommandGroup; file: string }> = [];
     const meta = new Map<string, { name: string }>();
 
     for (const file of commandFiles) {
@@ -111,7 +119,7 @@ export async function runDev(projectRoot: string) {
       if (instance instanceof SubCommand) {
         subcommandBuffer.push(instance);
       } else if (instance instanceof SubCommandGroup) {
-        groupDescriptionMap.set(instance.name, (instance as any).description ?? "");
+        groupDescriptionMap.set(instance.name, (instance as { description?: string }).description ?? "");
       }
     }
 
@@ -124,7 +132,7 @@ export async function runDev(projectRoot: string) {
         cmd = new Command().setName(parent).setDescription(desc);
         commandMap.set(parent, cmd);
       }
-      if (!(cmd as any).getSubcommand?.(sub.name)) {
+      if (!cmd.getSubcommand?.(sub.name)) {
         cmd.addSubcommand(sub);
       }
     }
@@ -138,13 +146,15 @@ export async function runDev(projectRoot: string) {
       try {
         const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`);
         if (!mod.default) continue;
-        let instance: any;
+        let instance: unknown;
         if (typeof mod.default === "function") {
           instance = new mod.default();
         } else {
           instance = mod.default;
         }
-        events.push(instance);
+        if (instance && typeof (instance as BaseEvent).execute === "function") {
+          events.push(instance as BaseEvent);
+        }
       } catch (err) {
         console.error("Error importing", relative(root, file), err);
       }
@@ -187,24 +197,24 @@ export async function runDev(projectRoot: string) {
     return { commands, events, buttons, selectMenus, modals, meta };
   }
 
-  let commands: any[] = [];
-  let events: any[] = [];
-  let buttons: any[] = [];
-  let selectMenus: any[] = [];
-  let modals: any[] = [];
+  let commands: Command[] = [];
+  let events: BaseEvent[] = [];
+  let buttons: Button[] = [];
+  let selectMenus: SelectMenu[] = [];
+  let modals: Modal[] = [];
   let fileMeta: Map<string, { name: string }> = new Map();
 
   async function createClient() {
     ({ commands, events, buttons, selectMenus, modals, meta: fileMeta } = await scanSources());
 
-    const client = new Client({ intents: config.intents ?? [] });
+    const client = new Client({ intents: (config.intents as number[] | undefined) ?? [] });
 
     await pluginManager.setupClient(client, root);
 
     registerHandlers({ client, commands, events, buttons, selectMenus, modals });
 
     client.once("ready", async () => {
-      const jsonData = commands.map((c: any) => c.toJSON?.() ?? null).filter(Boolean);
+      const jsonData = commands.map((c) => c.toJSON?.() ?? null).filter(Boolean) as RESTPostAPIChatInputApplicationCommandsJSONBody[];
       if (jsonData.length === 0) {
         console.warn("⚠️  No commands to deploy.");
         return;
@@ -215,12 +225,12 @@ export async function runDev(projectRoot: string) {
           await Promise.all(
             config.guildIds.map(async (id: string) => {
               const guild = await client.guilds.fetch(id);
-              await guild.commands.set(jsonData as any);
+              await guild.commands.set(jsonData);
               console.log(`🚀 Commands deployed to ${guild.name} (${id})`);
             }),
           );
         } else {
-          await client.application?.commands.set(jsonData as any);
+          await client.application?.commands.set(jsonData);
           console.log("🚀 Global commands deployed (propagation may take up to 1 hour).");
         }
       } catch (err) {
@@ -235,7 +245,7 @@ export async function runDev(projectRoot: string) {
 
   let currentClient = await createClient();
 
-  const debounceMap = new Map<string, NodeJS.Timeout>();
+  const debounceMap = new Map<string, ReturnType<typeof setTimeout>>();
 
   const { watch } = await import("fs");
   const watchDirs = [cmdDir, evtDir, btnDir, selDir, modalDir];
@@ -261,7 +271,7 @@ export async function runDev(projectRoot: string) {
 
           if (isCommandFile && mod.default) {
             const newInstance = mod.default;
-            const isSubCmd = typeof (newInstance as any).getParent === "function";
+            const isSubCmd = typeof (newInstance as SubCommand).getParent === "function";
             if (isSubCmd) {
               majorChange = true;
             } else {
@@ -270,30 +280,30 @@ export async function runDev(projectRoot: string) {
                 majorChange = true;
               }
               if (!majorChange) {
-                (currentClient as any)._djsCommands.set(newName, newInstance);
+                (currentClient as ExtendedClient)._djsCommands.set(newName, newInstance);
                 console.log("🔁 Command hot reload applied.");
               }
               fileMeta.set(filePath, { name: newName });
             }
           } else if (isButtonFile && mod.default) {
             const newInstance = mod.default;
-            const id = (newInstance as any).customId ?? "";
-            (currentClient as any)._djsButtons.set(id, newInstance);
+            const id = (newInstance as Button).customId ?? "";
+            (currentClient as ExtendedClient)._djsButtons.set(id, newInstance);
             console.log("🔁 Button hot reload applied.");
           } else if (isSelectFile && mod.default) {
             const newInstance = mod.default;
-            const id = (newInstance as any).customId ?? "";
-            (currentClient as any)._djsSelectMenus.set(id, newInstance);
+            const id = (newInstance as SelectMenu).customId ?? "";
+            (currentClient as ExtendedClient)._djsSelectMenus.set(id, newInstance);
             console.log("🔁 Select menu hot reload applied.");
           } else if (isModalFile && mod.default) {
             const newInstance = mod.default;
-            const id = (newInstance as any).customId ?? "";
-            (currentClient as any)._djsModals.set(id, newInstance);
+            const id = (newInstance as Modal).customId ?? "";
+            (currentClient as ExtendedClient)._djsModals.set(id, newInstance);
             console.log("🔁 Modal hot reload applied.");
           } else {
             majorChange = true;
           }
-        } catch (e) {
+        } catch {
           majorChange = true;
         }
 
@@ -308,3 +318,10 @@ export async function runDev(projectRoot: string) {
     });
   }
 }
+
+type ExtendedClient = Client & {
+  _djsCommands: Map<string, Command>;
+  _djsButtons: Map<string, Button>;
+  _djsSelectMenus: Map<string, SelectMenu>;
+  _djsModals: Map<string, Modal>;
+};

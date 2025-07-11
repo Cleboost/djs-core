@@ -6,7 +6,10 @@
     "djs-core": "dist/cli/index.js"
   },
   "scripts": {
-    "build": "tsup src/**/*.ts --format esm --dts --clean --outDir dist --minify"
+    "build": "tsup src/**/*.ts --format esm --dts --clean --outDir dist --minify",
+    "lint": "bun eslint . --ext .ts,.tsx",
+    "lint:fix": "bun eslint . --ext .ts,.tsx --fix",
+    "test": "bun test"
   },
   "peerDependencies": {
     "discord.js": "^14.21.0"
@@ -14,7 +17,12 @@
   "devDependencies": {
     "@types/bun": "latest",
     "discord.js": "^14.21.0",
-    "typescript": "^5"
+    "typescript": "^5.8.3",
+    "eslint": "^9.30.1",
+    "@typescript-eslint/parser": "^8.36.0",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "prettier": "^3.6.2",
+    "eslint-config-prettier": "^10.1.5"
   },
   "dependencies": {
     "commander": "^14.0.0",
