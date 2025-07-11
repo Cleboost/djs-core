@@ -20,6 +20,7 @@ export function registerHandlers(options: {
 
   const commandMap = new Map<string, Command>();
   (client as any)._djsCommands = commandMap;
+  
   for (const cmd of commands) {
     commandMap.set(cmd.name, cmd);
     cmd.register?.(client);
