@@ -3,6 +3,7 @@ import { resolve, extname, relative } from "path";
 import { pathToFileURL } from "url";
 import { Client } from "discord.js";
 import { PluginManager } from "../plugins/manager.ts";
+import { registerHandlers, Command, SubCommand, SubCommandGroup, SelectMenu } from "../runtime/index.ts";
 import { registerHandlers, Command, SubCommand, SubCommandGroup } from "../runtime/index.ts";
 import type { DjsCorePlugin } from "../plugins/types.ts";
 
@@ -169,8 +170,6 @@ export async function runDev(projectRoot: string) {
     registerHandlers({ client, commands, events, buttons });
 
     client.once("ready", async () => {
-      console.log(`✅ Connected as ${client.user?.tag}`);
-
       const jsonData = commands.map((c: any) => c.toJSON?.() ?? null).filter(Boolean);
       if (jsonData.length === 0) {
         console.warn("⚠️  No commands to deploy.");
