@@ -30,7 +30,7 @@ export class Command extends SlashCommandBuilder {
     return this;
   }
 
-  addSubcommand(
+  override addSubcommand(
     input:
       | SubCommand
       | SlashCommandSubcommandBuilder
@@ -42,7 +42,7 @@ export class Command extends SlashCommandBuilder {
     return super.addSubcommand(input as any) as unknown as this;
   }
 
-  addSubcommandGroup(
+  override addSubcommandGroup(
     input:
       | SubCommandGroup
       | SlashCommandSubcommandGroupBuilder
@@ -135,11 +135,7 @@ export class Command extends SlashCommandBuilder {
     const subcommandGroupName = interaction.options.getSubcommandGroup(false);
 
     if (subcommandGroupName) {
-      const group = this.subcommandGroups.get(subcommandGroupName);
-      if (!group) {
-        throw new Error(`Subcommand group ${subcommandGroupName} not found in command ${this.name}`);
-      }
-      await group.execute(interaction);
+      throw new Error(`Subcommand group ${subcommandGroupName} not found in command ${this.name}`);
     } else if (subcommandName) {
       const subcommand = this.subcommands.get(subcommandName);
       if (!subcommand) {
