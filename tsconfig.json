@@ -30,7 +30,8 @@
     "baseUrl": ".",
     "paths": {
       "djs-core": ["./index.ts"],
-      "djs-core/*": ["./src/*"]
+      "djs-core/*": ["./src/*"],
+      "@djs-core/*": ["examples/*"]
     }
   }
 }
