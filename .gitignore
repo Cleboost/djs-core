@@ -2,6 +2,11 @@
 node_modules/
 dist/
 docs/
+.djs-core/
 
 # Environment variables
 .env
+
+# Dev
+*.dev
+*.db

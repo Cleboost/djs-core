@@ -6,6 +6,7 @@ tsconfig.json
 
 node_modules/
 .djs-generated/
+store/
 
 
 .gitignore
