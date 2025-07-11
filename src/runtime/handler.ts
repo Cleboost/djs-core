@@ -2,14 +2,16 @@ import { Client, MessageFlags } from "discord.js";
 import type { BaseEvent } from "./Class/BaseEvent";
 import type { Command } from "./Class/Command";
 import type { Button } from "./Class/Button";
+import type { SelectMenu } from "./Class/SelectMenu";
 
 export function registerHandlers(options: {
   client: Client;
   commands?: Command[];
   events?: BaseEvent[];
   buttons?: Button[];
+  selectMenus?: SelectMenu[];
 }) {
-  const { client, commands = [], events = [], buttons = [] } = options;
+  const { client, commands = [], events = [], buttons = [], selectMenus = [] } = options;
 
   for (const evt of events) {
     const method = evt.once ? client.once.bind(client) : client.on.bind(client);
@@ -33,6 +35,13 @@ export function registerHandlers(options: {
     btn.register?.(client);
   }
 
+  const selectMenuMap = new Map<string, SelectMenu>();
+  (client as any)._djsSelectMenus = selectMenuMap;
+  for (const sm of selectMenus) {
+    selectMenuMap.set(sm.customId, sm);
+    sm.register?.(client);
+  }
+
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
       const cmd = commandMap.get(interaction.commandName);
@@ -54,6 +63,19 @@ export function registerHandlers(options: {
         await btn.execute(interaction);
       } catch (err) {
         console.error(`Error in the button handler for ${interaction.customId}:`, err);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
+        } else {
+          await interaction.reply({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
+        }
+      }
+    } else if (interaction.isStringSelectMenu()) {
+      const sm = selectMenuMap.get(interaction.customId);
+      if (!sm) return;
+      try {
+        await sm.execute(interaction);
+      } catch (err) {
+        console.error(`Error in the select menu handler for ${interaction.customId}:`, err);
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
         } else {

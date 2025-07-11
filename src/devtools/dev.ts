@@ -3,7 +3,6 @@ import { resolve, extname, relative } from "path";
 import { pathToFileURL } from "url";
 import { Client } from "discord.js";
 import { PluginManager } from "../plugins/manager.ts";
-import { registerHandlers, Command, SubCommand, SubCommandGroup, SelectMenu } from "../runtime/index.ts";
 import { registerHandlers, Command, SubCommand, SubCommandGroup } from "../runtime/index.ts";
 import type { DjsCorePlugin } from "../plugins/types.ts";
 
@@ -62,18 +61,22 @@ export async function runDev(projectRoot: string) {
   const cmdDir = resolve(root, "src/commands");
   const evtDir = resolve(root, "src/events");
   const btnDir = resolve(root, "src/buttons");
+  const selDir = resolve(root, "src/selects");
   const validExt = [".ts", ".js", ".mjs", ".cjs"];
 
   async function scanSources() {
     const commandFiles: string[] = [];
     const eventFiles: string[] = [];
     const buttonFiles: string[] = [];
+    const selectFiles: string[] = [];
     if (existsSync(cmdDir)) collectFiles(cmdDir, (f) => validExt.includes(extname(f)), commandFiles);
     if (existsSync(evtDir)) collectFiles(evtDir, (f) => validExt.includes(extname(f)), eventFiles);
     if (existsSync(btnDir)) collectFiles(btnDir, (f) => validExt.includes(extname(f)), buttonFiles);
+    if (existsSync(selDir)) collectFiles(selDir, (f) => validExt.includes(extname(f)), selectFiles);
 
     const events: any[] = [];
     const buttons: any[] = [];
+    const selectMenus: any[] = [];
 
     const rawCommandInstances: Array<{ instance: any; file: string }> = [];
     const meta = new Map<string, { name: string }>();
@@ -151,23 +154,35 @@ export async function runDev(projectRoot: string) {
       }
     }
 
-    console.log(`🔗 ${commands.length} command${commands.length === 1 ? "" : "s"} | ${events.length} event${events.length === 1 ? "" : "s"} | ${buttons.length} button${buttons.length === 1 ? "" : "s"} loaded.`);
-    return { commands, events, buttons, meta };
+    for (const file of selectFiles) {
+      try {
+        const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`);
+        if (mod.default) {
+          selectMenus.push(mod.default);
+        }
+      } catch (err) {
+        console.error("Error importing", relative(root, file), err);
+      }
+    }
+
+    console.log(`🔗 ${commands.length} command${commands.length === 1 ? "" : "s"} | ${events.length} event${events.length === 1 ? "" : "s"} | ${buttons.length} button${buttons.length === 1 ? "" : "s"} | ${selectMenus.length} select${selectMenus.length === 1 ? "" : "s"} loaded.`);
+    return { commands, events, buttons, selectMenus, meta };
   }
 
   let commands: any[] = [];
   let events: any[] = [];
   let buttons: any[] = [];
+  let selectMenus: any[] = [];
   let fileMeta: Map<string, { name: string }> = new Map();
 
   async function createClient() {
-    ({ commands, events, buttons, meta: fileMeta } = await scanSources());
+    ({ commands, events, buttons, selectMenus, meta: fileMeta } = await scanSources());
 
     const client = new Client({ intents: config.intents ?? [] });
 
     await pluginManager.setupClient(client, root);
 
-    registerHandlers({ client, commands, events, buttons });
+    registerHandlers({ client, commands, events, buttons, selectMenus });
 
     client.once("ready", async () => {
       const jsonData = commands.map((c: any) => c.toJSON?.() ?? null).filter(Boolean);
@@ -204,7 +219,7 @@ export async function runDev(projectRoot: string) {
   const debounceMap = new Map<string, NodeJS.Timeout>();
 
   const { watch } = await import("fs");
-  const watchDirs = [cmdDir, evtDir, btnDir];
+  const watchDirs = [cmdDir, evtDir, btnDir, selDir];
   for (const dir of watchDirs) {
     if (!existsSync(dir)) continue;
     watch(dir, { recursive: true }, (eventType, filename) => {
@@ -222,6 +237,7 @@ export async function runDev(projectRoot: string) {
 
           const isCommandFile = filePath.startsWith(cmdDir);
           const isButtonFile = filePath.startsWith(btnDir);
+          const isSelectFile = filePath.startsWith(selDir);
 
           if (isCommandFile && mod.default) {
             const newInstance = mod.default;
@@ -244,6 +260,11 @@ export async function runDev(projectRoot: string) {
             const id = (newInstance as any).customId ?? "";
             (currentClient as any)._djsButtons.set(id, newInstance);
             console.log("🔁 Button hot reload applied.");
+          } else if (isSelectFile && mod.default) {
+            const newInstance = mod.default;
+            const id = (newInstance as any).customId ?? "";
+            (currentClient as any)._djsSelectMenus.set(id, newInstance);
+            console.log("🔁 Select menu hot reload applied.");
           } else {
             majorChange = true;
           }
@@ -258,7 +279,7 @@ export async function runDev(projectRoot: string) {
           } catch {}
           currentClient = await createClient();
         }
-      }, 300));
+      }, 500));
     });
   }
 }
