@@ -22,6 +22,7 @@ const DIRECTORIES = {
   events: "src/events",
   buttons: "src/buttons",
   selects: "src/selects",
+  modals: "src/modals",
 } as const;
 
 const VALID_EXT: string[] = [".ts", ".js", ".mjs", ".cjs"];
@@ -167,12 +168,14 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   const eventFiles: string[] = [];
   const buttonFiles: string[] = [];
   const selectFiles: string[] = [];
+  const modalFiles: string[] = [];
 
   const importLines: string[] = [];
   const commandVars: string[] = [];
   const eventVars: string[] = [];
   const buttonVars: string[] = [];
   const selectVars: string[] = [];
+  const modalVars: string[] = [];
   const commandGroups: CommandGroup[] = [];
   const setupLines: string[] = [];
 
@@ -181,6 +184,7 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   collectAndImportFiles(root, resolve(root, DIRECTORIES.events), "Evt", eventFiles, importLines, eventVars, true);
   collectAndImportFiles(root, resolve(root, DIRECTORIES.buttons), "Btn", buttonFiles, importLines, buttonVars);
   collectAndImportFiles(root, resolve(root, DIRECTORIES.selects), "Sel", selectFiles, importLines, selectVars);
+  collectAndImportFiles(root, resolve(root, DIRECTORIES.modals), "Mod", modalFiles, importLines, modalVars);
 
   const genDir = resolve(root, GENERATED_DIR);
   await fs.mkdir(genDir, { recursive: true });
@@ -211,6 +215,7 @@ registerHandlers({
   events: [${eventVars.join(", ")}],
   buttons: [${buttonVars.join(", ")}],
   selectMenus: [${selectVars.join(", ")}],
+  modals: [${modalVars.join(", ")}],
 });
 
 client.login(config.token);
@@ -277,7 +282,7 @@ client.login(config.token);
 
   const finalFile = resolve(distDir, "index.js");
   const sizeKB = ((await fs.stat(finalFile)).size / 1024).toFixed(2);
-  const totalInputs = commandFiles.length + eventFiles.length + buttonFiles.length + selectFiles.length;
+  const totalInputs = commandFiles.length + eventFiles.length + buttonFiles.length + selectFiles.length + modalFiles.length;
 
   const subcommandGroupCount = commandGroups.length;
   const subcommandCount = commandGroups.reduce((acc, g) => acc + g.subcommands.length, 0);
@@ -291,6 +296,7 @@ client.login(config.token);
   - Events: ${eventFiles.length}
   - Buttons: ${buttonFiles.length}
   - Select menus: ${selectFiles.length}
+  - Modals: ${modalFiles.length}
   - Total: ${totalInputs} file(s)
   - Output: dist/index.js (${sizeKB} KB)
   - Runtime: ${runtimeLabel}

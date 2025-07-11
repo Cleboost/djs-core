@@ -5,3 +5,4 @@ export * from "./Class/Subcommand";
 export * from "./Class/SubcommandGroup";
 export * from "./Class/Button"; 
 export * from "./Class/SelectMenu"; 
+export * from "./Class/Modal"; 

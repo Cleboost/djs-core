@@ -62,6 +62,7 @@ export async function runDev(projectRoot: string) {
   const evtDir = resolve(root, "src/events");
   const btnDir = resolve(root, "src/buttons");
   const selDir = resolve(root, "src/selects");
+  const modalDir = resolve(root, "src/modals");
   const validExt = [".ts", ".js", ".mjs", ".cjs"];
 
   async function scanSources() {
@@ -69,14 +70,17 @@ export async function runDev(projectRoot: string) {
     const eventFiles: string[] = [];
     const buttonFiles: string[] = [];
     const selectFiles: string[] = [];
+    const modalFiles: string[] = [];
     if (existsSync(cmdDir)) collectFiles(cmdDir, (f) => validExt.includes(extname(f)), commandFiles);
     if (existsSync(evtDir)) collectFiles(evtDir, (f) => validExt.includes(extname(f)), eventFiles);
     if (existsSync(btnDir)) collectFiles(btnDir, (f) => validExt.includes(extname(f)), buttonFiles);
     if (existsSync(selDir)) collectFiles(selDir, (f) => validExt.includes(extname(f)), selectFiles);
+    if (existsSync(modalDir)) collectFiles(modalDir, (f) => validExt.includes(extname(f)), modalFiles);
 
     const events: any[] = [];
     const buttons: any[] = [];
     const selectMenus: any[] = [];
+    const modals: any[] = [];
 
     const rawCommandInstances: Array<{ instance: any; file: string }> = [];
     const meta = new Map<string, { name: string }>();
@@ -127,6 +131,9 @@ export async function runDev(projectRoot: string) {
 
     const commands = Array.from(commandMap.values());
 
+    const subcommandCount = subcommandBuffer.length;
+    const groupCount = groupDescriptionMap.size;
+
     for (const file of eventFiles) {
       try {
         const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`);
@@ -165,24 +172,36 @@ export async function runDev(projectRoot: string) {
       }
     }
 
-    console.log(`🔗 ${commands.length} command${commands.length === 1 ? "" : "s"} | ${events.length} event${events.length === 1 ? "" : "s"} | ${buttons.length} button${buttons.length === 1 ? "" : "s"} | ${selectMenus.length} select${selectMenus.length === 1 ? "" : "s"} loaded.`);
-    return { commands, events, buttons, selectMenus, meta };
+    for (const file of modalFiles) {
+      try {
+        const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`);
+        if (mod.default) {
+          modals.push(mod.default);
+        }
+      } catch (err) {
+        console.error("Error importing", relative(root, file), err);
+      }
+    }
+
+    console.log(`🔗 ${commands.length} command${commands.length === 1 ? "" : "s"} | ${groupCount} group${groupCount === 1 ? "" : "s"} | ${subcommandCount} subcommand${subcommandCount === 1 ? "" : "s"} | ${events.length} event${events.length === 1 ? "" : "s"} | ${buttons.length} button${buttons.length === 1 ? "" : "s"} | ${selectMenus.length} select${selectMenus.length === 1 ? "" : "s"} | ${modals.length} modal${modals.length === 1 ? "" : "s"} loaded.`);
+    return { commands, events, buttons, selectMenus, modals, meta };
   }
 
   let commands: any[] = [];
   let events: any[] = [];
   let buttons: any[] = [];
   let selectMenus: any[] = [];
+  let modals: any[] = [];
   let fileMeta: Map<string, { name: string }> = new Map();
 
   async function createClient() {
-    ({ commands, events, buttons, selectMenus, meta: fileMeta } = await scanSources());
+    ({ commands, events, buttons, selectMenus, modals, meta: fileMeta } = await scanSources());
 
     const client = new Client({ intents: config.intents ?? [] });
 
     await pluginManager.setupClient(client, root);
 
-    registerHandlers({ client, commands, events, buttons, selectMenus });
+    registerHandlers({ client, commands, events, buttons, selectMenus, modals });
 
     client.once("ready", async () => {
       const jsonData = commands.map((c: any) => c.toJSON?.() ?? null).filter(Boolean);
@@ -219,7 +238,7 @@ export async function runDev(projectRoot: string) {
   const debounceMap = new Map<string, NodeJS.Timeout>();
 
   const { watch } = await import("fs");
-  const watchDirs = [cmdDir, evtDir, btnDir, selDir];
+  const watchDirs = [cmdDir, evtDir, btnDir, selDir, modalDir];
   for (const dir of watchDirs) {
     if (!existsSync(dir)) continue;
     watch(dir, { recursive: true }, (eventType, filename) => {
@@ -238,6 +257,7 @@ export async function runDev(projectRoot: string) {
           const isCommandFile = filePath.startsWith(cmdDir);
           const isButtonFile = filePath.startsWith(btnDir);
           const isSelectFile = filePath.startsWith(selDir);
+          const isModalFile = filePath.startsWith(modalDir);
 
           if (isCommandFile && mod.default) {
             const newInstance = mod.default;
@@ -265,6 +285,11 @@ export async function runDev(projectRoot: string) {
             const id = (newInstance as any).customId ?? "";
             (currentClient as any)._djsSelectMenus.set(id, newInstance);
             console.log("🔁 Select menu hot reload applied.");
+          } else if (isModalFile && mod.default) {
+            const newInstance = mod.default;
+            const id = (newInstance as any).customId ?? "";
+            (currentClient as any)._djsModals.set(id, newInstance);
+            console.log("🔁 Modal hot reload applied.");
           } else {
             majorChange = true;
           }
