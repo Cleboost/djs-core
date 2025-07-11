@@ -9,6 +9,8 @@ export function SuperDemoPlugin(): DjsCorePlugin {
     },
     extendTypes() {
       return `
+import "discord.js";
+
 declare module "discord.js" {
   interface Client {
     superDemo: string;
