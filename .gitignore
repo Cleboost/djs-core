@@ -10,3 +10,4 @@ docs/
 # Dev
 *.dev
 *.db
+djs-core-types.d.ts
