@@ -1,5 +1,5 @@
 import { GatewayIntentBits } from "discord.js";
-import { SuperDemoPlugin } from "my-super-djs-plugin";
+import { SuperDemoPlugin } from "@djs-core/my-super-plugin";
  
 export default {
   token: process.env.TOKEN ?? "", // To be overridden in .env
