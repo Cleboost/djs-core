@@ -2,6 +2,9 @@ import { readdirSync, existsSync } from "fs";
 import { promises as fs } from "fs";
 import { resolve, extname, relative } from "path";
 import { build as tsupBuild } from "tsup";
+import { pathToFileURL } from "url";
+import { PluginManager } from "../plugins/manager.ts";
+import type { DjsCorePlugin, BuildContext } from "../plugins/types.ts";
 
 function collectFiles(dir: string, matcher: (file: string) => boolean, acc: string[]) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -21,7 +24,7 @@ const DIRECTORIES = {
 } as const;
 
 const VALID_EXT: string[] = [".ts", ".js", ".mjs", ".cjs"];
-const GENERATED_DIR = ".djs-generated";
+const GENERATED_DIR = ".djs-core/generated";
 
 function collectAndImportFiles(
   root: string,
@@ -35,7 +38,7 @@ function collectAndImportFiles(
   if (!existsSync(dir)) return;
   collectFiles(dir, (f) => VALID_EXT.includes(extname(f)), files);
   files.forEach((file, idx) => {
-    const rel = "../" + relative(root, file).replace(/\\/g, "/");
+    const rel = "../../" + relative(root, file).replace(/\\/g, "/");
     const varName = `${prefix}${idx}`;
     importLines.push(`import ${varName} from "${rel}";`);
     vars.push(instantiate ? `new ${varName}()` : varName);
@@ -44,6 +47,17 @@ function collectAndImportFiles(
 
 export async function runBuild(projectRoot: string, opts: { docker?: boolean; js?: boolean } = {}) {
   const root = resolve(process.cwd(), projectRoot ?? ".");
+
+  const cfgFile = ["djsconfig.ts", "djsconfig.js"].find((f) => existsSync(resolve(root, f)));
+  if (!cfgFile) {
+    throw new Error("djsconfig.ts/js not found in project root");
+  }
+  const cfgModule = await import(pathToFileURL(resolve(root, cfgFile)).href);
+  const config = cfgModule.default ?? cfgModule;
+
+  const pluginManager = new PluginManager((config.plugins ?? []) as DjsCorePlugin[]);
+  await pluginManager.runBuildHook({ root, outDir: resolve(root, "dist") });
+  await pluginManager.generateTypeDeclarations(root);
 
   const commandFiles: string[] = [];
   const eventFiles: string[] = [];
@@ -62,11 +76,8 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   await fs.mkdir(genDir, { recursive: true });
   const entryPath = resolve(genDir, "index.ts");
 
-  const cfgFile = ["djsconfig.ts", "djsconfig.js"].find((f) => existsSync(resolve(root, f)));
-  if (!cfgFile) {
-    throw new Error("djsconfig.ts/js not found in project root");
-  }
-  const cfgImport = `import config from "../${cfgFile}";`;
+  const cfgRel = "./" + relative(genDir, resolve(root, cfgFile)).replace(/\\/g, "/");
+  const cfgImport = `import config from "${cfgRel}";`;
 
   const handlerContent = `import { Client } from "discord.js";
 ${cfgImport}
@@ -74,6 +85,12 @@ ${importLines.join("\n")}
 import { registerHandlers } from "djs-core";
 
 const client = new Client({ intents: config.intents ?? [] });
+
+if (Array.isArray(config.plugins)) {
+  for (const plugin of config.plugins) {
+    await plugin.setupClient?.(client);
+  }
+}
 
 registerHandlers({
   client,
@@ -90,18 +107,27 @@ client.login(config.token);
   const distDir = resolve(root, "dist");
   const entryGlobs = [entryPath.replace(/\\/g, "/")];
   
+  const userPkgPathEarly = resolve(root, "package.json");
+  let externalDeps: string[] = ["discord.js", "bun:sqlite"];
+  try {
+    const userPkgEarly = JSON.parse(await Bun.file(userPkgPathEarly).text());
+    externalDeps.push(...Object.keys(userPkgEarly.dependencies ?? {}));
+  } catch {}
+
   await tsupBuild({
     entry: entryGlobs,
     format: "esm",
     clean: true,
     minify: true,
     outDir: distDir,
-    target: "es2020",
+    target: "es2022",
     treeshake: true,
     dts: false,
     silent: true,
-    external: ["discord.js"],
+    external: Array.from(new Set(externalDeps)),
   });
+
+  await pluginManager.copyArtifacts(root, distDir);
 
   try {
     const userPkgPath = resolve(root, "package.json");
@@ -132,6 +158,8 @@ client.login(config.token);
   }
 
   await fs.rm(genDir, { recursive: true, force: true });
+
+  await pluginManager.runPostBuildHook({ root, outDir: distDir });
 
   const finalFile = resolve(distDir, "index.js");
   const sizeKB = ((await fs.stat(finalFile)).size / 1024).toFixed(2);

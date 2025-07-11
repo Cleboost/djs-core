@@ -2,7 +2,11 @@ import { readdirSync, existsSync } from "fs";
 import { resolve, extname, relative } from "path";
 import { pathToFileURL } from "url";
 import { Client } from "discord.js";
+import { PluginManager } from "../plugins/manager.ts";
 import { registerHandlers } from "../runtime/index.ts";
+import type { DjsCorePlugin } from "../plugins/types.ts";
+
+type AnyPlugin = DjsCorePlugin;
 
 async function collectFiles(dir: string, matcher: (file: string) => boolean, acc: string[]) {
   const entries = readdirSync(dir, { withFileTypes: true });
@@ -45,6 +49,10 @@ export async function runDev(projectRoot: string) {
     process.exit(1);
   }
   const config = cfgModule.default ?? cfgModule;
+
+  const pluginManager = new PluginManager((config.plugins ?? []) as AnyPlugin[]);
+  await pluginManager.runDevHook({ root });
+  await pluginManager.generateTypeDeclarations(root);
   if (!config.token) {
     console.error("❌ Discord token is missing in djsconfig.ts (token property)");
     process.exit(1);
@@ -120,6 +128,9 @@ export async function runDev(projectRoot: string) {
     ({ commands, events, buttons, meta: fileMeta } = await scanSources());
 
     const client = new Client({ intents: config.intents ?? [] });
+
+    await pluginManager.setupClient(client, root);
+
     registerHandlers({ client, commands, events, buttons });
 
     client.once("ready", async () => {
