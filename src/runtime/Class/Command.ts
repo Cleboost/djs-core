@@ -12,6 +12,8 @@ import type {
   SlashCommandSubcommandBuilder,
   SlashCommandSubcommandGroupBuilder,
 } from "discord.js";
+import { SubCommand } from "./Subcommand";
+import { SubCommandGroup } from "./SubcommandGroup";
 
 export type CommandRunFn = (
   client: Client,
@@ -20,10 +22,44 @@ export type CommandRunFn = (
 
 export class Command extends SlashCommandBuilder {
   private _run?: CommandRunFn;
+  private subcommands: Map<string, SubCommand> = new Map();
+  private subcommandGroups: Map<string, SubCommandGroup> = new Map();
 
   run(fn: CommandRunFn): this {
     this._run = fn;
     return this;
+  }
+
+  addSubcommand(
+    input:
+      | SubCommand
+      | SlashCommandSubcommandBuilder
+      | ((builder: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder),
+  ): this {
+    if (input instanceof SubCommand) {
+      this.subcommands.set(input.name, input);
+    }
+    return super.addSubcommand(input as any) as unknown as this;
+  }
+
+  addSubcommandGroup(
+    input:
+      | SubCommandGroup
+      | SlashCommandSubcommandGroupBuilder
+      | ((builder: SlashCommandSubcommandGroupBuilder) => SlashCommandSubcommandGroupBuilder),
+  ): this {
+    if (input instanceof SubCommandGroup) {
+      this.subcommandGroups.set(input.name, input);
+    }
+    return super.addSubcommandGroup(input as any) as unknown as this;
+  }
+
+  getSubcommand(name: string): SubCommand | undefined {
+    return this.subcommands.get(name);
+  }
+
+  getSubcommandGroup(name: string): SubCommandGroup | undefined {
+    return this.subcommandGroups.get(name);
   }
 
   override setName(name: string): this {
@@ -92,26 +128,27 @@ export class Command extends SlashCommandBuilder {
     return super.addAttachmentOption(input as any) as unknown as this;
   }
 
-  override addSubcommand(
-    input:
-      | SlashCommandSubcommandBuilder
-      | ((builder: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder),
-  ): this {
-    return super.addSubcommand(input as any) as unknown as this;
-  }
-
-  override addSubcommandGroup(
-    input:
-      | SlashCommandSubcommandGroupBuilder
-      | ((builder: SlashCommandSubcommandGroupBuilder) => SlashCommandSubcommandGroupBuilder),
-  ): this {
-    return super.addSubcommandGroup(input as any) as unknown as this;
-  }
-
   register?(client: Client): Promise<void> | void;
 
   async execute(interaction: ChatInputCommandInteraction) {
-    if (!this._run) throw new Error(`The command ${this.name} has no .run() callback defined`);
-    await this._run(interaction.client as Client, interaction);
+    const subcommandName = interaction.options.getSubcommand(false);
+    const subcommandGroupName = interaction.options.getSubcommandGroup(false);
+
+    if (subcommandGroupName) {
+      const group = this.subcommandGroups.get(subcommandGroupName);
+      if (!group) {
+        throw new Error(`Subcommand group ${subcommandGroupName} not found in command ${this.name}`);
+      }
+      await group.execute(interaction);
+    } else if (subcommandName) {
+      const subcommand = this.subcommands.get(subcommandName);
+      if (!subcommand) {
+        throw new Error(`Subcommand ${subcommandName} not found in command ${this.name}`);
+      }
+      await subcommand.execute(interaction);
+    } else {
+      if (!this._run) throw new Error(`The command ${this.name} has no .run() callback defined`);
+      await this._run(interaction.client as Client, interaction);
+    }
   }
 } 

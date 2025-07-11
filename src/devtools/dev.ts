@@ -3,7 +3,7 @@ import { resolve, extname, relative } from "path";
 import { pathToFileURL } from "url";
 import { Client } from "discord.js";
 import { PluginManager } from "../plugins/manager.ts";
-import { registerHandlers } from "../runtime/index.ts";
+import { registerHandlers, Command, SubCommand, SubCommandGroup } from "../runtime/index.ts";
 import type { DjsCorePlugin } from "../plugins/types.ts";
 
 type AnyPlugin = DjsCorePlugin;
@@ -71,22 +71,57 @@ export async function runDev(projectRoot: string) {
     if (existsSync(evtDir)) collectFiles(evtDir, (f) => validExt.includes(extname(f)), eventFiles);
     if (existsSync(btnDir)) collectFiles(btnDir, (f) => validExt.includes(extname(f)), buttonFiles);
 
-    const commands: any[] = [];
     const events: any[] = [];
     const buttons: any[] = [];
+
+    const rawCommandInstances: Array<{ instance: any; file: string }> = [];
     const meta = new Map<string, { name: string }>();
 
     for (const file of commandFiles) {
       try {
         const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`);
         if (mod.default) {
-          commands.push(mod.default);
+          rawCommandInstances.push({ instance: mod.default, file });
           meta.set(file, { name: mod.default.name ?? mod.default?.data?.name ?? "" });
         }
       } catch (err) {
         console.error("Error importing", relative(root, file), err);
       }
     }
+
+    const commandMap = new Map<string, Command>();
+    const subcommandBuffer: SubCommand[] = [];
+
+    for (const { instance } of rawCommandInstances) {
+      if (instance instanceof Command) {
+        commandMap.set(instance.name, instance);
+      }
+    }
+
+    const groupDescriptionMap = new Map<string, string>();
+    for (const { instance } of rawCommandInstances) {
+      if (instance instanceof SubCommand) {
+        subcommandBuffer.push(instance);
+      } else if (instance instanceof SubCommandGroup) {
+        groupDescriptionMap.set(instance.name, (instance as any).description ?? "");
+      }
+    }
+
+    for (const sub of subcommandBuffer) {
+      const parent = sub.getParent?.();
+      if (!parent) continue;
+      let cmd = commandMap.get(parent);
+      if (!cmd) {
+        const desc = groupDescriptionMap.get(parent) || `Command ${parent}`;
+        cmd = new Command().setName(parent).setDescription(desc);
+        commandMap.set(parent, cmd);
+      }
+      if (!(cmd as any).getSubcommand?.(sub.name)) {
+        cmd.addSubcommand(sub);
+      }
+    }
+
+    const commands = Array.from(commandMap.values());
 
     for (const file of eventFiles) {
       try {
@@ -191,15 +226,20 @@ export async function runDev(projectRoot: string) {
 
           if (isCommandFile && mod.default) {
             const newInstance = mod.default;
-            const newName = newInstance.name ?? newInstance?.data?.name ?? "";
-            if (!prevMeta || prevMeta.name !== newName) {
+            const isSubCmd = typeof (newInstance as any).getParent === "function";
+            if (isSubCmd) {
               majorChange = true;
+            } else {
+              const newName = newInstance.name ?? newInstance?.data?.name ?? "";
+              if (!prevMeta || prevMeta.name !== newName) {
+                majorChange = true;
+              }
+              if (!majorChange) {
+                (currentClient as any)._djsCommands.set(newName, newInstance);
+                console.log("🔁 Command hot reload applied.");
+              }
+              fileMeta.set(filePath, { name: newName });
             }
-            if (!majorChange) {
-              (currentClient as any)._djsCommands.set(newName, newInstance);
-              console.log("🔁 Command hot reload applied.");
-            }
-            fileMeta.set(filePath, { name: newName });
           } else if (isButtonFile && mod.default) {
             const newInstance = mod.default;
             const id = (newInstance as any).customId ?? "";

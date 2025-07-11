@@ -1,6 +1,6 @@
-import { readdirSync, existsSync } from "fs";
+import { readdirSync, existsSync, statSync } from "fs";
 import { promises as fs } from "fs";
-import { resolve, extname, relative } from "path";
+import { resolve, extname, relative, join } from "path";
 import { build as tsupBuild } from "tsup";
 import { pathToFileURL } from "url";
 import { PluginManager } from "../plugins/manager.ts";
@@ -45,6 +45,109 @@ function collectAndImportFiles(
   });
 }
 
+interface CommandGroup {
+  name: string;
+  groupFile: string;
+  subcommands: Array<{ name: string; file: string; varName: string }>;
+}
+
+function collectCommandGroups(
+  root: string,
+  commandsDir: string,
+  importLines: string[],
+  commandGroups: CommandGroup[],
+  commandVars: string[],
+  commandFiles: string[],
+  setupLines: string[]
+) {
+  if (!existsSync(commandsDir)) return;
+
+  const items = readdirSync(commandsDir);
+  
+  for (const item of items) {
+    const itemPath = join(commandsDir, item);
+    const stats = statSync(itemPath);
+    
+    if (stats.isDirectory()) {
+      const groupName = item;
+      const groupPath = itemPath;
+      const indexPath = join(groupPath, "index.ts");
+      
+      if (existsSync(indexPath)) {
+        const groupRel = "../../" + relative(root, indexPath).replace(/\\/g, "/");
+        const groupVarName = `Group${groupName.charAt(0).toUpperCase() + groupName.slice(1)}`;
+        importLines.push(`import ${groupVarName} from "${groupRel}";`);
+        
+        const subcommands: Array<{ name: string; file: string; varName: string }> = [];
+        
+        const subItems = readdirSync(groupPath);
+        for (const subItem of subItems) {
+          if (subItem.endsWith('.ts') && subItem !== 'index.ts') {
+            const subcommandName = subItem.replace('.ts', '');
+            const subcommandPath = join(groupPath, subItem);
+            const subcommandRel = "../../" + relative(root, subcommandPath).replace(/\\/g, "/");
+            const subcommandVarName = `Sub${groupName.charAt(0).toUpperCase() + groupName.slice(1)}${subcommandName.charAt(0).toUpperCase() + subcommandName.slice(1)}`;
+            
+            importLines.push(`import ${subcommandVarName} from "${subcommandRel}";`);
+            subcommands.push({
+              name: subcommandName,
+              file: subcommandPath,
+              varName: subcommandVarName
+            });
+          }
+        }
+        
+        const commandVarName = `Cmd${groupName.charAt(0).toUpperCase() + groupName.slice(1)}`;
+        commandVars.push(commandVarName);
+
+        const setupCode = `
+// Setup command ${groupName} with subcommands
+const ${commandVarName} = new Command()
+  .setName("${groupName}")
+  .setDescription(${groupVarName}.description || "Commandes ${groupName}");
+
+// Add subcommands directly to command
+${subcommands.map(sub => `${commandVarName}.addSubcommand(${sub.varName});`).join('\n')}`;
+        
+        commandGroups.push({
+          name: groupName,
+          groupFile: indexPath,
+          subcommands
+        });
+        
+        commandFiles.push(indexPath);
+        subcommands.forEach(sub => commandFiles.push(sub.file));
+        
+        setupLines.push(setupCode);
+      } else {
+        const subItems = readdirSync(groupPath);
+        for (const subItem of subItems) {
+          if (subItem.endsWith('.ts')) {
+            const commandName = subItem.replace('.ts', '');
+            const commandPath = join(groupPath, subItem);
+            const commandRel = "../../" + relative(root, commandPath).replace(/\\/g, "/");
+            const commandVarName = `Cmd${commandName.charAt(0).toUpperCase() + commandName.slice(1)}`;
+            
+            importLines.push(`import ${commandVarName} from "${commandRel}";`);
+            commandVars.push(commandVarName);
+            commandFiles.push(commandPath);
+          }
+        }
+      }
+    } else if (item.endsWith('.ts')) {
+      if (item === "index.ts") return;
+      const commandName = item.replace('.ts', '');
+      const commandPath = join(commandsDir, item);
+      const commandRel = "../../" + relative(root, commandPath).replace(/\\/g, "/");
+      const commandVarName = `Cmd${commandName.charAt(0).toUpperCase() + commandName.slice(1)}`;
+      
+      importLines.push(`import ${commandVarName} from "${commandRel}";`);
+      commandVars.push(commandVarName);
+      commandFiles.push(commandPath);
+    }
+  }
+}
+
 export async function runBuild(projectRoot: string, opts: { docker?: boolean; js?: boolean } = {}) {
   const root = resolve(process.cwd(), projectRoot ?? ".");
 
@@ -67,8 +170,11 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   const commandVars: string[] = [];
   const eventVars: string[] = [];
   const buttonVars: string[] = [];
+  const commandGroups: CommandGroup[] = [];
+  const setupLines: string[] = [];
 
-  collectAndImportFiles(root, resolve(root, DIRECTORIES.commands), "Cmd", commandFiles, importLines, commandVars);
+  collectCommandGroups(root, resolve(root, DIRECTORIES.commands), importLines, commandGroups, commandVars, commandFiles, setupLines);
+  
   collectAndImportFiles(root, resolve(root, DIRECTORIES.events), "Evt", eventFiles, importLines, eventVars, true);
   collectAndImportFiles(root, resolve(root, DIRECTORIES.buttons), "Btn", buttonFiles, importLines, buttonVars);
 
@@ -80,6 +186,7 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   const cfgImport = `import config from "${cfgRel}";`;
 
   const handlerContent = `import { Client } from "discord.js";
+import { Command } from "djs-core";
 ${cfgImport}
 ${importLines.join("\n")}
 import { registerHandlers } from "djs-core";
@@ -91,6 +198,8 @@ if (Array.isArray(config.plugins)) {
     await plugin.setupClient?.(client);
   }
 }
+
+${setupLines.join("\n")}
 
 registerHandlers({
   client,
@@ -165,10 +274,15 @@ client.login(config.token);
   const sizeKB = ((await fs.stat(finalFile)).size / 1024).toFixed(2);
   const totalInputs = commandFiles.length + eventFiles.length + buttonFiles.length;
 
+  const subcommandGroupCount = commandGroups.length;
+  const subcommandCount = commandGroups.reduce((acc, g) => acc + g.subcommands.length, 0);
+
   const runtimeLabel = opts.js ? "Node.js" : "Bun";
 
   console.log(`✅ Build completed:
   - Commands: ${commandFiles.length}
+  - Subcommand groups: ${subcommandGroupCount}
+  - Subcommands: ${subcommandCount}
   - Events: ${eventFiles.length}
   - Buttons: ${buttonFiles.length}
   - Total: ${totalInputs} file(s)
