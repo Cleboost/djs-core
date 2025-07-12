@@ -3,6 +3,7 @@ examples/
 docs/
 tsconfig.json
 /index.ts
+tests/
 
 node_modules/
 .djs-generated/
@@ -14,3 +15,7 @@ store/
 .git/
 .cursor/
 .env
+eslint.config.js
+renovate.json
+.prettierrc
+.eslintrc.json
