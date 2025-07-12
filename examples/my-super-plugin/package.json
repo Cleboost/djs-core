@@ -1,0 +1,12 @@
+{
+  "name": "@djs-core/my-super-plugin",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "index.ts",
+  "exports": {
+    "import": "./index.ts"
+  },
+  "peerDependencies": {
+    "djs-core": "latest"
+  }
+}

@@ -1,11 +1,13 @@
-# Project
-dist/
+# Node & Bun artifacts
 node_modules/
-act.exe
-*.tgz
-.turbo
+dist/
+docs/
+.djs-core/
 
-# IDE
-.vscode/
-.idea/
-DS_Store
+# Environment variables
+.env
+
+# Dev
+*.dev
+*.db
+djs-core-types.d.ts
