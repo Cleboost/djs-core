@@ -1,4 +1,4 @@
-import { ContextMenuCommandBuilder, type ContextMenuCommandInteraction, type Client, ApplicationCommandType } from "discord.js";
+import { ContextMenuCommandBuilder, type ContextMenuCommandInteraction, type Client, ApplicationCommandType, type ContextMenuCommandType } from "discord.js";
 
 export type ContextMenuRunFn = (
   client: Client,
@@ -40,7 +40,7 @@ export class ContextMenu extends ContextMenuCommandBuilder {
     return super.setName(name) as unknown as this;
   }
 
-  override setType(type: ApplicationCommandType): this {
+  override setType(type: ContextMenuCommandType): this {
     return super.setType(type) as unknown as this;
   }
 } 
