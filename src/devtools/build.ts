@@ -12,6 +12,7 @@ const CONFIG = {
     buttons: "src/buttons",
     selects: "src/selects",
     modals: "src/modals",
+    contextMenus: "src/contexts",
   } as const,
   VALID_EXT: [".ts", ".js", ".mjs", ".cjs"],
   GENERATED_DIR: ".djs-core/generated",
@@ -166,6 +167,7 @@ function buildHandlerContent(
   buttonVars: string[],
   selectVars: string[],
   modalVars: string[],
+  contextMenuVars: string[],
   setupLines: string[],
 ): string {
   const cfgRel = "./" + relative(resolve(root, CONFIG.GENERATED_DIR), resolve(root, cfgFile)).replace(/\\/g, "/");
@@ -193,6 +195,7 @@ registerHandlers({
   buttons: [${buttonVars.join(", ")}],
   selectMenus: [${selectVars.join(", ")}],
   modals: [${modalVars.join(", ")}],
+  contextMenus: [${contextMenuVars.join(", ")}],
 });
 
 client.login(config.token);
@@ -254,6 +257,7 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   const buttonFiles: string[] = [];
   const selectFiles: string[] = [];
   const modalFiles: string[] = [];
+  const contextMenuFiles: string[] = [];
 
   const importLines: string[] = [];
   const commandVars: string[] = [];
@@ -261,6 +265,7 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   const buttonVars: string[] = [];
   const selectVars: string[] = [];
   const modalVars: string[] = [];
+  const contextMenuVars: string[] = [];
   const commandGroups: CommandGroup[] = [];
   const setupLines: string[] = [];
 
@@ -269,12 +274,13 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   await collectAndImportFiles(root, resolve(root, CONFIG.DIRECTORIES.buttons), "Btn", buttonFiles, importLines, buttonVars);
   await collectAndImportFiles(root, resolve(root, CONFIG.DIRECTORIES.selects), "Sel", selectFiles, importLines, selectVars);
   await collectAndImportFiles(root, resolve(root, CONFIG.DIRECTORIES.modals), "Mod", modalFiles, importLines, modalVars);
+  await collectAndImportFiles(root, resolve(root, CONFIG.DIRECTORIES.contextMenus), "Ctx", contextMenuFiles, importLines, contextMenuVars);
 
   const genDir = resolve(root, CONFIG.GENERATED_DIR);
   await fs.mkdir(genDir, { recursive: true });
   const entryPath = resolve(genDir, "index.ts");
 
-  const handlerContent = buildHandlerContent(root, cfgFile, importLines, commandVars, eventVars, buttonVars, selectVars, modalVars, setupLines);
+  const handlerContent = buildHandlerContent(root, cfgFile, importLines, commandVars, eventVars, buttonVars, selectVars, modalVars, contextMenuVars, setupLines);
   await fs.writeFile(entryPath, handlerContent, { encoding: "utf8" });
 
   const userPkg = JSON.parse(await fs.readFile(resolve(root, "package.json"), "utf8"));
@@ -307,6 +313,7 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   const sizeKB = ((await fs.stat(finalFile)).size / 1024).toFixed(2);
 
   const totalInputs = commandFiles.length + eventFiles.length + buttonFiles.length + selectFiles.length + modalFiles.length;
+  const totalInputsWithCtx = totalInputs + contextMenuFiles.length;
   const subcommandGroupCount = commandGroups.length;
   const subcommandCount = commandGroups.reduce((acc, g) => acc + g.subcommands.length, 0);
   const runtimeLabel = opts.js ? "Node.js" : "Bun";
@@ -319,7 +326,8 @@ export async function runBuild(projectRoot: string, opts: { docker?: boolean; js
   - Boutons : ${buttonFiles.length}
   - Selects Menus : ${selectFiles.length}
   - Modals : ${modalFiles.length}
-  - Total : ${totalInputs} fichier(s)
+  - Context Menus : ${contextMenuFiles.length}
+  - Total : ${totalInputsWithCtx} fichier(s)
   - Sortie : dist/index.js (${sizeKB} KB)
   - Runtime : ${runtimeLabel}
   ${opts.docker ? "- Dockerfile generated" : ""}`);

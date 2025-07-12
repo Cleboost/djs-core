@@ -2,8 +2,8 @@ import { readdirSync, existsSync } from "fs";
 import { resolve, extname, relative } from "path";
 import { pathToFileURL } from "url";
 import { Client } from "discord.js";
-import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
-import type { BaseEvent, Button, SelectMenu, Modal } from "../runtime/index.ts";
+import type { RESTPostAPIChatInputApplicationCommandsJSONBody, RESTPostAPIContextMenuApplicationCommandsJSONBody } from "discord.js";
+import type { BaseEvent, Button, SelectMenu, Modal, ContextMenu } from "../runtime/index.ts";
 import { PluginManager } from "../plugins/manager.ts";
 import { registerHandlers, Command, SubCommand, SubCommandGroup } from "../runtime/index.ts";
 import type { DjsCorePlugin } from "../plugins/types.ts";
@@ -71,6 +71,7 @@ export async function runDev(projectRoot: string) {
   const btnDir = resolve(root, "src/buttons");
   const selDir = resolve(root, "src/selects");
   const modalDir = resolve(root, "src/modals");
+  const ctxDir = resolve(root, "src/contexts");
   const validExt = [".ts", ".js", ".mjs", ".cjs"];
 
   async function scanSources() {
@@ -79,16 +80,20 @@ export async function runDev(projectRoot: string) {
     const buttonFiles: string[] = [];
     const selectFiles: string[] = [];
     const modalFiles: string[] = [];
+    const contextMenuFiles: string[] = [];
+
     if (existsSync(cmdDir)) collectFiles(cmdDir, (f) => validExt.includes(extname(f)), commandFiles);
     if (existsSync(evtDir)) collectFiles(evtDir, (f) => validExt.includes(extname(f)), eventFiles);
     if (existsSync(btnDir)) collectFiles(btnDir, (f) => validExt.includes(extname(f)), buttonFiles);
     if (existsSync(selDir)) collectFiles(selDir, (f) => validExt.includes(extname(f)), selectFiles);
     if (existsSync(modalDir)) collectFiles(modalDir, (f) => validExt.includes(extname(f)), modalFiles);
+    if (existsSync(ctxDir)) collectFiles(ctxDir, (f) => validExt.includes(extname(f)), contextMenuFiles);
 
     const events: BaseEvent[] = [];
     const buttons: Button[] = [];
     const selectMenus: SelectMenu[] = [];
     const modals: Modal[] = [];
+    const contextMenus: ContextMenu[] = [];
 
     const rawCommandInstances: Array<{ instance: Command | SubCommand | SubCommandGroup; file: string }> = [];
     const meta = new Map<string, { name: string }>();
@@ -193,8 +198,19 @@ export async function runDev(projectRoot: string) {
       }
     }
 
-    console.log(`🔗 ${commands.length} command${commands.length === 1 ? "" : "s"} | ${groupCount} group${groupCount === 1 ? "" : "s"} | ${subcommandCount} subcommand${subcommandCount === 1 ? "" : "s"} | ${events.length} event${events.length === 1 ? "" : "s"} | ${buttons.length} button${buttons.length === 1 ? "" : "s"} | ${selectMenus.length} select${selectMenus.length === 1 ? "" : "s"} | ${modals.length} modal${modals.length === 1 ? "" : "s"} loaded.`);
-    return { commands, events, buttons, selectMenus, modals, meta };
+    for (const file of contextMenuFiles) {
+      try {
+        const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`);
+        if (mod.default) {
+          contextMenus.push(mod.default);
+        }
+      } catch (err) {
+        console.error("Error importing", relative(root, file), err);
+      }
+    }
+
+    console.log(`🔗 ${commands.length} command${commands.length === 1 ? "" : "s"} | ${groupCount} group${groupCount === 1 ? "" : "s"} | ${subcommandCount} subcommand${subcommandCount === 1 ? "" : "s"} | ${events.length} event${events.length === 1 ? "" : "s"} | ${buttons.length} button${buttons.length === 1 ? "" : "s"} | ${selectMenus.length} select${selectMenus.length === 1 ? "" : "s"} | ${modals.length} modal${modals.length === 1 ? "" : "s"} | ${contextMenus.length} context menu${contextMenus.length === 1 ? "" : "s"} loaded.`);
+    return { commands, events, buttons, selectMenus, modals, contextMenus, meta };
   }
 
   let commands: Command[] = [];
@@ -202,20 +218,23 @@ export async function runDev(projectRoot: string) {
   let buttons: Button[] = [];
   let selectMenus: SelectMenu[] = [];
   let modals: Modal[] = [];
+  let contextMenus: ContextMenu[] = [];
   let fileMeta: Map<string, { name: string }> = new Map();
 
   async function createClient() {
-    ({ commands, events, buttons, selectMenus, modals, meta: fileMeta } = await scanSources());
+    ({ commands, events, buttons, selectMenus, modals, contextMenus, meta: fileMeta } = await scanSources());
 
     const client = new Client({ intents: (config.intents as number[] | undefined) ?? [] });
 
     await pluginManager.setupClient(client, root);
 
-    registerHandlers({ client, commands, events, buttons, selectMenus, modals });
+    registerHandlers({ client, commands, events, buttons, selectMenus, modals, contextMenus });
 
     client.once("ready", async () => {
-      const jsonData = commands.map((c) => c.toJSON?.() ?? null).filter(Boolean) as RESTPostAPIChatInputApplicationCommandsJSONBody[];
-      if (jsonData.length === 0) {
+      const commandJsonData = commands.map((c) => c.toJSON?.() ?? null).filter(Boolean);
+      const contextMenuJsonData = contextMenus.map((c) => c.toJSON?.() ?? null).filter(Boolean);
+      const allCommands = [...commandJsonData, ...contextMenuJsonData] as (RESTPostAPIChatInputApplicationCommandsJSONBody | RESTPostAPIContextMenuApplicationCommandsJSONBody)[];
+      if (allCommands.length === 0) {
         console.warn("⚠️  No commands to deploy.");
         return;
       }
@@ -225,16 +244,16 @@ export async function runDev(projectRoot: string) {
           await Promise.all(
             config.guildIds.map(async (id: string) => {
               const guild = await client.guilds.fetch(id);
-              await guild.commands.set(jsonData);
+              await guild.commands.set(allCommands);
               console.log(`🚀 Commands deployed to ${guild.name} (${id})`);
             }),
           );
         } else {
-          await client.application?.commands.set(jsonData);
+          await client.application?.commands.set(allCommands);
           console.log("🚀 Global commands deployed (propagation may take up to 1 hour).");
         }
       } catch (err) {
-        console.error("❌ Failed to deploy slash-commands:", err);
+        console.error("❌ Failed to deploy application commands:", err);
       }
     });
 
@@ -248,7 +267,7 @@ export async function runDev(projectRoot: string) {
   const debounceMap = new Map<string, ReturnType<typeof setTimeout>>();
 
   const { watch } = await import("fs");
-  const watchDirs = [cmdDir, evtDir, btnDir, selDir, modalDir];
+  const watchDirs = [cmdDir, evtDir, btnDir, selDir, modalDir, ctxDir];
   for (const dir of watchDirs) {
     if (!existsSync(dir)) continue;
     watch(dir, { recursive: true }, (eventType, filename) => {
@@ -268,6 +287,7 @@ export async function runDev(projectRoot: string) {
           const isButtonFile = filePath.startsWith(btnDir);
           const isSelectFile = filePath.startsWith(selDir);
           const isModalFile = filePath.startsWith(modalDir);
+          const isContextMenuFile = filePath.startsWith(ctxDir);
 
           if (isCommandFile && mod.default) {
             const newInstance = mod.default;
@@ -300,6 +320,11 @@ export async function runDev(projectRoot: string) {
             const id = (newInstance as Modal).customId ?? "";
             (currentClient as ExtendedClient)._djsModals.set(id, newInstance);
             console.log("🔁 Modal hot reload applied.");
+          } else if (isContextMenuFile && mod.default) {
+            const newInstance = mod.default;
+            const nameId = (newInstance as ContextMenu).name;
+            (currentClient as ExtendedClient)._djsContextMenus.set(nameId, newInstance);
+            console.log("🔁 Context menu hot reload applied.");
           } else {
             majorChange = true;
           }
@@ -324,4 +349,5 @@ type ExtendedClient = Client & {
   _djsButtons: Map<string, Button>;
   _djsSelectMenus: Map<string, SelectMenu>;
   _djsModals: Map<string, Modal>;
+  _djsContextMenus: Map<string, ContextMenu>;
 };

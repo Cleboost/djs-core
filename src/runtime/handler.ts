@@ -4,12 +4,14 @@ import type { Command } from "./Class/Command";
 import type { Button } from "./Class/Button";
 import type { SelectMenu } from "./Class/SelectMenu";
 import type { Modal } from "./Class/Modal";
+import type { ContextMenu } from "./Class/ContextMenu";
 
 type InternalClient = Client & {
   _djsCommands: Map<string, Command>;
   _djsButtons: Map<string, Button>;
   _djsSelectMenus: Map<string, SelectMenu>;
   _djsModals: Map<string, Modal>;
+  _djsContextMenus: Map<string, ContextMenu>;
 };
 
 export function registerHandlers(options: {
@@ -19,8 +21,9 @@ export function registerHandlers(options: {
   buttons?: Button[];
   selectMenus?: SelectMenu[];
   modals?: Modal[];
+  contextMenus?: ContextMenu[];
 }) {
-  const { client, commands = [], events = [], buttons = [], selectMenus = [], modals = [] } = options;
+  const { client, commands = [], events = [], buttons = [], selectMenus = [], modals = [], contextMenus = [] } = options;
 
   for (const evt of events) {
     const method = evt.once ? client.once.bind(client) : client.on.bind(client);
@@ -56,6 +59,13 @@ export function registerHandlers(options: {
   for (const md of modals) {
     modalMap.set(md.customId, md);
     md.register?.(client);
+  }
+
+  const contextMenuMap = new Map<string, ContextMenu>();
+  (client as InternalClient)._djsContextMenus = contextMenuMap;
+  for (const cm of contextMenus) {
+    contextMenuMap.set(cm.name, cm);
+    cm.register?.(client);
   }
 
   client.on("interactionCreate", async (interaction) => {
@@ -105,6 +115,21 @@ export function registerHandlers(options: {
         await md.execute(interaction);
       } catch (err) {
         console.error(`Error in the modal handler for ${interaction.customId}:`, err);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
+        } else {
+          await interaction.reply({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
+        }
+      }
+    } else if (interaction.isUserContextMenuCommand?.() || interaction.isMessageContextMenuCommand?.()) {
+      const cm = contextMenuMap.get(interaction.commandName);
+      if (!cm) return;
+      try {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore – execute signature spécifique
+        await cm.execute(interaction);
+      } catch (err) {
+        console.error(`Error in the context menu handler for ${interaction.commandName}:`, err);
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp({ content: "An error occurred…", flags: MessageFlags.Ephemeral });
         } else {

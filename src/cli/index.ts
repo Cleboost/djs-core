@@ -6,6 +6,7 @@ import registerDev from "./commands/dev";
 import registerBuild from "./commands/build";
 import registerGenerateEvent from "./commands/generateEvent";
 import registerGenerateButton from "./commands/generateButton";
+import registerGenerateContextMenu from "./commands/generateContextMenu";
 
 const program = new Cli();
 program
@@ -16,6 +17,7 @@ program
 registerGenerateCommand(program);
 registerGenerateEvent(program);
 registerGenerateButton(program);
+registerGenerateContextMenu(program);
 registerDev(program);
 registerBuild(program);
 
