@@ -1,7 +1,6 @@
 # Node & Bun artifacts
 node_modules/
 dist/
-docs/
 .djs-core/
 
 # Environment variables
