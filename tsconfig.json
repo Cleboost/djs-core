@@ -24,14 +24,6 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
-
-    // Résolution interne du package lors du dev / monorepo
-    "baseUrl": ".",
-    "paths": {
-      "djs-core": ["./index.ts"],
-      "djs-core/*": ["./src/*"],
-      "@djs-core/*": ["examples/*"]
-    }
+    "noPropertyAccessFromIndexSignature": false
   }
 }

@@ -1,0 +1,23 @@
+{
+  "name": "@djs-core/dev",
+  "module": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "bun build index.ts --outdir dist --target bun --external='@djs-core/runtime' --minify",
+    "dev": "bun build index.ts --outdir dist --target bun --watch"
+  },
+  "bin": {
+    "djs-core": "dist/index.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "dependencies": {
+    "@djs-core/runtime": "workspace:*",
+    "cac": "^6.7.14",
+    "picocolors": "^1.1.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

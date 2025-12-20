@@ -1,0 +1,21 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "djs-core dev",
+    "build": "djs-core build",
+    "start": "djs-core start"
+  },
+  "dependencies": {
+    "@djs-core/runtime": "workspace:*",
+    "discord.js": "^14.25.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@djs-core/dev": "workspace:*",
+    "typescript": "^5"
+  }
+}
+
