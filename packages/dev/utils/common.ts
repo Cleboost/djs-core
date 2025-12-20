@@ -24,7 +24,7 @@ export async function runBot(projectPath: string) {
 		);
 	}
 
-	console.log(pc.green("✓") + "  Config loaded");
+        console.log(`${pc.green("✓")}  Config loaded`);
 
 	const commands: Route[] = [];
 	const buttons: Button[] = [];
@@ -38,7 +38,7 @@ export async function runBot(projectPath: string) {
 			fileRouteMap,
 		)),
 	);
-	console.log(pc.green("✓") + `  Loaded ${pc.bold(commands.length)} commands`);
+        console.log(`${pc.green("✓")}  Loaded ${pc.bold(commands.length)} commands`);
 
 	buttons.push(
 		...(await scanButtons(
@@ -47,7 +47,7 @@ export async function runBot(projectPath: string) {
 			buttonFileRouteMap,
 		)),
 	);
-	console.log(pc.green("✓") + `  Loaded ${pc.bold(buttons.length)} buttons`);
+        console.log(`${pc.green("✓")}  Loaded ${pc.bold(buttons.length)} buttons`);
 
 	const client = new DjsClient({ servers: config.servers });
 

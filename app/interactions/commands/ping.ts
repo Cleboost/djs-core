@@ -1,6 +1,6 @@
 import { Command } from "@djs-core/runtime";
 export default new Command()
 	.setDescription("Ping the bot")
-	.run(async (client, interaction) => {
+	.run(async (_client, interaction) => {
 		await interaction.reply("Pong!");
 	});

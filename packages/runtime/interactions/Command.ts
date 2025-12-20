@@ -7,6 +7,7 @@ import {
 export type CommandRunFn = (
 	client: Client,
 	interaction: ChatInputCommandInteraction,
+	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
 ) => any;
 
 export default class Command extends SlashCommandBuilder {

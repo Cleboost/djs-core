@@ -13,7 +13,7 @@ export function registerDevCommand(cli: CAC) {
 		.option("-p, --path", "Custom project path", { default: "." })
 		.action(async (options) => {
 			console.log(banner);
-			console.log(pc.cyan("ℹ") + "  Starting development server...");
+			console.log(`${pc.cyan("ℹ")}  Starting development server...`);
 
 			const { client, root, fileRouteMap, buttonFileRouteMap } = await runBot(
 				options.path,
@@ -35,7 +35,7 @@ export function registerDevCommand(cli: CAC) {
 			const commandsWatcher = watch(
 				commandsDir,
 				{ recursive: true },
-				async (event, filename) => {
+				async (_event, filename) => {
 					if (!filename || !filename.endsWith(".ts")) return;
 
 					const fullPath = path.join(commandsDir, filename);
@@ -49,7 +49,7 @@ export function registerDevCommand(cli: CAC) {
 						const knownRoute = fileRouteMap.get(fullPath);
 						if (knownRoute) {
 							console.log(
-								pc.red("🗑️  Deleting route:") + ` ${pc.bold(knownRoute)}`,
+								`${pc.red("🗑️  Deleting route:")} ${pc.bold(knownRoute)}`,
 							);
 							await client.commandsHandler.delete(knownRoute);
 							fileRouteMap.delete(fullPath);
@@ -76,7 +76,7 @@ export function registerDevCommand(cli: CAC) {
 					}
 					const route = parts.join(".");
 
-					console.log(pc.blue("📝 File changed:") + ` ${filename}`);
+					console.log(`${pc.blue("📝 File changed:")} ${filename}`);
 
 					try {
 						const commandModule = await import(`${fullPath}?t=${Date.now()}`);
@@ -89,13 +89,16 @@ export function registerDevCommand(cli: CAC) {
 							return;
 						}
 
-						if (filename.endsWith("index.ts")) {
-							command.setName(parts[parts.length - 1] || "index");
-						} else {
-							command.setName(parts[parts.length - 1]!);
+					if (filename.endsWith("index.ts")) {
+						command.setName(parts[parts.length - 1] || "index");
+					} else {
+						const name = parts[parts.length - 1];
+						if (name) {
+							command.setName(name);
 						}
+					}
 
-						console.log(pc.green("✨ Reloading route:") + ` ${pc.bold(route)}`);
+						console.log(`${pc.green("✨ Reloading route:")} ${pc.bold(route)}`);
 						await client.commandsHandler.add({ route, command });
 
 						fileRouteMap.set(fullPath, route);
@@ -108,7 +111,7 @@ export function registerDevCommand(cli: CAC) {
 			const buttonsWatcher = watch(
 				buttonsDir,
 				{ recursive: true },
-				async (event, filename) => {
+				async (_event, filename) => {
 					if (!filename || !filename.endsWith(".ts")) return;
 
 					const fullPath = path.join(buttonsDir, filename);
@@ -125,14 +128,14 @@ export function registerDevCommand(cli: CAC) {
 					if (!fileExists) {
 						const knownRoute = buttonFileRouteMap.get(fullPath) ?? route;
 						console.log(
-							pc.red("🗑️  Deleting button:") + ` ${pc.bold(knownRoute)}`,
+							`${pc.red("🗑️  Deleting button:")} ${pc.bold(knownRoute)}`,
 						);
 						client.buttonsHandler.delete(knownRoute);
 						buttonFileRouteMap.delete(fullPath);
 						return;
 					}
 
-					console.log(pc.magenta("🧩 Button file changed:") + ` ${filename}`);
+					console.log(`${pc.magenta("🧩 Button file changed:")} ${filename}`);
 
 					try {
 						const mod = await import(`${fullPath}?t=${Date.now()}`);
@@ -148,7 +151,7 @@ export function registerDevCommand(cli: CAC) {
 						button.setCustomId(route);
 
 						console.log(
-							pc.green("✨ Reloading button:") + ` ${pc.bold(route)}`,
+							`${pc.green("✨ Reloading button:")} ${pc.bold(route)}`,
 						);
 						client.buttonsHandler.add(button);
 						buttonFileRouteMap.set(fullPath, route);

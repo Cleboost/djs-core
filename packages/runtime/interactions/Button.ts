@@ -3,6 +3,7 @@ import { ButtonBuilder, type ButtonInteraction, type Client } from "discord.js";
 export type ButtonRunFn = (
 	client: Client,
 	interaction: ButtonInteraction,
+	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
 ) => any;
 
 export default class Button extends ButtonBuilder {

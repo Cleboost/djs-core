@@ -62,7 +62,6 @@ function makeVar(prefix: "cmd" | "btn", route: string): string {
 
 function buildGeneratedEntry(opts: {
 	genDir: string;
-	botRoot: string;
 	commandsDir: string;
 	buttonsDir: string;
 	commandFiles: string[];
@@ -70,7 +69,6 @@ function buildGeneratedEntry(opts: {
 }): string {
 	const {
 		genDir,
-		botRoot,
 		commandsDir,
 		buttonsDir,
 		commandFiles,
@@ -167,22 +165,21 @@ export function registerBuildCommand(cli: CAC) {
 			const commandsDir = path.join(botRoot, "interactions", "commands");
 			const buttonsDir = path.join(botRoot, "interactions", "buttons");
 
-			console.log(pc.cyan("ℹ") + `  Project: ${pc.bold(botRoot)}`);
-			console.log(pc.cyan("ℹ") + `  Generating: ${pc.bold(entryPath)}\n`);
+		console.log(`${pc.cyan("ℹ")}  Project: ${pc.bold(botRoot)}`);
+		console.log(`${pc.cyan("ℹ")}  Generating: ${pc.bold(entryPath)}\n`);
 
 			await fs.mkdir(genDir, { recursive: true });
 
 			const commandFiles = await listTsFilesRecursive(commandsDir);
 			const buttonFiles = await listTsFilesRecursive(buttonsDir);
 
-			const code = buildGeneratedEntry({
-				genDir,
-				botRoot,
-				commandsDir,
-				buttonsDir,
-				commandFiles,
-				buttonFiles,
-			});
+		const code = buildGeneratedEntry({
+			genDir,
+			commandsDir,
+			buttonsDir,
+			commandFiles,
+			buttonFiles,
+		});
 
 			await fs.writeFile(entryPath, code, "utf8");
 
@@ -224,9 +221,9 @@ export function registerBuildCommand(cli: CAC) {
 						"discord.js",
 						"@djs-core/runtime",
 					];
-				} catch (e) {
-					console.warn(
-						pc.yellow(
+			} catch (_e) {
+				console.warn(
+					pc.yellow(
 							"⚠️  Could not read package.json, using default externals",
 						),
 					);
@@ -273,7 +270,7 @@ CMD ["bun", "index.js"]
 				const dockerfilePath = path.join(outdirAbs, "Dockerfile");
 				await fs.writeFile(dockerfilePath, dockerfileContent, "utf8");
 				console.log(
-					pc.green("✓") + `  Dockerfile created: ${pc.bold("Dockerfile")}`,
+					`${pc.green("✓")}  Dockerfile created: ${pc.bold("Dockerfile")}`,
 				);
 				console.log(
 					pc.dim(
@@ -311,7 +308,7 @@ CMD ["bun", "index.js"]
 							`\nTip: install deps then run: cd ${options.outdir} && bun install && bun start\n`,
 						),
 					);
-				} catch (e) {
+				} catch (_e) {
 					console.warn(pc.yellow("⚠️  Could not generate package.json"));
 					console.log(
 						pc.dim(

@@ -1,8 +1,10 @@
 import type {
+	ApplicationCommand,
 	ApplicationCommandDataResolvable,
 	ChatInputCommandInteraction,
 	Client,
 } from "discord.js";
+import type { Collection } from "discord.js";
 import { SlashCommandBuilder } from "discord.js";
 import type Command from "../interactions/Command";
 
@@ -46,16 +48,20 @@ export default class CommandHandler {
 
 		const payload = this.compileAllRoots();
 
+		if (!this.client.application) {
+			throw new Error("Client application is not available");
+		}
+
 		if (this.guilds.length > 0) {
 			for (const guildId of this.guilds) {
-				const created = await this.client.application!.commands.set(
+				const created = await this.client.application.commands.set(
 					payload,
 					guildId,
 				);
 				this.refreshCacheFromSetResult(created, guildId);
 			}
 		} else {
-			const created = await this.client.application!.commands.set(payload);
+			const created = await this.client.application.commands.set(payload);
 			this.refreshCacheFromSetResult(created, "global");
 		}
 	}
@@ -101,13 +107,20 @@ export default class CommandHandler {
 	}
 
 	private async upsertOrDeleteRoot(root: string, scope: string): Promise<void> {
+		if (!this.client.application) {
+			throw new Error("Client application is not available");
+		}
+
 		const compiled = this.compileRoot(root);
-		const cache = this.rootIdCache.get(scope)!;
+		const cache = this.rootIdCache.get(scope);
+		if (!cache) {
+			throw new Error(`Cache for scope '${scope}' is not available`);
+		}
 		const existingId = cache.get(root);
 
 		if (!compiled) {
 			if (existingId) {
-				await this.client.application!.commands.delete(
+				await this.client.application.commands.delete(
 					existingId,
 					scope === "global" ? undefined : scope,
 				);
@@ -118,13 +131,13 @@ export default class CommandHandler {
 
 		if (existingId) {
 			if (scope === "global") {
-				const edited = await this.client.application!.commands.edit(
+				const edited = await this.client.application.commands.edit(
 					existingId,
 					compiled,
 				);
 				cache.set(edited.name, edited.id);
 			} else {
-				const edited = await this.client.application!.commands.edit(
+				const edited = await this.client.application.commands.edit(
 					existingId,
 					compiled,
 					scope,
@@ -132,7 +145,7 @@ export default class CommandHandler {
 				cache.set(edited.name, edited.id);
 			}
 		} else {
-			const created = await this.client.application!.commands.create(
+			const created = await this.client.application.commands.create(
 				compiled,
 				scope === "global" ? undefined : scope,
 			);
@@ -143,18 +156,29 @@ export default class CommandHandler {
 	private async ensureCache(scope: string): Promise<void> {
 		if (this.rootIdCache.has(scope)) return;
 
-		const fetched = await this.client.application!.commands.fetch(
+		if (!this.client.application) {
+			throw new Error("Client application is not available");
+		}
+
+		const fetched = await this.client.application.commands.fetch(
 			scope === "global" ? undefined : scope,
 		);
 
 		const map = new Map<string, string>();
-		fetched.forEach((cmd) => map.set(cmd.name, cmd.id));
+		for (const cmd of fetched.values()) {
+			map.set(cmd.name, cmd.id);
+		}
 		this.rootIdCache.set(scope, map);
 	}
 
-	private refreshCacheFromSetResult(setResult: any, scope: string): void {
+	private refreshCacheFromSetResult(
+		setResult: Collection<string, ApplicationCommand>,
+		scope: string,
+	): void {
 		const map = new Map<string, string>();
-		setResult.forEach((cmd: any) => map.set(cmd.name, cmd.id));
+		for (const cmd of setResult.values()) {
+			map.set(cmd.name, cmd.id);
+		}
 		this.rootIdCache.set(scope, map);
 	}
 
@@ -189,15 +213,23 @@ export default class CommandHandler {
 			}
 
 			if (parts.length === 2) {
-				subcommands.set(parts[1]!, r.cmd);
+				const subcommandName = parts[1];
+				if (subcommandName) {
+					subcommands.set(subcommandName, r.cmd);
+				}
 				continue;
 			}
 
 			if (parts.length === 3) {
-				const g = parts[1]!;
-				const s = parts[2]!;
-				if (!groups.has(g)) groups.set(g, new Map());
-				groups.get(g)!.set(s, r.cmd);
+				const g = parts[1];
+				const s = parts[2];
+				if (g && s) {
+					if (!groups.has(g)) groups.set(g, new Map());
+					const groupMap = groups.get(g);
+					if (groupMap) {
+						groupMap.set(s, r.cmd);
+					}
+				}
 				continue;
 			}
 
@@ -213,17 +245,22 @@ export default class CommandHandler {
 			subcommands.size === 1 &&
 			groups.size === 0
 		) {
-			const cmd = subcommands.get("__root__")!;
-			builder.setDescription((cmd as any).description ?? "No description");
+			const cmd = subcommands.get("__root__");
+			if (!cmd) {
+				throw new Error("Root command not found in subcommands");
+			}
+			const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
+			builder.setDescription(cmdWithDesc.description ?? "No description");
 			return builder.toJSON();
 		}
 
 		for (const [name, cmd] of subcommands) {
 			if (name === "__root__") continue;
 			builder.addSubcommand((sc) => {
-				sc.setName(name);
-				sc.setDescription((cmd as any).description ?? "No description");
-				return sc;
+			sc.setName(name);
+			const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
+			sc.setDescription(cmdWithDesc.description ?? "No description");
+			return sc;
 			});
 		}
 
@@ -234,7 +271,8 @@ export default class CommandHandler {
 				for (const [subName, cmd] of subs) {
 					g.addSubcommand((sc) => {
 						sc.setName(subName);
-						sc.setDescription((cmd as any).description ?? "No description");
+						const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
+					sc.setDescription(cmdWithDesc.description ?? "No description");
 						return sc;
 					});
 				}
@@ -250,14 +288,23 @@ export default class CommandHandler {
 
 		for (const r of this.router) {
 			const parts = this.splitRoute(r.route);
-			if (parts.length >= 2) rootsWithChildren.add(parts[0]!);
+			if (parts.length >= 2) {
+				const root = parts[0];
+				if (root) {
+					rootsWithChildren.add(root);
+				}
+			}
 		}
 
 		if (rootsWithChildren.size === 0) return;
 
 		this.router = this.router.filter((r) => {
 			const parts = this.splitRoute(r.route);
-			return !(parts.length === 1 && rootsWithChildren.has(parts[0]!));
+			if (parts.length === 1) {
+				const root = parts[0];
+				return !root || !rootsWithChildren.has(root);
+			}
+			return true;
 		});
 	}
 
@@ -273,7 +320,9 @@ export default class CommandHandler {
 
 	private getRootDescription(root: string): string | undefined {
 		const leaf = this.router.find((r) => r.route === root);
-		return (leaf?.command as any)?.description;
+		if (!leaf) return undefined;
+		const cmd = leaf.command as SlashCommandBuilder & { description?: string };
+		return cmd.description;
 	}
 
 	private splitRoute(route: string): string[] {
@@ -284,7 +333,12 @@ export default class CommandHandler {
 	}
 
 	private getRoot(route: string): string {
-		return this.splitRoute(route)[0]!;
+		const parts = this.splitRoute(route);
+		const root = parts[0];
+		if (!root) {
+			throw new Error(`Route '${route}' has no root part`);
+		}
+		return root;
 	}
 
 	private assertReady(): void {
