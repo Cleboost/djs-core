@@ -1,5 +1,6 @@
 import type { CAC } from "cac";
 import { banner, runBot } from "../utils/common";
+import pc from "picocolors";
 
 export function registerStartCommand(cli: CAC) {
 	cli
@@ -7,6 +8,12 @@ export function registerStartCommand(cli: CAC) {
 		.option("-p, --path", "Custom project path", { default: "." })
 		.action(async (options) => {
 			console.log(banner);
-			await runBot(options.path);
+			const { client } = await runBot(options.path);
+
+			process.on("SIGINT", async () => {
+				console.log(pc.dim("\nShutting down..."));
+				client.destroy();
+				process.exit(0);
+			});
 		});
 }

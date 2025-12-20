@@ -8,10 +8,11 @@ import {
 } from "discord.js";
 import CommandHandler from "./handler/CommandHandler";
 import ButtonHandler from "./handler/ButtonHandler";
+import EventHandler from "./handler/EventHandler";
 import { cleanupExpiredTokens } from "./store/ButtonDataStore";
 
 export default class DjsClient extends Client {
-	public eventsHandler = null;
+	public eventsHandler: EventHandler = new EventHandler(this);
 	public commandsHandler: CommandHandler = new CommandHandler(this);
 	public buttonsHandler: ButtonHandler = new ButtonHandler(this);
 

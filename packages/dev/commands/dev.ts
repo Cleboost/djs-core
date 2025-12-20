@@ -5,6 +5,7 @@ import path from "path";
 import pc from "picocolors";
 import type { Button } from "@djs-core/runtime";
 import type { Command } from "@djs-core/runtime";
+import type { EventLister } from "@djs-core/runtime";
 
 export function registerDevCommand(cli: CAC) {
 	cli
@@ -14,15 +15,15 @@ export function registerDevCommand(cli: CAC) {
 			console.log(banner);
 			console.log(`${pc.cyan("ℹ")}  Starting development server...`);
 
-			const { client, root, fileRouteMap, buttonFileRouteMap } = await runBot(
-				options.path,
-			);
+			const { client, root, fileRouteMap, buttonFileRouteMap, eventFileIdMap } =
+				await runBot(options.path);
 			const commandsDir = path.join(root, "interactions", "commands");
 			const buttonsDir = path.join(root, "interactions", "buttons");
+			const eventsDir = path.join(root, "interactions", "events");
 
 			console.log(
 				pc.dim(
-					`\nWatching for changes in:\n - ${commandsDir}\n - ${buttonsDir}\n`,
+					`\nWatching for changes in:\n - ${commandsDir}\n - ${buttonsDir}\n - ${eventsDir}\n`,
 				),
 			);
 
@@ -156,7 +157,64 @@ export function registerDevCommand(cli: CAC) {
 				buttonFileRouteMap.delete(absPath);
 			}
 
-			const watcher = chokidar.watch([commandsDir, buttonsDir], {
+			function eventIdFromFile(absPath: string): string | null {
+				if (!absPath.endsWith(".ts")) return null;
+				const fileName = path.basename(absPath, ".ts");
+				return fileName;
+			}
+
+			async function reloadEvent(
+				absPath: string,
+				opts?: { retries?: number },
+			): Promise<void> {
+				const eventId = eventIdFromFile(absPath);
+				if (!eventId) return;
+
+				const retries = opts?.retries ?? 0;
+
+				try {
+					const mod = await import(
+						`${absPath}?t=${Date.now()}&r=${Math.random()}`
+					);
+					const event = mod.default as EventLister | undefined;
+					if (!event) {
+						if (retries > 0) {
+							await sleep(150);
+							return await reloadEvent(absPath, {
+								retries: retries - 1,
+							});
+						}
+						return;
+					}
+
+					const existingId = eventFileIdMap.get(absPath);
+					if (existingId && existingId !== eventId) {
+						client.eventsHandler.remove(existingId);
+					}
+					console.log(`${pc.green("✨ Reloading event:")} ${pc.bold(eventId)}`);
+					client.eventsHandler.remove(eventId);
+					client.eventsHandler.add(eventId, event);
+					eventFileIdMap.set(absPath, eventId);
+				} catch (error) {
+					if (retries > 0) {
+						await sleep(150);
+						return await reloadEvent(absPath, {
+							retries: retries - 1,
+						});
+					}
+					console.error(pc.red(`❌ Error reloading event ${absPath}:`), error);
+				}
+			}
+
+			function deleteEvent(absPath: string): void {
+				const knownId = eventFileIdMap.get(absPath) ?? eventIdFromFile(absPath);
+				if (!knownId) return;
+				console.log(`${pc.red("🗑️  Deleting event:")} ${pc.bold(knownId)}`);
+				client.eventsHandler.remove(knownId);
+				eventFileIdMap.delete(absPath);
+			}
+
+			const watcher = chokidar.watch([commandsDir, buttonsDir, eventsDir], {
 				ignoreInitial: true,
 				ignored: /(^|[/\\])\../,
 				usePolling: true,
@@ -171,6 +229,8 @@ export function registerDevCommand(cli: CAC) {
 						await reloadCommand(absPath, { retries: 5 });
 					} else if (absPath.startsWith(buttonsDir)) {
 						await reloadButton(absPath, { retries: 5 });
+					} else if (absPath.startsWith(eventsDir)) {
+						await reloadEvent(absPath, { retries: 5 });
 					}
 				})
 				.on("change", async (absPath) => {
@@ -179,6 +239,8 @@ export function registerDevCommand(cli: CAC) {
 						await reloadCommand(absPath, { retries: 3 });
 					} else if (absPath.startsWith(buttonsDir)) {
 						await reloadButton(absPath, { retries: 3 });
+					} else if (absPath.startsWith(eventsDir)) {
+						await reloadEvent(absPath, { retries: 3 });
 					}
 				})
 				.on("unlink", async (absPath) => {
@@ -187,11 +249,15 @@ export function registerDevCommand(cli: CAC) {
 						await deleteCommand(absPath);
 					} else if (absPath.startsWith(buttonsDir)) {
 						deleteButton(absPath);
+					} else if (absPath.startsWith(eventsDir)) {
+						deleteEvent(absPath);
 					}
 				});
 
 			process.on("SIGINT", async () => {
+				console.log(pc.dim("\nShutting down..."));
 				await watcher.close();
+				await client.destroy();
 				process.exit(0);
 			});
 		});

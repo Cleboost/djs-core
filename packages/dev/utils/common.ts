@@ -3,6 +3,7 @@ import {
 	type Command,
 	type Button,
 	type Route,
+	type EventLister,
 } from "@djs-core/runtime";
 import type { Config } from "../../utils/types/config";
 import path, { resolve } from "path";
@@ -33,8 +34,10 @@ export async function runBot(projectPath: string) {
 
 	const commands: Route[] = [];
 	const buttons: Button[] = [];
+	const events: Record<string, EventLister> = {};
 	const fileRouteMap = new Map<string, string>();
 	const buttonFileRouteMap = new Map<string, string>();
+	const eventFileIdMap = new Map<string, string>();
 
 	commands.push(
 		...(await scanCommands(
@@ -54,7 +57,17 @@ export async function runBot(projectPath: string) {
 	);
 	console.log(`${pc.green("✓")}  Loaded ${pc.bold(buttons.length)} buttons`);
 
+	Object.assign(
+		events,
+		await scanEvents(path.join(root, "interactions", "events"), eventFileIdMap),
+	);
+	console.log(
+		`${pc.green("✓")}  Loaded ${pc.bold(Object.keys(events).length)} events`,
+	);
+
 	const client = new DjsClient({ servers: config.servers });
+
+	client.eventsHandler.set(events);
 
 	console.log(pc.dim("Connecting to Discord..."));
 	client.login(config.token);
@@ -67,7 +80,14 @@ export async function runBot(projectPath: string) {
 		);
 	});
 
-	return { client, root, config, fileRouteMap, buttonFileRouteMap };
+	return {
+		client,
+		root,
+		config,
+		fileRouteMap,
+		buttonFileRouteMap,
+		eventFileIdMap,
+	};
 }
 
 async function scanButtons(
@@ -160,4 +180,37 @@ async function scanCommands(
 		}
 	}
 	return routes;
+}
+
+async function scanEvents(
+	dir: string,
+	map?: Map<string, string>,
+): Promise<Record<string, EventLister>> {
+	const events: Record<string, EventLister> = {};
+
+	try {
+		await fs.access(dir);
+	} catch {
+		return {};
+	}
+
+	const entries = await fs.readdir(dir, { withFileTypes: true });
+
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+
+		if (entry.isFile() && entry.name.endsWith(".ts")) {
+			const mod = await import(fullPath);
+			const event = mod.default as EventLister;
+
+			if (!event) continue;
+
+			const eventId = entry.name.replace(".ts", "");
+
+			if (map) map.set(fullPath, eventId);
+			events[eventId] = event;
+		}
+	}
+
+	return events;
 }
