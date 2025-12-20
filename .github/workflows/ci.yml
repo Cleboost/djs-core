@@ -27,17 +27,16 @@ jobs:
 
   #     - run: bun i
   #     - run: cd frontend && bun run type-check
-  # knip:
-  #   concurrency:
-  #     group: knip-${{ github.ref }}
-  #     cancel-in-progress: true
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: oven-sh/setup-bun@v2
+  knip:
+    concurrency:
+      group: knip-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
 
-  #     - run: bun i
-  #     - run: cd backend && bun db:generate
-  #     - run: bun knip
+      - run: bun i
+      - run: bun knip
 
       

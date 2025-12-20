@@ -42,7 +42,7 @@ export async function runBot(projectPath: string) {
     return { client, root, config, fileRouteMap, buttonFileRouteMap }
 }
 
-export async function scanButtons(dir: string, prefix: string = '', map?: Map<string, string>): Promise<Button[]> {
+async function scanButtons(dir: string, prefix: string = '', map?: Map<string, string>): Promise<Button[]> {
   const buttons: Button[] = []
   try {
       await fs.access(dir)
@@ -84,7 +84,7 @@ export async function scanButtons(dir: string, prefix: string = '', map?: Map<st
   return buttons
 }
 
-export async function scanCommands(dir: string, prefix: string = '', map?: Map<string, string>): Promise<Route[]> {
+async function scanCommands(dir: string, prefix: string = '', map?: Map<string, string>): Promise<Route[]> {
   const routes: Route[] = []
   
   // Create dir if not exists to avoid error
