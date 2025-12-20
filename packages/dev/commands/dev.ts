@@ -1,8 +1,7 @@
 import type { CAC } from "cac";
 import { banner, runBot } from "../utils/common";
-import { watch } from "fs";
+import chokidar from "chokidar";
 import path from "path";
-import fs from "fs/promises";
 import pc from "picocolors";
 import type { Button } from "@djs-core/runtime";
 import type { Command } from "@djs-core/runtime";
@@ -26,147 +25,173 @@ export function registerDevCommand(cli: CAC) {
 					`\nWatching for changes in:\n - ${commandsDir}\n - ${buttonsDir}\n`,
 				),
 			);
-			console.warn(
-				pc.yellow(
-					"⚠️  Note: File deletions/renames might not be detected automatically on some systems.",
-				),
-			);
 
-			const commandsWatcher = watch(
-				commandsDir,
-				{ recursive: true },
-				async (_event, filename) => {
-					if (!filename || !filename.endsWith(".ts")) return;
+			const sleep = (ms: number) =>
+				new Promise<void>((resolve) => {
+					setTimeout(resolve, ms);
+				});
 
-					const fullPath = path.join(commandsDir, filename);
+			function routeFromWatchedFile(
+				rootDir: string,
+				absPath: string,
+			): string | null {
+				const rel = path.relative(rootDir, absPath);
+				if (!rel || rel.startsWith("..")) return null;
+				if (!rel.endsWith(".ts")) return null;
+				const parts = rel.replace(/\.ts$/, "").split(path.sep);
+				if (parts[parts.length - 1] === "index") parts.pop();
+				if (parts.length === 0) return "index";
+				return parts.join(".");
+			}
 
-					const fileExists = await fs
-						.stat(fullPath)
-						.then(() => true)
-						.catch(() => false);
+			async function reloadCommand(
+				absPath: string,
+				opts?: { retries?: number },
+			): Promise<void> {
+				const route = routeFromWatchedFile(commandsDir, absPath);
+				if (!route) return;
 
-					if (!fileExists) {
-						const knownRoute = fileRouteMap.get(fullPath);
-						if (knownRoute) {
-							console.log(
-								`${pc.red("🗑️  Deleting route:")} ${pc.bold(knownRoute)}`,
-							);
-							await client.commandsHandler.delete(knownRoute);
-							fileRouteMap.delete(fullPath);
-						} else {
-							const relativePath = filename.replace(".ts", "");
-							const parts = relativePath.split(path.sep);
-							if (parts[parts.length - 1] === "index") parts.pop();
-							const probableRoute = parts.join(".");
+				const retries = opts?.retries ?? 0;
 
-							console.log(
-								pc.red("🗑️  Deleting route:") +
-									` ${pc.bold(probableRoute)} ` +
-									pc.dim("(not in map)"),
-							);
-							await client.commandsHandler.delete(probableRoute);
+				try {
+					const mod = await import(
+						`${absPath}?t=${Date.now()}&r=${Math.random()}`
+					);
+					const command = mod.default as Command | undefined;
+					if (!command) {
+						if (retries > 0) {
+							await sleep(150);
+							return await reloadCommand(absPath, {
+								retries: retries - 1,
+							});
 						}
 						return;
 					}
 
-					const relativePath = filename.replace(".ts", "");
-					const parts = relativePath.split(path.sep);
-					if (parts[parts.length - 1] === "index") {
-						parts.pop();
+					const parts = route.split(".");
+					const leaf = parts[parts.length - 1];
+					if (leaf) command.setName(leaf);
+
+					const existingRoute = fileRouteMap.get(absPath);
+					if (existingRoute && existingRoute !== route) {
+						await client.commandsHandler.delete(existingRoute);
 					}
-					const route = parts.join(".");
-
-					console.log(`${pc.blue("📝 File changed:")} ${filename}`);
-
-					try {
-						const commandModule = await import(`${fullPath}?t=${Date.now()}`);
-						const command = commandModule.default as Command;
-
-						if (!command) {
-							console.warn(
-								pc.yellow("⚠️  No default export found in ") + filename,
-							);
-							return;
-						}
-
-						if (filename.endsWith("index.ts")) {
-							command.setName(parts[parts.length - 1] || "index");
-						} else {
-							const name = parts[parts.length - 1];
-							if (name) {
-								command.setName(name);
-							}
-						}
-
-						console.log(`${pc.green("✨ Reloading route:")} ${pc.bold(route)}`);
-						await client.commandsHandler.add({ route, command });
-
-						fileRouteMap.set(fullPath, route);
-					} catch (error) {
-						console.error(pc.red(`❌ Error reloading ${filename}:`), error);
+					console.log(`${pc.green("✨ Reloading route:")} ${pc.bold(route)}`);
+					await client.commandsHandler.add({ route, command });
+					fileRouteMap.set(absPath, route);
+				} catch (error) {
+					if (retries > 0) {
+						await sleep(150);
+						return await reloadCommand(absPath, {
+							retries: retries - 1,
+						});
 					}
-				},
-			);
+					console.error(
+						pc.red(`❌ Error reloading command ${absPath}:`),
+						error,
+					);
+				}
+			}
 
-			const buttonsWatcher = watch(
-				buttonsDir,
-				{ recursive: true },
-				async (_event, filename) => {
-					if (!filename || !filename.endsWith(".ts")) return;
+			async function deleteCommand(absPath: string): Promise<void> {
+				const knownRoute =
+					fileRouteMap.get(absPath) ??
+					routeFromWatchedFile(commandsDir, absPath);
+				if (!knownRoute) return;
+				console.log(`${pc.red("🗑️  Deleting route:")} ${pc.bold(knownRoute)}`);
+				await client.commandsHandler.delete(knownRoute);
+				fileRouteMap.delete(absPath);
+			}
 
-					const fullPath = path.join(buttonsDir, filename);
-					const fileExists = await fs
-						.stat(fullPath)
-						.then(() => true)
-						.catch(() => false);
+			async function reloadButton(
+				absPath: string,
+				opts?: { retries?: number },
+			): Promise<void> {
+				const route = routeFromWatchedFile(buttonsDir, absPath);
+				if (!route) return;
 
-					const relativePath = filename.replace(".ts", "");
-					const parts = relativePath.split(path.sep);
-					if (parts[parts.length - 1] === "index") parts.pop();
-					const route = parts.join(".");
+				const retries = opts?.retries ?? 0;
 
-					if (!fileExists) {
-						const knownRoute = buttonFileRouteMap.get(fullPath) ?? route;
-						console.log(
-							`${pc.red("🗑️  Deleting button:")} ${pc.bold(knownRoute)}`,
-						);
-						client.buttonsHandler.delete(knownRoute);
-						buttonFileRouteMap.delete(fullPath);
+				try {
+					const mod = await import(
+						`${absPath}?t=${Date.now()}&r=${Math.random()}`
+					);
+					const button = mod.default as Button | undefined;
+					if (!button) {
+						if (retries > 0) {
+							await sleep(150);
+							return await reloadButton(absPath, {
+								retries: retries - 1,
+							});
+						}
 						return;
 					}
 
-					console.log(`${pc.magenta("🧩 Button file changed:")} ${filename}`);
-
-					try {
-						const mod = await import(`${fullPath}?t=${Date.now()}`);
-						const button = mod.default as Button;
-						if (!button) {
-							console.warn(
-								pc.yellow("⚠️  No default export found in ") + filename,
-							);
-							return;
-						}
-
-						// Ensure customId matches the route derived from the file path
-						button.setCustomId(route);
-
-						console.log(
-							`${pc.green("✨ Reloading button:")} ${pc.bold(route)}`,
-						);
-						client.buttonsHandler.add(button);
-						buttonFileRouteMap.set(fullPath, route);
-					} catch (error) {
-						console.error(
-							pc.red(`❌ Error reloading button ${filename}:`),
-							error,
-						);
+					button.setCustomId(route);
+					const existingRoute = buttonFileRouteMap.get(absPath);
+					if (existingRoute && existingRoute !== route) {
+						client.buttonsHandler.delete(existingRoute);
 					}
-				},
-			);
+					console.log(`${pc.green("✨ Reloading button:")} ${pc.bold(route)}`);
+					client.buttonsHandler.add(button);
+					buttonFileRouteMap.set(absPath, route);
+				} catch (error) {
+					if (retries > 0) {
+						await sleep(150);
+						return await reloadButton(absPath, {
+							retries: retries - 1,
+						});
+					}
+					console.error(pc.red(`❌ Error reloading button ${absPath}:`), error);
+				}
+			}
 
-			process.on("SIGINT", () => {
-				commandsWatcher.close();
-				buttonsWatcher.close();
+			function deleteButton(absPath: string): void {
+				const knownRoute =
+					buttonFileRouteMap.get(absPath) ??
+					routeFromWatchedFile(buttonsDir, absPath);
+				if (!knownRoute) return;
+				console.log(`${pc.red("🗑️  Deleting button:")} ${pc.bold(knownRoute)}`);
+				client.buttonsHandler.delete(knownRoute);
+				buttonFileRouteMap.delete(absPath);
+			}
+
+			const watcher = chokidar.watch([commandsDir, buttonsDir], {
+				ignoreInitial: true,
+				ignored: /(^|[/\\])\../,
+				usePolling: true,
+				interval: 300,
+				binaryInterval: 300,
+			});
+
+			watcher
+				.on("add", async (absPath) => {
+					if (!absPath.endsWith(".ts")) return;
+					if (absPath.startsWith(commandsDir)) {
+						await reloadCommand(absPath, { retries: 5 });
+					} else if (absPath.startsWith(buttonsDir)) {
+						await reloadButton(absPath, { retries: 5 });
+					}
+				})
+				.on("change", async (absPath) => {
+					if (!absPath.endsWith(".ts")) return;
+					if (absPath.startsWith(commandsDir)) {
+						await reloadCommand(absPath, { retries: 3 });
+					} else if (absPath.startsWith(buttonsDir)) {
+						await reloadButton(absPath, { retries: 3 });
+					}
+				})
+				.on("unlink", async (absPath) => {
+					if (!absPath.endsWith(".ts")) return;
+					if (absPath.startsWith(commandsDir)) {
+						await deleteCommand(absPath);
+					} else if (absPath.startsWith(buttonsDir)) {
+						deleteButton(absPath);
+					}
+				});
+
+			process.on("SIGINT", async () => {
+				await watcher.close();
 				process.exit(0);
 			});
 		});

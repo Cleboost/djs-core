@@ -1,5 +1,6 @@
 {
 	"name": "@djs-core/runtime",
+	"version": "1.0.0",
 	"module": "dist/index.js",
 	"type": "module",
 	"scripts": {
