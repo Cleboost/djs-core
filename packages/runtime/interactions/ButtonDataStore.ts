@@ -12,22 +12,20 @@ function getDatabase(): Database {
 	}
 
 	const cwd = process.cwd();
-	const isBundled = Bun.main.endsWith("index.js") && 
-		dirname(Bun.main) === cwd;
-	
+	const isBundled = Bun.main.endsWith("index.js") && dirname(Bun.main) === cwd;
+
 	let dbPath: string;
 	if (isBundled) {
 		dbPath = join(cwd, "djscore.db");
 	} else {
 		const dbDir = join(cwd, ".djscore");
 		dbPath = join(dbDir, "djscore.db");
-		
+
 		try {
 			mkdirSync(dbDir, { recursive: true });
-		} catch {
-		}
+		} catch {}
 	}
-	
+
 	const db = new Database(dbPath);
 
 	db.exec(`
@@ -39,7 +37,6 @@ function getDatabase(): Database {
 		)
 	`);
 
-
 	const tableInfo = db
 		.prepare("PRAGMA table_info(button_data)")
 		.all() as Array<{ name: string }>;
@@ -47,10 +44,11 @@ function getDatabase(): Database {
 
 	if (!hasExpiresAt) {
 		try {
-			db.exec(`ALTER TABLE button_data ADD COLUMN expires_at INTEGER NOT NULL DEFAULT 0`);
+			db.exec(
+				`ALTER TABLE button_data ADD COLUMN expires_at INTEGER NOT NULL DEFAULT 0`,
+			);
 			db.exec(`UPDATE button_data SET expires_at = 0 WHERE expires_at IS NULL`);
-		} catch {
-		}
+		} catch {}
 	}
 
 	db.exec(`
@@ -69,15 +67,15 @@ export const buttonDataStore = getDatabase();
 export function storeButtonData(
 	token: string,
 	data: unknown,
-	ttlMinutes?: number
+	ttlMinutes?: number,
 ): void {
 	const db = buttonDataStore;
 	const jsonData = JSON.stringify(data);
-	const now = Math.floor(Date.now() / 1000)
-	
+	const now = Math.floor(Date.now() / 1000);
+
 	const ttl = ttlMinutes ?? 120;
 	const expiresAt = ttl === 0 ? 0 : now + ttl * 60;
-	
+
 	db.prepare(
 		"INSERT OR REPLACE INTO button_data (token, data, created_at, expires_at) VALUES (?, ?, ?, ?)",
 	).run(token, jsonData, now, expiresAt);
@@ -124,4 +122,3 @@ export function cleanupExpiredTokens(): number {
 		.run(now);
 	return result.changes;
 }
-

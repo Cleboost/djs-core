@@ -26,10 +26,7 @@ export default class Button<TData = undefined> extends ButtonBuilder {
 		return this;
 	}
 
-	setData(
-		data: TData extends undefined ? never : TData,
-		ttl?: number,
-	): this {
+	setData(data: TData extends undefined ? never : TData, ttl?: number): this {
 		if (!this._baseCustomId) {
 			throw new Error(
 				"Button customId must be set before calling setData(). Use .setCustomId(id) first.",
