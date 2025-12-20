@@ -4,7 +4,8 @@
 	"module": "dist/index.js",
 	"type": "module",
 	"scripts": {
-		"build": "bun build index.ts --outdir dist --target bun"
+		"dev": "bun build index.ts --outdir dist --target bun --watch",
+		"build": "bun build index.ts --outdir dist --target bun --external='discord.js' --minify"
 	},
 	"devDependencies": {
 		"@types/bun": "latest"

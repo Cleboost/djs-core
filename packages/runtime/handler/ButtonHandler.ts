@@ -1,5 +1,6 @@
 import type { ButtonInteraction, Client } from "discord.js";
-import type Button from "../interactions/Button";
+import { MessageFlags } from "discord.js";
+import Button from "../interaction/Button";
 
 export default class ButtonHandler {
 	private readonly client: Client;
@@ -10,7 +11,7 @@ export default class ButtonHandler {
 	}
 
 	public add(button: Button): void {
-		this.buttons.set(button.customId, button);
+		this.buttons.set(button.baseCustomId, button);
 	}
 
 	public set(buttons: Button[]): void {
@@ -27,8 +28,19 @@ export default class ButtonHandler {
 	public async onButtonInteraction(
 		interaction: ButtonInteraction,
 	): Promise<void> {
-		const button = this.buttons.get(interaction.customId);
+		const decoded = Button.decodeData(interaction.customId);
+
+		const button = this.buttons.get(decoded.baseId);
 		if (!button) return;
-		await button.execute(interaction);
+
+		if (decoded.data === undefined) {
+			await interaction.reply({
+				content: "❌ This interaction has expired or is no longer available.",
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+
+		await button.execute(interaction, decoded.data);
 	}
 }

@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import CommandHandler from "./handler/CommandHandler";
 import ButtonHandler from "./handler/ButtonHandler";
+import { cleanupExpiredTokens } from "./store/ButtonDataStore";
 
 export default class DjsClient extends Client {
 	public eventsHandler = null;
@@ -26,9 +27,21 @@ export default class DjsClient extends Client {
 
 		this.commandsHandler.setGuilds(servers);
 
-		// this.once(Events.ClientReady, () => {
-		//     console.log(`Client is ready as ${this.user?.username}`);
-		// });
+		this.once(Events.ClientReady, () => {
+			const deleted = cleanupExpiredTokens();
+			if (deleted > 0) {
+				console.log(
+					`🧹 Cleaned up ${deleted} expired button token(s) on startup`,
+				);
+			}
+		});
+
+		setInterval(() => {
+			const deleted = cleanupExpiredTokens();
+			if (deleted > 0) {
+				console.log(`🧹 Cleaned up ${deleted} expired button token(s)`);
+			}
+		}, 60 * 1000);
 
 		this.on(Events.InteractionCreate, (interaction: Interaction) => {
 			if (interaction.isCommand()) {

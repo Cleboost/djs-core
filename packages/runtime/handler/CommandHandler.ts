@@ -6,7 +6,7 @@ import type {
 } from "discord.js";
 import type { Collection } from "discord.js";
 import { SlashCommandBuilder } from "discord.js";
-import type Command from "../interactions/Command";
+import type Command from "../interaction/Command";
 
 export interface Route {
 	route: string;

@@ -9,7 +9,14 @@ export default new Command()
 			content: "Demo button",
 			flags: [MessageFlags.Ephemeral],
 			components: [
-				new ActionRowBuilder<ButtonBuilder>().addComponents(subdemo),
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					subdemo.setData(
+						{
+							coucou: new Date().toISOString(),
+						},
+						60,
+					),
+				),
 			],
 		});
 	});
