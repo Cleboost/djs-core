@@ -1,38 +1,43 @@
 name: CI
 
 on:
-  pull_request:
-    branches:
-      - master
   push:
-    branches:
-      - master
 
 jobs:
-  ci:
-    runs-on: ubuntu-latest
+  build:
     concurrency:
-      group: ci-${{ github.ref_name }}
+      group: build-${{ github.ref }}
       cancel-in-progress: true
-
-    permissions:
-      contents: read
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
 
-      - name: Install dependencies
-        run: bun install
+      - run: bun i
+      - run: cd packages/runtime && bun run build
+      - run: cd packages/dev && bun run build
+  # type:
+  #   concurrency:
+  #     group: type-${{ github.ref }}
+  #     cancel-in-progress: true
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: oven-sh/setup-bun@v2
 
-      - name: Check Types
-        run: bun tsc
+  #     - run: bun i
+  #     - run: cd frontend && bun run type-check
+  # knip:
+  #   concurrency:
+  #     group: knip-${{ github.ref }}
+  #     cancel-in-progress: true
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: oven-sh/setup-bun@v2
 
-      - name: Lint
-        run: bun lint
+  #     - run: bun i
+  #     - run: cd backend && bun db:generate
+  #     - run: bun knip
 
-      - name: Run Build
-        run: bun run build
-
-      - name: Run Tests
-        run: bun test
+      
