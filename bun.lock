@@ -39,6 +39,7 @@
         "@types/bun": "^1.3.5",
       },
       "peerDependencies": {
+        "discord.js": "^14.25.1",
         "typescript": "^5",
       },
     },

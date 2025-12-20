@@ -3,6 +3,7 @@ import type { Config } from "../../utils/types/config";
 import path, { resolve } from "path";
 import fs from "fs/promises";
 import pc from "picocolors";
+import { Events } from "discord.js";
 
 export const banner = `
    ${pc.bold(pc.blue("djs-core"))} ${pc.dim(`v1.0.0`)}
@@ -52,7 +53,7 @@ export async function runBot(projectPath: string) {
 
 	console.log(pc.dim("Connecting to Discord..."));
 	client.login(config.token);
-	client.once("clientReady", () => {
+	client.once(Events.ClientReady, () => {
 		client.commandsHandler.set(commands);
 		client.buttonsHandler.set(buttons);
 		console.log(

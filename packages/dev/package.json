@@ -19,6 +19,7 @@
 		"picocolors": "^1.1.1"
 	},
 	"peerDependencies": {
-		"typescript": "^5"
+		"typescript": "^5",
+		"discord.js": "^14.25.1"
 	}
 }
