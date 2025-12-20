@@ -4,6 +4,7 @@ import {
 	type Button,
 	type Route,
 	type EventLister,
+	type ContextMenu,
 } from "@djs-core/runtime";
 import type { Config } from "../../utils/types/config";
 import path, { resolve } from "path";
@@ -34,9 +35,11 @@ export async function runBot(projectPath: string) {
 
 	const commands: Route[] = [];
 	const buttons: Button[] = [];
+	const contextMenus: ContextMenu[] = [];
 	const events: Record<string, EventLister> = {};
 	const fileRouteMap = new Map<string, string>();
 	const buttonFileRouteMap = new Map<string, string>();
+	const contextMenuFileRouteMap = new Map<string, string>();
 	const eventFileIdMap = new Map<string, string>();
 
 	commands.push(
@@ -65,6 +68,17 @@ export async function runBot(projectPath: string) {
 		`${pc.green("✓")}  Loaded ${pc.bold(Object.keys(events).length)} events`,
 	);
 
+	contextMenus.push(
+		...(await scanContextMenus(
+			path.join(root, "interactions", "contexts"),
+			"",
+			contextMenuFileRouteMap,
+		)),
+	);
+	console.log(
+		`${pc.green("✓")}  Loaded ${pc.bold(contextMenus.length)} context menus`,
+	);
+
 	const client = new DjsClient({ servers: config.servers });
 
 	client.eventsHandler.set(events);
@@ -74,6 +88,7 @@ export async function runBot(projectPath: string) {
 	client.once(Events.ClientReady, () => {
 		client.commandsHandler.set(commands);
 		client.buttonsHandler.set(buttons);
+		client.contextMenusHandler.set(contextMenus);
 		console.log(
 			pc.green("🚀 Bot is ready! ") +
 				pc.dim(`Logged in as ${client.user?.tag}`),
@@ -86,6 +101,7 @@ export async function runBot(projectPath: string) {
 		config,
 		fileRouteMap,
 		buttonFileRouteMap,
+		contextMenuFileRouteMap,
 		eventFileIdMap,
 	};
 }
@@ -213,4 +229,54 @@ async function scanEvents(
 	}
 
 	return events;
+}
+
+async function scanContextMenus(
+	dir: string,
+	prefix: string = "",
+	map?: Map<string, string>,
+): Promise<ContextMenu[]> {
+	const contextMenus: ContextMenu[] = [];
+
+	try {
+		await fs.access(dir);
+	} catch {
+		return [];
+	}
+
+	const entries = await fs.readdir(dir, { withFileTypes: true });
+
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+
+		if (entry.isDirectory()) {
+			const newPrefix = prefix ? `${prefix}.${entry.name}` : entry.name;
+			contextMenus.push(...(await scanContextMenus(fullPath, newPrefix, map)));
+		} else if (entry.isFile() && entry.name.endsWith(".ts")) {
+			const mod = await import(fullPath);
+			const contextMenu = mod.default as ContextMenu;
+
+			if (!contextMenu) continue;
+
+			const routeName = entry.name.replace(".ts", "");
+			let route = "";
+
+			if (routeName === "index") {
+				if (prefix) route = prefix;
+			} else {
+				route = prefix ? `${prefix}.${routeName}` : routeName;
+			}
+
+			if (!route) continue;
+
+			const parts = route.split(".");
+			const leaf = parts[parts.length - 1];
+			if (leaf) contextMenu.setName(leaf);
+
+			if (map) map.set(fullPath, route);
+			contextMenus.push(contextMenu);
+		}
+	}
+
+	return contextMenus;
 }

@@ -5,9 +5,11 @@ import {
 	IntentsBitField,
 	type Interaction,
 	type ButtonInteraction,
+	type ContextMenuCommandInteraction,
 } from "discord.js";
 import CommandHandler from "./handler/CommandHandler";
 import ButtonHandler from "./handler/ButtonHandler";
+import ContextMenuHandler from "./handler/ContextMenuHandler";
 import EventHandler from "./handler/EventHandler";
 import { cleanupExpiredTokens } from "./store/ButtonDataStore";
 
@@ -15,6 +17,7 @@ export default class DjsClient extends Client {
 	public eventsHandler: EventHandler = new EventHandler(this);
 	public commandsHandler: CommandHandler = new CommandHandler(this);
 	public buttonsHandler: ButtonHandler = new ButtonHandler(this);
+	public contextMenusHandler: ContextMenuHandler = new ContextMenuHandler(this);
 
 	constructor({ servers }: { servers: string[] }) {
 		super({
@@ -27,6 +30,7 @@ export default class DjsClient extends Client {
 		});
 
 		this.commandsHandler.setGuilds(servers);
+		this.contextMenusHandler.setGuilds(servers);
 
 		this.once(Events.ClientReady, () => {
 			const deleted = cleanupExpiredTokens();
@@ -53,6 +57,11 @@ export default class DjsClient extends Client {
 			if (interaction.isButton()) {
 				this.buttonsHandler.onButtonInteraction(
 					interaction as ButtonInteraction,
+				);
+			}
+			if (interaction.isContextMenuCommand()) {
+				this.contextMenusHandler.onContextMenuInteraction(
+					interaction as ContextMenuCommandInteraction,
 				);
 			}
 		});

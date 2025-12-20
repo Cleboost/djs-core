@@ -5,6 +5,7 @@ import path from "path";
 import pc from "picocolors";
 import type { Button } from "@djs-core/runtime";
 import type { Command } from "@djs-core/runtime";
+import type { ContextMenu } from "@djs-core/runtime";
 import type { EventLister } from "@djs-core/runtime";
 
 export function registerDevCommand(cli: CAC) {
@@ -15,15 +16,22 @@ export function registerDevCommand(cli: CAC) {
 			console.log(banner);
 			console.log(`${pc.cyan("ℹ")}  Starting development server...`);
 
-			const { client, root, fileRouteMap, buttonFileRouteMap, eventFileIdMap } =
-				await runBot(options.path);
+			const {
+				client,
+				root,
+				fileRouteMap,
+				buttonFileRouteMap,
+				contextMenuFileRouteMap,
+				eventFileIdMap,
+			} = await runBot(options.path);
 			const commandsDir = path.join(root, "interactions", "commands");
 			const buttonsDir = path.join(root, "interactions", "buttons");
+			const contextsDir = path.join(root, "interactions", "contexts");
 			const eventsDir = path.join(root, "interactions", "events");
 
 			console.log(
 				pc.dim(
-					`\nWatching for changes in:\n - ${commandsDir}\n - ${buttonsDir}\n - ${eventsDir}\n`,
+					`\nWatching for changes in:\n - ${commandsDir}\n - ${buttonsDir}\n - ${contextsDir}\n - ${eventsDir}\n`,
 				),
 			);
 
@@ -214,13 +222,93 @@ export function registerDevCommand(cli: CAC) {
 				eventFileIdMap.delete(absPath);
 			}
 
-			const watcher = chokidar.watch([commandsDir, buttonsDir, eventsDir], {
-				ignoreInitial: true,
-				ignored: /(^|[/\\])\../,
-				usePolling: true,
-				interval: 300,
-				binaryInterval: 300,
-			});
+			function routeFromWatchedContextFile(
+				rootDir: string,
+				absPath: string,
+			): string | null {
+				const rel = path.relative(rootDir, absPath);
+				if (!rel || rel.startsWith("..")) return null;
+				if (!rel.endsWith(".ts")) return null;
+				const parts = rel.replace(/\.ts$/, "").split(path.sep);
+				if (parts[parts.length - 1] === "index") parts.pop();
+				if (parts.length === 0) return "index";
+				return parts.join(".");
+			}
+
+			async function reloadContextMenu(
+				absPath: string,
+				opts?: { retries?: number },
+			): Promise<void> {
+				const route = routeFromWatchedContextFile(contextsDir, absPath);
+				if (!route) return;
+
+				const retries = opts?.retries ?? 0;
+
+				try {
+					const mod = await import(
+						`${absPath}?t=${Date.now()}&r=${Math.random()}`
+					);
+					const contextMenu = mod.default as ContextMenu | undefined;
+					if (!contextMenu) {
+						if (retries > 0) {
+							await sleep(150);
+							return await reloadContextMenu(absPath, {
+								retries: retries - 1,
+							});
+						}
+						return;
+					}
+
+					const parts = route.split(".");
+					const leaf = parts[parts.length - 1];
+					if (leaf) contextMenu.setName(leaf);
+
+					const existingRoute = contextMenuFileRouteMap.get(absPath);
+					if (existingRoute && existingRoute !== route) {
+						await client.contextMenusHandler.delete(existingRoute);
+					}
+					console.log(
+						`${pc.green("✨ Reloading context menu:")} ${pc.bold(route)}`,
+					);
+					await client.contextMenusHandler.delete(route);
+					await client.contextMenusHandler.add(contextMenu);
+					contextMenuFileRouteMap.set(absPath, route);
+				} catch (error) {
+					if (retries > 0) {
+						await sleep(150);
+						return await reloadContextMenu(absPath, {
+							retries: retries - 1,
+						});
+					}
+					console.error(
+						pc.red(`❌ Error reloading context menu ${absPath}:`),
+						error,
+					);
+				}
+			}
+
+			async function deleteContextMenu(absPath: string): Promise<void> {
+				const knownRoute =
+					contextMenuFileRouteMap.get(absPath) ??
+					routeFromWatchedContextFile(contextsDir, absPath);
+				if (!knownRoute) return;
+				console.log(
+					`${pc.red("🗑️  Deleting context menu:")} ${pc.bold(knownRoute)}`,
+				);
+				await client.contextMenusHandler.delete(knownRoute);
+				contextMenuFileRouteMap.delete(absPath);
+			}
+
+			const watcher = chokidar.watch(
+				[commandsDir, buttonsDir, contextsDir, eventsDir],
+				{
+					ignoreInitial: true,
+					ignored: /(^|[/\\])\../,
+					usePolling: true,
+					interval: 300,
+					binaryInterval: 300,
+				},
+			);
 
 			watcher
 				.on("add", async (absPath) => {
@@ -229,6 +317,8 @@ export function registerDevCommand(cli: CAC) {
 						await reloadCommand(absPath, { retries: 5 });
 					} else if (absPath.startsWith(buttonsDir)) {
 						await reloadButton(absPath, { retries: 5 });
+					} else if (absPath.startsWith(contextsDir)) {
+						await reloadContextMenu(absPath, { retries: 5 });
 					} else if (absPath.startsWith(eventsDir)) {
 						await reloadEvent(absPath, { retries: 5 });
 					}
@@ -239,6 +329,8 @@ export function registerDevCommand(cli: CAC) {
 						await reloadCommand(absPath, { retries: 3 });
 					} else if (absPath.startsWith(buttonsDir)) {
 						await reloadButton(absPath, { retries: 3 });
+					} else if (absPath.startsWith(contextsDir)) {
+						await reloadContextMenu(absPath, { retries: 3 });
 					} else if (absPath.startsWith(eventsDir)) {
 						await reloadEvent(absPath, { retries: 3 });
 					}
@@ -249,6 +341,8 @@ export function registerDevCommand(cli: CAC) {
 						await deleteCommand(absPath);
 					} else if (absPath.startsWith(buttonsDir)) {
 						deleteButton(absPath);
+					} else if (absPath.startsWith(contextsDir)) {
+						await deleteContextMenu(absPath);
 					} else if (absPath.startsWith(eventsDir)) {
 						deleteEvent(absPath);
 					}
