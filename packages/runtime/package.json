@@ -1,15 +1,15 @@
 {
-  "name": "@djs-core/runtime",
-  "module": "dist/index.js",
-  "type": "module",
-  "scripts": {
-    "build": "bun build index.ts --outdir dist --target bun"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5",
-    "discord.js": "^14.25.1"
-  }
+	"name": "@djs-core/runtime",
+	"module": "dist/index.js",
+	"type": "module",
+	"scripts": {
+		"build": "bun build index.ts --outdir dist --target bun"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5",
+		"discord.js": "^14.25.1"
+	}
 }

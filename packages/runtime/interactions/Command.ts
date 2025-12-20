@@ -1,22 +1,28 @@
-import { ChatInputCommandInteraction, Client, SlashCommandBuilder } from "discord.js";
+import {
+	ChatInputCommandInteraction,
+	Client,
+	SlashCommandBuilder,
+} from "discord.js";
 
 export type CommandRunFn = (
-    client: Client,
-    interaction: ChatInputCommandInteraction
-  ) => any;
-  
+	client: Client,
+	interaction: ChatInputCommandInteraction,
+) => any;
+
 export default class Command extends SlashCommandBuilder {
-    private _run?: CommandRunFn;
+	private _run?: CommandRunFn;
 
-    run(fn: CommandRunFn): this {
-        this._run = fn;
-        return this;
-    }
+	run(fn: CommandRunFn): this {
+		this._run = fn;
+		return this;
+	}
 
-    async execute(interaction: ChatInputCommandInteraction): Promise<void> {
-        if (!this._run) {
-            throw new Error(`The command '${this.name}' has no .run() callback defined`);
-        }
-        await this._run(interaction.client, interaction);
-    }
+	async execute(interaction: ChatInputCommandInteraction): Promise<void> {
+		if (!this._run) {
+			throw new Error(
+				`The command '${this.name}' has no .run() callback defined`,
+			);
+		}
+		await this._run(interaction.client, interaction);
+	}
 }

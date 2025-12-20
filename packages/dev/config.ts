@@ -1,8 +1,6 @@
-export default function defineConfig(config: Config) {
-    
-}
+export default function defineConfig(config: Config) {}
 
 export interface Config {
-    token: string;
-    servers: string[];
+	token: string;
+	servers: string[];
 }
