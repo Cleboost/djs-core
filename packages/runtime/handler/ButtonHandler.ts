@@ -13,12 +13,12 @@ export default class ButtonHandler {
 		this.buttons.set(button.customId, button);
 	}
 
-    public set(buttons: Button[]): void {
-        this.buttons.clear();
-        for (const button of buttons) {
-            this.add(button);
-        }
-    }
+	public set(buttons: Button[]): void {
+		this.buttons.clear();
+		for (const button of buttons) {
+			this.add(button);
+		}
+	}
 
 	public delete(customId: string): void {
 		this.buttons.delete(customId);

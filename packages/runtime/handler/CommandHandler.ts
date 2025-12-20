@@ -257,10 +257,12 @@ export default class CommandHandler {
 		for (const [name, cmd] of subcommands) {
 			if (name === "__root__") continue;
 			builder.addSubcommand((sc) => {
-			sc.setName(name);
-			const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
-			sc.setDescription(cmdWithDesc.description ?? "No description");
-			return sc;
+				sc.setName(name);
+				const cmdWithDesc = cmd as SlashCommandBuilder & {
+					description?: string;
+				};
+				sc.setDescription(cmdWithDesc.description ?? "No description");
+				return sc;
 			});
 		}
 
@@ -271,8 +273,10 @@ export default class CommandHandler {
 				for (const [subName, cmd] of subs) {
 					g.addSubcommand((sc) => {
 						sc.setName(subName);
-						const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
-					sc.setDescription(cmdWithDesc.description ?? "No description");
+						const cmdWithDesc = cmd as SlashCommandBuilder & {
+							description?: string;
+						};
+						sc.setDescription(cmdWithDesc.description ?? "No description");
 						return sc;
 					});
 				}

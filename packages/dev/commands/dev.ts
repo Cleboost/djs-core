@@ -89,14 +89,14 @@ export function registerDevCommand(cli: CAC) {
 							return;
 						}
 
-					if (filename.endsWith("index.ts")) {
-						command.setName(parts[parts.length - 1] || "index");
-					} else {
-						const name = parts[parts.length - 1];
-						if (name) {
-							command.setName(name);
+						if (filename.endsWith("index.ts")) {
+							command.setName(parts[parts.length - 1] || "index");
+						} else {
+							const name = parts[parts.length - 1];
+							if (name) {
+								command.setName(name);
+							}
 						}
-					}
 
 						console.log(`${pc.green("✨ Reloading route:")} ${pc.bold(route)}`);
 						await client.commandsHandler.add({ route, command });

@@ -67,13 +67,7 @@ function buildGeneratedEntry(opts: {
 	commandFiles: string[];
 	buttonFiles: string[];
 }): string {
-	const {
-		genDir,
-		commandsDir,
-		buttonsDir,
-		commandFiles,
-		buttonFiles,
-	} = opts;
+	const { genDir, commandsDir, buttonsDir, commandFiles, buttonFiles } = opts;
 
 	const imports: string[] = [];
 	const commandRoutes: Array<{ route: string; varName: string }> = [];
@@ -165,21 +159,21 @@ export function registerBuildCommand(cli: CAC) {
 			const commandsDir = path.join(botRoot, "interactions", "commands");
 			const buttonsDir = path.join(botRoot, "interactions", "buttons");
 
-		console.log(`${pc.cyan("ℹ")}  Project: ${pc.bold(botRoot)}`);
-		console.log(`${pc.cyan("ℹ")}  Generating: ${pc.bold(entryPath)}\n`);
+			console.log(`${pc.cyan("ℹ")}  Project: ${pc.bold(botRoot)}`);
+			console.log(`${pc.cyan("ℹ")}  Generating: ${pc.bold(entryPath)}\n`);
 
 			await fs.mkdir(genDir, { recursive: true });
 
 			const commandFiles = await listTsFilesRecursive(commandsDir);
 			const buttonFiles = await listTsFilesRecursive(buttonsDir);
 
-		const code = buildGeneratedEntry({
-			genDir,
-			commandsDir,
-			buttonsDir,
-			commandFiles,
-			buttonFiles,
-		});
+			const code = buildGeneratedEntry({
+				genDir,
+				commandsDir,
+				buttonsDir,
+				commandFiles,
+				buttonFiles,
+			});
 
 			await fs.writeFile(entryPath, code, "utf8");
 
@@ -221,9 +215,9 @@ export function registerBuildCommand(cli: CAC) {
 						"discord.js",
 						"@djs-core/runtime",
 					];
-			} catch (_e) {
-				console.warn(
-					pc.yellow(
+				} catch (_e) {
+					console.warn(
+						pc.yellow(
 							"⚠️  Could not read package.json, using default externals",
 						),
 					);
