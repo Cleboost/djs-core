@@ -4,7 +4,7 @@ import { watch } from "fs";
 import path from "path";
 import fs from "fs/promises";
 import pc from "picocolors";
-import { Button } from "@djs-core/runtime";
+import type { Button } from "@djs-core/runtime";
 import type { Command } from "@djs-core/runtime";
 
 export function registerDevCommand(cli: CAC) {

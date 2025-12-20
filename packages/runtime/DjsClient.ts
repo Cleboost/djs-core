@@ -1,5 +1,5 @@
 import {
-	ChatInputCommandInteraction,
+	type ChatInputCommandInteraction,
 	Client,
 	Events,
 	IntentsBitField,

@@ -1,5 +1,5 @@
 import { Command } from "@djs-core/runtime";
-import { ActionRowBuilder, ButtonBuilder, MessageFlags } from "discord.js";
+import { ActionRowBuilder, type ButtonBuilder, MessageFlags } from "discord.js";
 import subdemo from "../../buttons/demo/subdemo";
 
 export default new Command()

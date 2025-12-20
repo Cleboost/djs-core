@@ -1,4 +1,4 @@
-import { DjsClient, Command, Button, type Route } from "@djs-core/runtime";
+import { DjsClient, type Command, type Button, type Route } from "@djs-core/runtime";
 import type { Config } from "../../utils/types/config";
 import path, { resolve } from "path";
 import fs from "fs/promises";
@@ -137,7 +137,7 @@ async function scanCommands(
 			const commandModule = await import(fullPath);
 			const command = commandModule.default as Command;
 
-			let routeName = entry.name.replace(".ts", "");
+			const routeName = entry.name.replace(".ts", "");
 			let route = "";
 
 			if (routeName === "index") {

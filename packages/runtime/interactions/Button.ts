@@ -1,4 +1,4 @@
-import { ButtonBuilder, ButtonInteraction, Client } from "discord.js";
+import { ButtonBuilder, type ButtonInteraction, type Client } from "discord.js";
 
 export type ButtonRunFn = (
 	client: Client,
