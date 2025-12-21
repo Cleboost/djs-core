@@ -1,16 +1,16 @@
 import {
 	type AutocompleteInteraction,
 	type ChatInputCommandInteraction,
-	SlashCommandBuilder,
-	type SlashCommandStringOption,
-	type SlashCommandIntegerOption,
+	type SlashCommandAttachmentOption,
 	type SlashCommandBooleanOption,
-	type SlashCommandUserOption,
+	SlashCommandBuilder,
 	type SlashCommandChannelOption,
-	type SlashCommandRoleOption,
+	type SlashCommandIntegerOption,
 	type SlashCommandMentionableOption,
 	type SlashCommandNumberOption,
-	type SlashCommandAttachmentOption,
+	type SlashCommandRoleOption,
+	type SlashCommandStringOption,
+	type SlashCommandUserOption,
 } from "discord.js";
 
 export type CommandRunFn = (
@@ -95,7 +95,9 @@ export default class Command extends SlashCommandBuilder {
 	override addMentionableOption(
 		input:
 			| SlashCommandMentionableOption
-			| ((option: SlashCommandMentionableOption) => SlashCommandMentionableOption),
+			| ((
+					option: SlashCommandMentionableOption,
+			  ) => SlashCommandMentionableOption),
 	): this {
 		super.addMentionableOption(input);
 		return this;
@@ -113,7 +115,9 @@ export default class Command extends SlashCommandBuilder {
 	override addAttachmentOption(
 		input:
 			| SlashCommandAttachmentOption
-			| ((option: SlashCommandAttachmentOption) => SlashCommandAttachmentOption),
+			| ((
+					option: SlashCommandAttachmentOption,
+			  ) => SlashCommandAttachmentOption),
 	): this {
 		super.addAttachmentOption(input);
 		return this;
@@ -138,7 +142,9 @@ export default class Command extends SlashCommandBuilder {
 		await this._run(interaction);
 	}
 
-	async executeAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+	async executeAutocomplete(
+		interaction: AutocompleteInteraction,
+	): Promise<void> {
 		if (!this._runAutocomplete) {
 			return;
 		}

@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 import { ButtonBuilder, type ButtonInteraction } from "discord.js";
-import { getButtonData, storeButtonData } from "../store/ButtonDataStore";
+import { getButtonData, storeButtonData } from "../store/DataStore";
 
 export type ButtonRunFn<T = undefined> = (
 	interaction: ButtonInteraction,

@@ -56,7 +56,7 @@ export default class CommandHandler {
 		this.assertReady();
 
 		this.router = this.router.filter((r) => r.route !== routeKey);
-		
+
 		if (!skipSync) {
 			const root = this.getRoot(routeKey);
 			await this.upsertRootEverywhere(root);
@@ -369,7 +369,9 @@ export default class CommandHandler {
 		return root;
 	}
 
-	private buildAutocompleteRouteKey(interaction: AutocompleteInteraction): string {
+	private buildAutocompleteRouteKey(
+		interaction: AutocompleteInteraction,
+	): string {
 		const root = interaction.commandName;
 		const group = interaction.options.getSubcommandGroup(false);
 		const sub = interaction.options.getSubcommand(false);

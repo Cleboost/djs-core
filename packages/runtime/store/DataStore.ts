@@ -78,7 +78,7 @@ function getDatabase(): Database {
 	return db;
 }
 
-export const dataStore = getDatabase();
+const dataStore = getDatabase();
 
 export function storeButtonData(
 	token: string,
@@ -120,7 +120,7 @@ export function getButtonData(token: string): unknown | undefined {
 	}
 }
 
-export function deleteButtonData(token: string): void {
+function deleteButtonData(token: string): void {
 	const db = dataStore;
 	db.prepare("DELETE FROM button_data WHERE token = ?").run(token);
 }
@@ -165,7 +165,7 @@ export function getSelectMenuData(token: string): unknown | undefined {
 	}
 }
 
-export function deleteSelectMenuData(token: string): void {
+function deleteSelectMenuData(token: string): void {
 	const db = dataStore;
 	db.prepare("DELETE FROM select_menu_data WHERE token = ?").run(token);
 }
@@ -210,7 +210,7 @@ export function getModalData(token: string): unknown | undefined {
 	}
 }
 
-export function deleteModalData(token: string): void {
+function deleteModalData(token: string): void {
 	const db = dataStore;
 	db.prepare("DELETE FROM modal_data WHERE token = ?").run(token);
 }
