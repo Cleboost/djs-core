@@ -4,7 +4,10 @@ import type {
 	Client,
 	Collection,
 } from "discord.js";
-import { SlashCommandBuilder } from "discord.js";
+import {
+	SlashCommandBuilder,
+	type SlashCommandSubcommandBuilder,
+} from "discord.js";
 import type Command from "../interaction/Command";
 import type ContextMenu from "../interaction/ContextMenu";
 import type { Route } from "./CommandHandler";
@@ -164,6 +167,7 @@ export default class ApplicationCommandHandler {
 					description?: string;
 				};
 				sc.setDescription(cmdWithDesc.description ?? "No description");
+				this.copyOptionsToSubcommand(cmd, sc);
 				return sc;
 			});
 		}
@@ -179,6 +183,7 @@ export default class ApplicationCommandHandler {
 							description?: string;
 						};
 						sc.setDescription(cmdWithDesc.description ?? "No description");
+						this.copyOptionsToSubcommand(cmd, sc);
 						return sc;
 					});
 				}
@@ -226,6 +231,115 @@ export default class ApplicationCommandHandler {
 	private assertReady(): void {
 		if (!this.client.isReady()) {
 			throw new Error("Client is not ready");
+		}
+	}
+
+	private copyOptionsToSubcommand(
+		cmd: Command,
+		sc: SlashCommandSubcommandBuilder,
+	): void {
+		for (const optionBuilder of cmd.options) {
+			const optionJson = optionBuilder.toJSON();
+			if (!optionJson.name || !optionJson.description) {
+				continue;
+			}
+
+			switch (optionJson.type) {
+				case 3: // STRING
+					sc.addStringOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						if (optionJson.choices && optionJson.choices.length > 0)
+							opt.addChoices(...optionJson.choices);
+						if (optionJson.autocomplete !== undefined)
+							opt.setAutocomplete(optionJson.autocomplete);
+						return opt;
+					});
+					break;
+				case 4: // INTEGER
+					sc.addIntegerOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						if (optionJson.choices && optionJson.choices.length > 0)
+							opt.addChoices(...optionJson.choices);
+						if (optionJson.min_value !== undefined)
+							opt.setMinValue(optionJson.min_value);
+						if (optionJson.max_value !== undefined)
+							opt.setMaxValue(optionJson.max_value);
+						if (optionJson.autocomplete !== undefined)
+							opt.setAutocomplete(optionJson.autocomplete);
+						return opt;
+					});
+					break;
+				case 5: // BOOLEAN
+					sc.addBooleanOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						return opt;
+					});
+					break;
+				case 6: // USER
+					sc.addUserOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						return opt;
+					});
+					break;
+				case 7: // CHANNEL
+					sc.addChannelOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						if (optionJson.channel_types && optionJson.channel_types.length > 0)
+							opt.addChannelTypes(...optionJson.channel_types);
+						return opt;
+					});
+					break;
+				case 8: // ROLE
+					sc.addRoleOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						return opt;
+					});
+					break;
+				case 9: // MENTIONABLE
+					sc.addMentionableOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						return opt;
+					});
+					break;
+				case 10: // NUMBER
+					sc.addNumberOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						if (optionJson.choices && optionJson.choices.length > 0)
+							opt.addChoices(...optionJson.choices);
+						if (optionJson.min_value !== undefined)
+							opt.setMinValue(optionJson.min_value);
+						if (optionJson.max_value !== undefined)
+							opt.setMaxValue(optionJson.max_value);
+						if (optionJson.autocomplete !== undefined)
+							opt.setAutocomplete(optionJson.autocomplete);
+						return opt;
+					});
+					break;
+				case 11: // ATTACHMENT
+					sc.addAttachmentOption((opt) => {
+						opt.setName(optionJson.name).setDescription(optionJson.description);
+						if (optionJson.required !== undefined)
+							opt.setRequired(optionJson.required);
+						return opt;
+					});
+					break;
+			}
 		}
 	}
 }
