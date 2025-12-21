@@ -3,6 +3,6 @@ import demo from "../../modals/demo";
 
 export default new Command()
 	.setDescription("Demo modal command")
-	.run(async (client, interaction) => {
+	.run(async (interaction) => {
 		return interaction.showModal(demo);
 	});

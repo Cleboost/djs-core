@@ -1,11 +1,9 @@
 import {
 	type ChatInputCommandInteraction,
-	type Client,
 	SlashCommandBuilder,
 } from "discord.js";
 
 export type CommandRunFn = (
-	client: Client,
 	interaction: ChatInputCommandInteraction,
 	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
 ) => any;
@@ -24,6 +22,6 @@ export default class Command extends SlashCommandBuilder {
 				`The command '${this.name}' has no .run() callback defined`,
 			);
 		}
-		await this._run(interaction.client, interaction);
+		await this._run(interaction);
 	}
 }

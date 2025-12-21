@@ -4,7 +4,7 @@ import demo from "../../selects/string/demo";
 
 export default new Command()
 	.setDescription("A demo command that shows how to use a select menu")
-	.run(async (_client, interaction) => {
+	.run(async (interaction) => {
 		await interaction.reply({
 			content: "Hello, worlld!",
 			components: [

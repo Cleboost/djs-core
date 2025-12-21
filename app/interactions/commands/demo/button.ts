@@ -4,7 +4,7 @@ import subdemo from "../../buttons/demo/subdemo";
 
 export default new Command()
 	.setDescription("Demo button command")
-	.run(async (_client, interaction) => {
+	.run(async (interaction) => {
 		return interaction.reply({
 			content: "Demo button",
 			flags: [MessageFlags.Ephemeral],
