@@ -1,4 +1,5 @@
 import {
+	type AutocompleteInteraction,
 	type ButtonInteraction,
 	type ChannelSelectMenuInteraction,
 	type ChatInputCommandInteraction,
@@ -61,6 +62,11 @@ export default class DjsClient extends Client {
 		}, 60 * 1000);
 
 		this.on(Events.InteractionCreate, (interaction: Interaction) => {
+			if (interaction.isAutocomplete()) {
+				this.commandsHandler.onAutocompleteInteraction(
+					interaction as AutocompleteInteraction,
+				);
+			}
 			if (interaction.isCommand()) {
 				this.commandsHandler.onCommandInteraction(
 					interaction as ChatInputCommandInteraction,

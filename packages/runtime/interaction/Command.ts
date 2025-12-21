@@ -1,4 +1,5 @@
 import {
+	type AutocompleteInteraction,
 	type ChatInputCommandInteraction,
 	SlashCommandBuilder,
 	type SlashCommandStringOption,
@@ -17,11 +18,22 @@ export type CommandRunFn = (
 	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
 ) => any;
 
+export type CommandAutocompleteFn = (
+	interaction: AutocompleteInteraction,
+	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
+) => any;
+
 export default class Command extends SlashCommandBuilder {
 	private _run?: CommandRunFn;
+	private _runAutocomplete?: CommandAutocompleteFn;
 
 	run(fn: CommandRunFn): this {
 		this._run = fn;
+		return this;
+	}
+
+	runAutocomplete(fn: CommandAutocompleteFn): this {
+		this._runAutocomplete = fn;
 		return this;
 	}
 
@@ -124,5 +136,12 @@ export default class Command extends SlashCommandBuilder {
 			);
 		}
 		await this._run(interaction);
+	}
+
+	async executeAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+		if (!this._runAutocomplete) {
+			return;
+		}
+		await this._runAutocomplete(interaction);
 	}
 }

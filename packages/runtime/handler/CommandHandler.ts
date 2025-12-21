@@ -1,6 +1,7 @@
 import type {
 	ApplicationCommand,
 	ApplicationCommandDataResolvable,
+	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
 	Collection,
@@ -74,6 +75,20 @@ export default class CommandHandler {
 					flags: MessageFlags.Ephemeral,
 				});
 			}
+		}
+	}
+
+	public async onAutocompleteInteraction(
+		interaction: AutocompleteInteraction,
+	): Promise<void> {
+		const key = this.buildAutocompleteRouteKey(interaction);
+		const route = this.router.find((r) => r.route === key);
+		if (!route) return;
+
+		try {
+			await route.command.executeAutocomplete(interaction);
+		} catch (e) {
+			console.error(e);
 		}
 	}
 
@@ -340,6 +355,16 @@ export default class CommandHandler {
 	}
 
 	private buildRouteKey(interaction: ChatInputCommandInteraction): string {
+		const root = interaction.commandName;
+		const group = interaction.options.getSubcommandGroup(false);
+		const sub = interaction.options.getSubcommand(false);
+
+		if (group && sub) return `${root}.${group}.${sub}`;
+		if (sub) return `${root}.${sub}`;
+		return root;
+	}
+
+	private buildAutocompleteRouteKey(interaction: AutocompleteInteraction): string {
 		const root = interaction.commandName;
 		const group = interaction.options.getSubcommandGroup(false);
 		const sub = interaction.options.getSubcommand(false);
