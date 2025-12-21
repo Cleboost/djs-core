@@ -1,9 +1,8 @@
 import { randomBytes } from "crypto";
-import { ButtonBuilder, type ButtonInteraction, type Client } from "discord.js";
+import { ButtonBuilder, type ButtonInteraction } from "discord.js";
 import { getButtonData, storeButtonData } from "../store/ButtonDataStore";
 
 export type ButtonRunFn<T = undefined> = (
-	client: Client,
 	interaction: ButtonInteraction,
 	data: T,
 	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
@@ -97,6 +96,6 @@ export default class Button<TData = undefined> extends ButtonBuilder {
 			);
 		}
 		const finalData = (data !== undefined ? data : undefined) as TData;
-		await this._run(interaction.client, interaction, finalData);
+		await this._run(interaction, finalData);
 	}
 }
