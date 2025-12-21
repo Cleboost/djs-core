@@ -10,7 +10,8 @@
 	"scripts": {
 		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --minify && bun types",
 		"dev": "bun build index.ts --outdir dist --target bun --watch",
-		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check"
+		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check",
+		"prepack": "bun run build"
 	},
 	"dependencies": {
 		"@clack/prompts": "^0.11.0",

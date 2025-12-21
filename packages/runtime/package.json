@@ -8,7 +8,8 @@
 	"scripts": {
 		"dev": "bun build index.ts --outdir dist --target bun --external discord.js --watch",
 		"build": "bun build index.ts --outdir dist --target bun --external discord.js --minify && bun run types",
-		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check"
+		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check",
+		"prepack": "bun run build"
 	},
 	"devDependencies": {
 		"typescript": "^5",
