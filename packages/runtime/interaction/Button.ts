@@ -26,6 +26,12 @@ export default class Button<TData = undefined> extends ButtonBuilder {
 		return this;
 	}
 
+	/**
+	 * Set the data for the button.
+	 * @param data - The data to set.
+	 * @param ttl - The time to live for the data in seconds.
+	 * @returns The button instance.
+	 */
 	setData(data: TData extends undefined ? never : TData, ttl?: number): this {
 		if (!this._baseCustomId) {
 			throw new Error(
