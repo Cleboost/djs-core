@@ -41,7 +41,8 @@ export default class SelectMenuHandler {
 		} else if (selectMenu instanceof MentionableSelectMenu) {
 			baseCustomId = selectMenu.baseCustomId;
 		} else {
-			baseCustomId = selectMenu.data.custom_id;
+			baseCustomId = (selectMenu as { data: { custom_id?: string } }).data
+				.custom_id;
 		}
 		if (!baseCustomId) {
 			throw new Error(
