@@ -1,14 +1,15 @@
 {
 	"name": "@djs-core/dev",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Development CLI tools for djs-core Discord bot framework",
 	"type": "module",
 	"bin": {
 		"djs-core": "dist/index.js"
 	},
 	"scripts": {
-		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --external --minify",
-		"dev": "bun build index.ts --outdir dist --target bun --watch"
+		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --external --minify && bun types",
+		"dev": "bun build index.ts --outdir dist --target bun --watch",
+		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check"
 	},
 	"dependencies": {
 		"@clack/prompts": "^0.11.0",
@@ -18,7 +19,8 @@
 	},
 	"devDependencies": {
 		"@types/bun": "^1.3.5",
-		"typescript": "^5"
+		"typescript": "^5",
+		"dts-bundle-generator": "^9.5.1"
 	},
 	"peerDependencies": {
 		"discord.js": "^14.25.1",
