@@ -1,9 +1,11 @@
 import type {
 	Button,
-	ChannelSelectMenu,
 	Command,
 	ContextMenu,
 	EventLister,
+} from "@djs-core/runtime";
+import {
+	ChannelSelectMenu,
 	MentionableSelectMenu,
 	RoleSelectMenu,
 	StringSelectMenu,
@@ -177,7 +179,15 @@ export function registerDevCommand(cli: CAC) {
 					load: async (mod, route) => {
 						const sm = (mod as { default: SelectMenu }).default;
 						if (!sm) return;
-						if (!sm.data.custom_id) sm.setCustomId(route);
+						if (
+							sm instanceof StringSelectMenu ||
+							sm instanceof UserSelectMenu ||
+							sm instanceof RoleSelectMenu ||
+							sm instanceof ChannelSelectMenu ||
+							sm instanceof MentionableSelectMenu
+						) {
+							if (!sm.baseCustomId) sm.setCustomId(route);
+						}
 						client.selectMenusHandler.add(sm);
 					},
 					unload: async (route) => client.selectMenusHandler.delete(route),

@@ -18,7 +18,7 @@ import CommandHandler from "./handler/CommandHandler";
 import ContextMenuHandler from "./handler/ContextMenuHandler";
 import EventHandler from "./handler/EventHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
-import { cleanupExpiredTokens } from "./store/ButtonDataStore";
+import { cleanupExpiredTokens } from "./store/DataStore";
 
 export default class DjsClient extends Client {
 	public eventsHandler: EventHandler = new EventHandler(this);
@@ -46,16 +46,14 @@ export default class DjsClient extends Client {
 		this.once(Events.ClientReady, () => {
 			const deleted = cleanupExpiredTokens();
 			if (deleted > 0) {
-				console.log(
-					`🧹 Cleaned up ${deleted} expired button token(s) on startup`,
-				);
+				console.log(`🧹 Cleaned up ${deleted} expired token(s) on startup`);
 			}
 		});
 
 		setInterval(() => {
 			const deleted = cleanupExpiredTokens();
 			if (deleted > 0) {
-				console.log(`🧹 Cleaned up ${deleted} expired button token(s)`);
+				console.log(`🧹 Cleaned up ${deleted} expired token(s)`);
 			}
 		}, 60 * 1000);
 

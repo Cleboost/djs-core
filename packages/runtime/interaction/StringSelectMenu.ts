@@ -1,11 +1,14 @@
+import { randomBytes } from "crypto";
 import {
 	StringSelectMenuBuilder,
 	type StringSelectMenuInteraction,
 	StringSelectMenuOptionBuilder,
 } from "discord.js";
+import { getSelectMenuData, storeSelectMenuData } from "../store/DataStore";
 
-export type StringSelectMenuRunFn = (
+export type StringSelectMenuRunFn<T = undefined> = (
 	interaction: StringSelectMenuInteraction,
+	data: T,
 	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
 ) => any;
 
@@ -15,12 +18,81 @@ export interface StringSelectMenuOption {
 	value: string;
 }
 
-export default class StringSelectMenu extends StringSelectMenuBuilder {
-	private _run?: StringSelectMenuRunFn;
+export default class StringSelectMenu<
+	TData = undefined,
+> extends StringSelectMenuBuilder {
+	private _run?: StringSelectMenuRunFn<TData>;
+	private _baseCustomId?: string;
+	private _customId?: string;
 
-	run(fn: StringSelectMenuRunFn): this {
-		this._run = fn;
+	run<T = TData>(fn: StringSelectMenuRunFn<T>): this {
+		this._run = fn as unknown as StringSelectMenuRunFn<TData>;
 		return this;
+	}
+
+	override setCustomId(customId: string): this {
+		this._baseCustomId = customId;
+		this._customId = customId;
+		super.setCustomId(customId);
+		return this;
+	}
+
+	setData(data: TData extends undefined ? never : TData, ttl?: number): this {
+		if (!this._baseCustomId) {
+			throw new Error(
+				"StringSelectMenu customId must be set before calling setData(). Use .setCustomId(id) first.",
+			);
+		}
+		const tokenBytes = randomBytes(8);
+		const token = tokenBytes
+			.toString("base64")
+			.replace(/\+/g, "-")
+			.replace(/\//g, "_")
+			.replace(/=/g, "");
+
+		storeSelectMenuData(token, data, ttl);
+
+		const newCustomId = `${this._baseCustomId}:${token}`;
+		this._customId = newCustomId;
+		super.setCustomId(newCustomId);
+
+		return this;
+	}
+
+	get customId(): string {
+		if (!this._customId) {
+			throw new Error(
+				"StringSelectMenu customId is not defined. Use .setCustomId(id) before registering the select menu.",
+			);
+		}
+		return this._customId;
+	}
+
+	get baseCustomId(): string {
+		if (!this._baseCustomId) {
+			throw new Error(
+				"StringSelectMenu baseCustomId is not defined. Use .setCustomId(id) before registering the select menu.",
+			);
+		}
+		return this._baseCustomId;
+	}
+
+	static decodeData(customId: string): { baseId: string; data: unknown } {
+		const lastColonIndex = customId.lastIndexOf(":");
+		if (lastColonIndex === -1) {
+			return { baseId: customId, data: undefined };
+		}
+
+		const baseId = customId.slice(0, lastColonIndex);
+		const token = customId.slice(lastColonIndex + 1);
+
+		if (!token) {
+			return { baseId: customId, data: undefined };
+		}
+
+		const data = getSelectMenuData(token);
+
+		return { baseId, data };
 	}
 
 	override addOptions(options: StringSelectMenuOption[]): this {
@@ -41,6 +113,12 @@ export default class StringSelectMenu extends StringSelectMenuBuilder {
 
 	clone(): StringSelectMenu {
 		const cloned = new StringSelectMenu();
+		if (this._baseCustomId) {
+			cloned._baseCustomId = this._baseCustomId;
+		}
+		if (this._customId) {
+			cloned._customId = this._customId;
+		}
 		if (this.data.custom_id) {
 			cloned.setCustomId(this.data.custom_id);
 		}
@@ -80,10 +158,14 @@ export default class StringSelectMenu extends StringSelectMenuBuilder {
 		return cloned;
 	}
 
-	async execute(interaction: StringSelectMenuInteraction): Promise<void> {
+	async execute(
+		interaction: StringSelectMenuInteraction,
+		data?: unknown,
+	): Promise<void> {
 		if (!this._run) {
 			throw new Error(`The string select menu has no .run() callback defined`);
 		}
-		await this._run(interaction);
+		const finalData = (data !== undefined ? data : undefined) as TData;
+		await this._run(interaction, finalData);
 	}
 }

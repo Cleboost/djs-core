@@ -9,7 +9,7 @@ export default new Command()
 			content: "Hello, worlld!",
 			components: [
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-					demo.addOptions([
+					demo.setData({ text: "Hello, world! from command" }).addOptions([
 						{ label: "Option 1", value: "option1" },
 						{ label: "Option 2", value: "option2" },
 						{ label: "Option 3s", value: "option3" },

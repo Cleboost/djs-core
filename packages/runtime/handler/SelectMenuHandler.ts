@@ -7,11 +7,11 @@ import type {
 	UserSelectMenuInteraction,
 } from "discord.js";
 import { MessageFlags } from "discord.js";
-import type ChannelSelectMenu from "../interaction/ChannelSelectMenu";
-import type MentionableSelectMenu from "../interaction/MentionableSelectMenu";
-import type RoleSelectMenu from "../interaction/RoleSelectMenu";
-import type StringSelectMenu from "../interaction/StringSelectMenu";
-import type UserSelectMenu from "../interaction/UserSelectMenu";
+import ChannelSelectMenu from "../interaction/ChannelSelectMenu";
+import MentionableSelectMenu from "../interaction/MentionableSelectMenu";
+import RoleSelectMenu from "../interaction/RoleSelectMenu";
+import StringSelectMenu from "../interaction/StringSelectMenu";
+import UserSelectMenu from "../interaction/UserSelectMenu";
 
 type SelectMenu =
 	| StringSelectMenu
@@ -29,13 +29,26 @@ export default class SelectMenuHandler {
 	}
 
 	public add(selectMenu: SelectMenu): void {
-		const customId = selectMenu.data.custom_id;
-		if (!customId) {
+		let baseCustomId: string | undefined;
+		if (selectMenu instanceof StringSelectMenu) {
+			baseCustomId = selectMenu.baseCustomId;
+		} else if (selectMenu instanceof UserSelectMenu) {
+			baseCustomId = selectMenu.baseCustomId;
+		} else if (selectMenu instanceof RoleSelectMenu) {
+			baseCustomId = selectMenu.baseCustomId;
+		} else if (selectMenu instanceof ChannelSelectMenu) {
+			baseCustomId = selectMenu.baseCustomId;
+		} else if (selectMenu instanceof MentionableSelectMenu) {
+			baseCustomId = selectMenu.baseCustomId;
+		} else {
+			baseCustomId = selectMenu.data.custom_id;
+		}
+		if (!baseCustomId) {
 			throw new Error(
 				"SelectMenu customId is not defined. Use .setCustomId(id) before adding the select menu.",
 			);
 		}
-		this.selectMenus.set(customId, selectMenu);
+		this.selectMenus.set(baseCustomId, selectMenu);
 	}
 
 	public set(selectMenus: SelectMenu[]): void {
@@ -57,39 +70,143 @@ export default class SelectMenuHandler {
 			| ChannelSelectMenuInteraction
 			| MentionableSelectMenuInteraction,
 	): Promise<void> {
-		const customId = interaction.customId;
-		const selectMenu = this.selectMenus.get(customId);
-		if (!selectMenu) return;
+		let decoded: { baseId: string; data: unknown };
+		let selectMenu: SelectMenu | undefined;
 
-		try {
-			if (interaction.isStringSelectMenu()) {
-				await (selectMenu as StringSelectMenu).execute(
-					interaction as StringSelectMenuInteraction,
-				);
-			} else if (interaction.isUserSelectMenu()) {
-				await (selectMenu as UserSelectMenu).execute(
-					interaction as UserSelectMenuInteraction,
-				);
-			} else if (interaction.isRoleSelectMenu()) {
-				await (selectMenu as RoleSelectMenu).execute(
-					interaction as RoleSelectMenuInteraction,
-				);
-			} else if (interaction.isChannelSelectMenu()) {
-				await (selectMenu as ChannelSelectMenu).execute(
-					interaction as ChannelSelectMenuInteraction,
-				);
-			} else if (interaction.isMentionableSelectMenu()) {
-				await (selectMenu as MentionableSelectMenu).execute(
-					interaction as MentionableSelectMenuInteraction,
-				);
-			}
-		} catch (e) {
-			console.error(e);
-			if (!interaction.replied && !interaction.deferred) {
+		if (interaction.isStringSelectMenu()) {
+			decoded = StringSelectMenu.decodeData(interaction.customId);
+			selectMenu = this.selectMenus.get(decoded.baseId);
+			if (!selectMenu) return;
+
+			if (decoded.data === undefined) {
 				await interaction.reply({
-					content: "An error occurred.",
+					content: "❌ This interaction has expired or is no longer available.",
 					flags: MessageFlags.Ephemeral,
 				});
+				return;
+			}
+
+			try {
+				await (selectMenu as StringSelectMenu).execute(
+					interaction as StringSelectMenuInteraction,
+					decoded.data,
+				);
+			} catch (e) {
+				console.error(e);
+				if (!interaction.replied && !interaction.deferred) {
+					await interaction.reply({
+						content: "An error occurred.",
+						flags: MessageFlags.Ephemeral,
+					});
+				}
+			}
+		} else if (interaction.isUserSelectMenu()) {
+			decoded = UserSelectMenu.decodeData(interaction.customId);
+			selectMenu = this.selectMenus.get(decoded.baseId);
+			if (!selectMenu) return;
+
+			if (decoded.data === undefined) {
+				await interaction.reply({
+					content: "❌ This interaction has expired or is no longer available.",
+					flags: MessageFlags.Ephemeral,
+				});
+				return;
+			}
+
+			try {
+				await (selectMenu as UserSelectMenu).execute(
+					interaction as UserSelectMenuInteraction,
+					decoded.data,
+				);
+			} catch (e) {
+				console.error(e);
+				if (!interaction.replied && !interaction.deferred) {
+					await interaction.reply({
+						content: "An error occurred.",
+						flags: MessageFlags.Ephemeral,
+					});
+				}
+			}
+		} else if (interaction.isRoleSelectMenu()) {
+			decoded = RoleSelectMenu.decodeData(interaction.customId);
+			selectMenu = this.selectMenus.get(decoded.baseId);
+			if (!selectMenu) return;
+
+			if (decoded.data === undefined) {
+				await interaction.reply({
+					content: "❌ This interaction has expired or is no longer available.",
+					flags: MessageFlags.Ephemeral,
+				});
+				return;
+			}
+
+			try {
+				await (selectMenu as RoleSelectMenu).execute(
+					interaction as RoleSelectMenuInteraction,
+					decoded.data,
+				);
+			} catch (e) {
+				console.error(e);
+				if (!interaction.replied && !interaction.deferred) {
+					await interaction.reply({
+						content: "An error occurred.",
+						flags: MessageFlags.Ephemeral,
+					});
+				}
+			}
+		} else if (interaction.isChannelSelectMenu()) {
+			decoded = ChannelSelectMenu.decodeData(interaction.customId);
+			selectMenu = this.selectMenus.get(decoded.baseId);
+			if (!selectMenu) return;
+
+			if (decoded.data === undefined) {
+				await interaction.reply({
+					content: "❌ This interaction has expired or is no longer available.",
+					flags: MessageFlags.Ephemeral,
+				});
+				return;
+			}
+
+			try {
+				await (selectMenu as ChannelSelectMenu).execute(
+					interaction as ChannelSelectMenuInteraction,
+					decoded.data,
+				);
+			} catch (e) {
+				console.error(e);
+				if (!interaction.replied && !interaction.deferred) {
+					await interaction.reply({
+						content: "An error occurred.",
+						flags: MessageFlags.Ephemeral,
+					});
+				}
+			}
+		} else if (interaction.isMentionableSelectMenu()) {
+			decoded = MentionableSelectMenu.decodeData(interaction.customId);
+			selectMenu = this.selectMenus.get(decoded.baseId);
+			if (!selectMenu) return;
+
+			if (decoded.data === undefined) {
+				await interaction.reply({
+					content: "❌ This interaction has expired or is no longer available.",
+					flags: MessageFlags.Ephemeral,
+				});
+				return;
+			}
+
+			try {
+				await (selectMenu as MentionableSelectMenu).execute(
+					interaction as MentionableSelectMenuInteraction,
+					decoded.data,
+				);
+			} catch (e) {
+				console.error(e);
+				if (!interaction.replied && !interaction.deferred) {
+					await interaction.reply({
+						content: "An error occurred.",
+						flags: MessageFlags.Ephemeral,
+					});
+				}
 			}
 		}
 	}
