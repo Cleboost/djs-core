@@ -98,6 +98,11 @@ export function registerDevCommand(cli: CAC) {
 				isSyncing: false,
 			};
 
+			const reloadState = {
+				timeouts: new Map<string, ReturnType<typeof setTimeout>>(),
+				reloading: new Set<string>(),
+			};
+
 			async function syncCommands() {
 				if (syncState.isSyncing) return;
 				syncState.isSyncing = true;
@@ -206,7 +211,7 @@ export function registerDevCommand(cli: CAC) {
 							mod as { default: import("@djs-core/runtime").Modal }
 						).default;
 						if (!modal) return;
-						if (!modal.baseCustomId) modal.setCustomId(route);
+						modal.setCustomId(route);
 						client.modalsHandler.add(modal);
 					},
 					unload: async (route) => client.modalsHandler.delete(route),
@@ -233,6 +238,23 @@ export function registerDevCommand(cli: CAC) {
 			): Promise<void> {
 				const route = config.getRoute(absPath, config.dir);
 				if (!route) return;
+
+				// Debounce reloads to prevent multiple rapid reloads
+				if (reloadState.timeouts.has(absPath)) {
+					clearTimeout(reloadState.timeouts.get(absPath)!);
+				}
+				if (reloadState.reloading.has(absPath)) {
+					return;
+				}
+
+				reloadState.reloading.add(absPath);
+				reloadState.timeouts.set(
+					absPath,
+					setTimeout(() => {
+						reloadState.reloading.delete(absPath);
+						reloadState.timeouts.delete(absPath);
+					}, 100),
+				);
 
 				if (config.sync) syncState.pendingReloads.add(absPath);
 
@@ -265,12 +287,16 @@ export function registerDevCommand(cli: CAC) {
 						await config.unload(route);
 					} else if (config.label === "route") {
 						await config.unload(route);
+					} else if (config.label === "modal") {
+						await config.unload(route);
 					}
 
 					await config.load(mod, route, absPath);
 					config.map.set(absPath, route);
 
 					if (config.sync) requestSync();
+					reloadState.reloading.delete(absPath);
+					reloadState.timeouts.delete(absPath);
 				} catch (error: unknown) {
 					if (retries > 0) {
 						await sleep(150);
@@ -288,6 +314,8 @@ export function registerDevCommand(cli: CAC) {
 						);
 					}
 					if (config.sync) syncState.pendingReloads.delete(absPath);
+					reloadState.reloading.delete(absPath);
+					reloadState.timeouts.delete(absPath);
 				}
 			}
 
