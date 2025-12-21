@@ -12,7 +12,7 @@ export function registerStartCommand(cli: CAC) {
 
 			process.on("SIGINT", async () => {
 				console.log(pc.dim("\nShutting down..."));
-				client.destroy();
+				await client.destroy();
 				process.exit(0);
 			});
 		});
