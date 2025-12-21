@@ -140,9 +140,11 @@ export function registerDevCommand(cli: CAC) {
 						if (!cmd) return;
 						const leaf = route.split(".").pop();
 						if (leaf) cmd.setName(leaf);
-						await client.commandsHandler.add({ route, command: cmd });
+						await client.commandsHandler.add({ route, command: cmd }, true);
 					},
-					unload: async (route) => client.commandsHandler.delete(route),
+					unload: async (route) => {
+						await client.commandsHandler.delete(route, true);
+					},
 					sync: true,
 				},
 				{
@@ -260,6 +262,8 @@ export function registerDevCommand(cli: CAC) {
 					} else if (config.label === "context menu") {
 						await config.unload(route);
 					} else if (config.label === "select menu") {
+						await config.unload(route);
+					} else if (config.label === "route") {
 						await config.unload(route);
 					}
 

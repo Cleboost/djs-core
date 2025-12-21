@@ -28,7 +28,7 @@ export default class CommandHandler {
 		this.guilds = guilds;
 	}
 
-	public async add(route: Route): Promise<void> {
+	public async add(route: Route, skipSync = false): Promise<void> {
 		this.assertReady();
 
 		const idx = this.router.findIndex((r) => r.route === route.route);
@@ -37,8 +37,10 @@ export default class CommandHandler {
 
 		this.enforceNoExecutableRootWhenHasChildren();
 
-		const root = this.getRoot(route.route);
-		await this.upsertRootEverywhere(root);
+		if (!skipSync) {
+			const root = this.getRoot(route.route);
+			await this.upsertRootEverywhere(root);
+		}
 	}
 
 	public set(router: Route[]): void {
@@ -50,12 +52,15 @@ export default class CommandHandler {
 		return this.router;
 	}
 
-	public async delete(routeKey: string): Promise<void> {
+	public async delete(routeKey: string, skipSync = false): Promise<void> {
 		this.assertReady();
 
 		this.router = this.router.filter((r) => r.route !== routeKey);
-		const root = this.getRoot(routeKey);
-		await this.upsertRootEverywhere(root);
+		
+		if (!skipSync) {
+			const root = this.getRoot(routeKey);
+			await this.upsertRootEverywhere(root);
+		}
 	}
 
 	public async onCommandInteraction(
