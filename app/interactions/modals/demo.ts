@@ -14,5 +14,7 @@ export default new Modal()
 			.setLabel("Demo"),
 	)
 	.run(async (interaction) => {
-		await interaction.reply({ content: interaction.fields.getTextInputValue("demo") });
+		await interaction.reply({
+			content: interaction.fields.getTextInputValue("demo"),
+		});
 	});

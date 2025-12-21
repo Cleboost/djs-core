@@ -93,9 +93,7 @@ export default class DjsClient extends Client {
 				);
 			}
 			if (interaction.isModalSubmit()) {
-				this.modalsHandler.onModalSubmit(
-					interaction as ModalSubmitInteraction,
-				);
+				this.modalsHandler.onModalSubmit(interaction as ModalSubmitInteraction);
 			}
 		});
 	}

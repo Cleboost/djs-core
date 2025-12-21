@@ -200,8 +200,9 @@ export function registerDevCommand(cli: CAC) {
 					map: modalFileRouteMap,
 					getRoute: getRouteStandard,
 					load: async (mod, route) => {
-						const modal = (mod as { default: import("@djs-core/runtime").Modal })
-							.default;
+						const modal = (
+							mod as { default: import("@djs-core/runtime").Modal }
+						).default;
 						if (!modal) return;
 						if (!modal.baseCustomId) modal.setCustomId(route);
 						client.modalsHandler.add(modal);
