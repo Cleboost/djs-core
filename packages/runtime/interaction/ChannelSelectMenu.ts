@@ -3,10 +3,7 @@ import {
 	ChannelSelectMenuBuilder,
 	type ChannelSelectMenuInteraction,
 } from "discord.js";
-import {
-	getSelectMenuData,
-	storeSelectMenuData,
-} from "../store/DataStore";
+import { getSelectMenuData, storeSelectMenuData } from "../store/DataStore";
 
 export type ChannelSelectMenuRunFn<T = undefined> = (
 	interaction: ChannelSelectMenuInteraction,
@@ -14,7 +11,9 @@ export type ChannelSelectMenuRunFn<T = undefined> = (
 	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
 ) => any;
 
-export default class ChannelSelectMenu<TData = undefined> extends ChannelSelectMenuBuilder {
+export default class ChannelSelectMenu<
+	TData = undefined,
+> extends ChannelSelectMenuBuilder {
 	private _run?: ChannelSelectMenuRunFn<TData>;
 	private _baseCustomId?: string;
 	private _customId?: string;

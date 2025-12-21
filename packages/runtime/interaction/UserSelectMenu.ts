@@ -3,10 +3,7 @@ import {
 	UserSelectMenuBuilder,
 	type UserSelectMenuInteraction,
 } from "discord.js";
-import {
-	getSelectMenuData,
-	storeSelectMenuData,
-} from "../store/DataStore";
+import { getSelectMenuData, storeSelectMenuData } from "../store/DataStore";
 
 export type UserSelectMenuRunFn<T = undefined> = (
 	interaction: UserSelectMenuInteraction,
@@ -14,7 +11,9 @@ export type UserSelectMenuRunFn<T = undefined> = (
 	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
 ) => any;
 
-export default class UserSelectMenu<TData = undefined> extends UserSelectMenuBuilder {
+export default class UserSelectMenu<
+	TData = undefined,
+> extends UserSelectMenuBuilder {
 	private _run?: UserSelectMenuRunFn<TData>;
 	private _baseCustomId?: string;
 	private _customId?: string;

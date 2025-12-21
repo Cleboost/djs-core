@@ -3,10 +3,7 @@ import {
 	RoleSelectMenuBuilder,
 	type RoleSelectMenuInteraction,
 } from "discord.js";
-import {
-	getSelectMenuData,
-	storeSelectMenuData,
-} from "../store/DataStore";
+import { getSelectMenuData, storeSelectMenuData } from "../store/DataStore";
 
 export type RoleSelectMenuRunFn<T = undefined> = (
 	interaction: RoleSelectMenuInteraction,
@@ -14,7 +11,9 @@ export type RoleSelectMenuRunFn<T = undefined> = (
 	// biome-ignore lint/suspicious/noExplicitAny: Allow any return type for flexibility
 ) => any;
 
-export default class RoleSelectMenu<TData = undefined> extends RoleSelectMenuBuilder {
+export default class RoleSelectMenu<
+	TData = undefined,
+> extends RoleSelectMenuBuilder {
 	private _run?: RoleSelectMenuRunFn<TData>;
 	private _baseCustomId?: string;
 	private _customId?: string;
