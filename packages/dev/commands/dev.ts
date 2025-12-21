@@ -56,6 +56,12 @@ export function registerDevCommand(cli: CAC) {
 					setTimeout(resolve, ms);
 				});
 
+			const syncState = {
+				timeout: null as ReturnType<typeof setTimeout> | null,
+				pendingReloads: new Set<string>(),
+				isSyncing: false,
+			};
+
 			function routeFromWatchedFile(
 				rootDir: string,
 				absPath: string,
@@ -69,14 +75,9 @@ export function registerDevCommand(cli: CAC) {
 				return parts.join(".");
 			}
 
-			async function reloadCommand(
-				absPath: string,
-				opts?: { retries?: number },
-			): Promise<void> {
+			async function performCommandReload(absPath: string): Promise<void> {
 				const route = routeFromWatchedFile(commandsDir, absPath);
 				if (!route) return;
-
-				const retries = opts?.retries ?? 0;
 
 				try {
 					const mod = await import(
@@ -84,12 +85,6 @@ export function registerDevCommand(cli: CAC) {
 					);
 					const command = mod.default as Command | undefined;
 					if (!command) {
-						if (retries > 0) {
-							await sleep(150);
-							return await reloadCommand(absPath, {
-								retries: retries - 1,
-							});
-						}
 						return;
 					}
 
@@ -103,6 +98,28 @@ export function registerDevCommand(cli: CAC) {
 					}
 					console.log(`${pc.green("✨ Reloading route:")} ${pc.bold(route)}`);
 					await client.commandsHandler.add({ route, command });
+					fileRouteMap.set(absPath, route);
+				} catch (error: unknown) {
+					if (
+						error &&
+						typeof error === "object" &&
+						"code" in error &&
+						error.code === 10063
+					) {
+						return;
+					}
+					console.error(
+						pc.red(`❌ Error reloading command ${absPath}:`),
+						error,
+					);
+				}
+			}
+
+			async function syncCommands(): Promise<void> {
+				if (syncState.isSyncing) return;
+				syncState.isSyncing = true;
+
+				try {
 					client.applicationCommandHandler.setCommands(
 						client.commandsHandler.getRoutes(),
 					);
@@ -110,7 +127,38 @@ export function registerDevCommand(cli: CAC) {
 						client.contextMenusHandler.getContextMenus(),
 					);
 					await client.applicationCommandHandler.sync();
-					fileRouteMap.set(absPath, route);
+				} catch (error: unknown) {
+					if (
+						error &&
+						typeof error === "object" &&
+						"code" in error &&
+						error.code === 10063
+					) {
+						return;
+					}
+					console.error(
+						pc.red(`❌ Error syncing commands:`),
+						error,
+					);
+				} finally {
+					syncState.isSyncing = false;
+					syncState.pendingReloads.clear();
+				}
+			}
+
+			async function reloadCommand(
+				absPath: string,
+				opts?: { retries?: number },
+			): Promise<void> {
+				const route = routeFromWatchedFile(commandsDir, absPath);
+				if (!route) return;
+
+				const retries = opts?.retries ?? 0;
+
+				syncState.pendingReloads.add(absPath);
+
+				try {
+					await performCommandReload(absPath);
 				} catch (error) {
 					if (retries > 0) {
 						await sleep(150);
@@ -118,11 +166,17 @@ export function registerDevCommand(cli: CAC) {
 							retries: retries - 1,
 						});
 					}
-					console.error(
-						pc.red(`❌ Error reloading command ${absPath}:`),
-						error,
-					);
+					syncState.pendingReloads.delete(absPath);
+					throw error;
 				}
+
+				if (syncState.timeout) {
+					clearTimeout(syncState.timeout);
+				}
+
+				syncState.timeout = setTimeout(async () => {
+					await syncCommands();
+				}, 300);
 			}
 
 			async function deleteCommand(absPath: string): Promise<void> {
@@ -132,14 +186,16 @@ export function registerDevCommand(cli: CAC) {
 				if (!knownRoute) return;
 				console.log(`${pc.red("🗑️  Deleting route:")} ${pc.bold(knownRoute)}`);
 				await client.commandsHandler.delete(knownRoute);
-				client.applicationCommandHandler.setCommands(
-					client.commandsHandler.getRoutes(),
-				);
-				client.applicationCommandHandler.setContextMenus(
-					client.contextMenusHandler.getContextMenus(),
-				);
-				await client.applicationCommandHandler.sync();
 				fileRouteMap.delete(absPath);
+				syncState.pendingReloads.delete(absPath);
+
+				if (syncState.timeout) {
+					clearTimeout(syncState.timeout);
+				}
+
+				syncState.timeout = setTimeout(async () => {
+					await syncCommands();
+				}, 300);
 			}
 
 			async function reloadButton(
@@ -302,14 +358,16 @@ export function registerDevCommand(cli: CAC) {
 					);
 					await client.contextMenusHandler.delete(route);
 					await client.contextMenusHandler.add(contextMenu);
-					client.applicationCommandHandler.setCommands(
-						client.commandsHandler.getRoutes(),
-					);
-					client.applicationCommandHandler.setContextMenus(
-						client.contextMenusHandler.getContextMenus(),
-					);
-					await client.applicationCommandHandler.sync();
 					contextMenuFileRouteMap.set(absPath, route);
+
+					// Debounce la synchronisation
+					if (syncState.timeout) {
+						clearTimeout(syncState.timeout);
+					}
+
+					syncState.timeout = setTimeout(async () => {
+						await syncCommands();
+					}, 300);
 				} catch (error) {
 					if (retries > 0) {
 						await sleep(150);
@@ -333,14 +391,15 @@ export function registerDevCommand(cli: CAC) {
 					`${pc.red("🗑️  Deleting context menu:")} ${pc.bold(knownRoute)}`,
 				);
 				await client.contextMenusHandler.delete(knownRoute);
-				client.applicationCommandHandler.setCommands(
-					client.commandsHandler.getRoutes(),
-				);
-				client.applicationCommandHandler.setContextMenus(
-					client.contextMenusHandler.getContextMenus(),
-				);
-				await client.applicationCommandHandler.sync();
 				contextMenuFileRouteMap.delete(absPath);
+
+				if (syncState.timeout) {
+					clearTimeout(syncState.timeout);
+				}
+
+				syncState.timeout = setTimeout(async () => {
+					await syncCommands();
+				}, 300);
 			}
 
 			function routeFromWatchedSelectFile(

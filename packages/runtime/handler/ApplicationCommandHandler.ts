@@ -47,15 +47,39 @@ export default class ApplicationCommandHandler {
 
 		if (this.guilds.length > 0) {
 			for (const guildId of this.guilds) {
-				const created = await this.client.application.commands.set(
-					allCommands,
-					guildId,
-				);
-				this.refreshCacheFromSetResult(created, guildId);
+				try {
+					const created = await this.client.application.commands.set(
+						allCommands,
+						guildId,
+					);
+					this.refreshCacheFromSetResult(created, guildId);
+				} catch (error: unknown) {
+					if (
+						error &&
+						typeof error === "object" &&
+						"code" in error &&
+						error.code === 10063
+					) {
+						continue;
+					}
+					throw error;
+				}
 			}
 		} else {
-			const created = await this.client.application.commands.set(allCommands);
-			this.refreshCacheFromSetResult(created, "global");
+			try {
+				const created = await this.client.application.commands.set(allCommands);
+				this.refreshCacheFromSetResult(created, "global");
+			} catch (error: unknown) {
+				if (
+					error &&
+					typeof error === "object" &&
+					"code" in error &&
+					error.code === 10063
+				) {
+					return;
+				}
+				throw error;
+			}
 		}
 	}
 

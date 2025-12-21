@@ -103,29 +103,59 @@ export default class CommandHandler {
 
 		if (!compiled) {
 			if (existingId) {
-				await this.client.application.commands.delete(
-					existingId,
-					scope === "global" ? undefined : scope,
-				);
+				try {
+					await this.client.application.commands.delete(
+						existingId,
+						scope === "global" ? undefined : scope,
+					);
+				} catch (error: unknown) {
+					if (
+						error &&
+						typeof error === "object" &&
+						"code" in error &&
+						error.code === 10063
+					) {
+					} else {
+						throw error;
+					}
+				}
 				cache.delete(root);
 			}
 			return;
 		}
 
 		if (existingId) {
-			if (scope === "global") {
-				const edited = await this.client.application.commands.edit(
-					existingId,
-					compiled,
-				);
-				cache.set(edited.name, edited.id);
-			} else {
-				const edited = await this.client.application.commands.edit(
-					existingId,
-					compiled,
-					scope,
-				);
-				cache.set(edited.name, edited.id);
+			try {
+				if (scope === "global") {
+					const edited = await this.client.application.commands.edit(
+						existingId,
+						compiled,
+					);
+					cache.set(edited.name, edited.id);
+				} else {
+					const edited = await this.client.application.commands.edit(
+						existingId,
+						compiled,
+						scope,
+					);
+					cache.set(edited.name, edited.id);
+				}
+			} catch (error: unknown) {
+				if (
+					error &&
+					typeof error === "object" &&
+					"code" in error &&
+					error.code === 10063
+				) {
+					cache.delete(root);
+					const created = await this.client.application.commands.create(
+						compiled,
+						scope === "global" ? undefined : scope,
+					);
+					cache.set(created.name, created.id);
+				} else {
+					throw error;
+				}
 			}
 		} else {
 			const created = await this.client.application.commands.create(
@@ -143,15 +173,29 @@ export default class CommandHandler {
 			throw new Error("Client application is not available");
 		}
 
-		const fetched = await this.client.application.commands.fetch(
-			scope === "global" ? undefined : scope,
-		);
+		try {
+			const fetched = await this.client.application.commands.fetch(
+				scope === "global" ? undefined : scope,
+			);
 
-		const map = new Map<string, string>();
-		for (const cmd of fetched.values()) {
-			map.set(cmd.name, cmd.id);
+			const map = new Map<string, string>();
+			for (const cmd of fetched.values()) {
+				map.set(cmd.name, cmd.id);
+			}
+			this.rootIdCache.set(scope, map);
+		} catch (error: unknown) {
+			if (
+				error &&
+				typeof error === "object" &&
+				"code" in error &&
+				error.code === 10063
+			) {
+				const map = new Map<string, string>();
+				this.rootIdCache.set(scope, map);
+				return;
+			}
+			throw error;
 		}
-		this.rootIdCache.set(scope, map);
 	}
 
 	private refreshCacheFromSetResult(
