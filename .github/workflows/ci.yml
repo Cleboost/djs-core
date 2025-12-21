@@ -16,8 +16,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - run: bun i
-      - run: cd packages/runtime && bun run build
-      - run: cd packages/dev && bun run build
+      - run: bun run build
   # type:
   #   concurrency:
   #     group: type-${{ github.ref }}
