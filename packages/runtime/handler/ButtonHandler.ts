@@ -33,7 +33,9 @@ export default class ButtonHandler {
 		const button = this.buttons.get(decoded.baseId);
 		if (!button) return;
 
-		if (decoded.data === undefined) {
+		const hasToken = decoded.baseId !== interaction.customId;
+
+		if (hasToken && decoded.data === undefined) {
 			await interaction.reply({
 				content: "❌ This interaction has expired or is no longer available.",
 				flags: MessageFlags.Ephemeral,

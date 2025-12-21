@@ -78,7 +78,9 @@ export default class SelectMenuHandler {
 			selectMenu = this.selectMenus.get(decoded.baseId);
 			if (!selectMenu) return;
 
-			if (decoded.data === undefined) {
+			const hasToken = decoded.baseId !== interaction.customId;
+
+			if (hasToken && decoded.data === undefined) {
 				await interaction.reply({
 					content: "❌ This interaction has expired or is no longer available.",
 					flags: MessageFlags.Ephemeral,
@@ -105,7 +107,9 @@ export default class SelectMenuHandler {
 			selectMenu = this.selectMenus.get(decoded.baseId);
 			if (!selectMenu) return;
 
-			if (decoded.data === undefined) {
+			const hasToken = decoded.baseId !== interaction.customId;
+
+			if (hasToken && decoded.data === undefined) {
 				await interaction.reply({
 					content: "❌ This interaction has expired or is no longer available.",
 					flags: MessageFlags.Ephemeral,
@@ -132,7 +136,9 @@ export default class SelectMenuHandler {
 			selectMenu = this.selectMenus.get(decoded.baseId);
 			if (!selectMenu) return;
 
-			if (decoded.data === undefined) {
+			const hasToken = decoded.baseId !== interaction.customId;
+
+			if (hasToken && decoded.data === undefined) {
 				await interaction.reply({
 					content: "❌ This interaction has expired or is no longer available.",
 					flags: MessageFlags.Ephemeral,
@@ -159,7 +165,9 @@ export default class SelectMenuHandler {
 			selectMenu = this.selectMenus.get(decoded.baseId);
 			if (!selectMenu) return;
 
-			if (decoded.data === undefined) {
+			const hasToken = decoded.baseId !== interaction.customId;
+
+			if (hasToken && decoded.data === undefined) {
 				await interaction.reply({
 					content: "❌ This interaction has expired or is no longer available.",
 					flags: MessageFlags.Ephemeral,
@@ -186,7 +194,9 @@ export default class SelectMenuHandler {
 			selectMenu = this.selectMenus.get(decoded.baseId);
 			if (!selectMenu) return;
 
-			if (decoded.data === undefined) {
+			const hasToken = decoded.baseId !== interaction.customId;
+
+			if (hasToken && decoded.data === undefined) {
 				await interaction.reply({
 					content: "❌ This interaction has expired or is no longer available.",
 					flags: MessageFlags.Ephemeral,
