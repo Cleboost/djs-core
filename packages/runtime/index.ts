@@ -1,11 +1,11 @@
+import DjsClient from "./DjsClient";
+import CommandHandler, { type Route } from "./handler/CommandHandler";
+import ContextMenuHandler from "./handler/ContextMenuHandler";
+import EventHandler from "./handler/EventHandler";
 import Button from "./interaction/Button";
 import ChannelSelectMenu from "./interaction/ChannelSelectMenu";
 import Command from "./interaction/Command";
-import CommandHandler, { type Route } from "./handler/CommandHandler";
 import ContextMenu from "./interaction/ContextMenu";
-import ContextMenuHandler from "./handler/ContextMenuHandler";
-import DjsClient from "./DjsClient";
-import EventHandler from "./handler/EventHandler";
 import EventLister from "./interaction/EventLister";
 import MentionableSelectMenu from "./interaction/MentionableSelectMenu";
 import RoleSelectMenu from "./interaction/RoleSelectMenu";

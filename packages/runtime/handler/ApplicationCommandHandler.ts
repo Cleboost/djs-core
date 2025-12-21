@@ -2,8 +2,8 @@ import type {
 	ApplicationCommand,
 	ApplicationCommandDataResolvable,
 	Client,
+	Collection,
 } from "discord.js";
-import type { Collection } from "discord.js";
 import { SlashCommandBuilder } from "discord.js";
 import type Command from "../interaction/Command";
 import type ContextMenu from "../interaction/ContextMenu";

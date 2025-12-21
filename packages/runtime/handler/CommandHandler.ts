@@ -3,9 +3,9 @@ import type {
 	ApplicationCommandDataResolvable,
 	ChatInputCommandInteraction,
 	Client,
+	Collection,
 } from "discord.js";
-import type { Collection } from "discord.js";
-import { SlashCommandBuilder, MessageFlags } from "discord.js";
+import { MessageFlags, SlashCommandBuilder } from "discord.js";
 import type Command from "../interaction/Command";
 
 export interface Route {

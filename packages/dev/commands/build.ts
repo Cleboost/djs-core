@@ -1,9 +1,9 @@
-import type { CAC } from "cac";
-import pc from "picocolors";
-import path from "path";
-import fs from "fs/promises";
-import { banner } from "../utils/common";
 import { select } from "@clack/prompts";
+import type { CAC } from "cac";
+import fs from "fs/promises";
+import path from "path";
+import pc from "picocolors";
+import { banner } from "../utils/common";
 
 declare const Bun: typeof import("bun");
 

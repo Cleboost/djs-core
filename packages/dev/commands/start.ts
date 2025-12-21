@@ -1,6 +1,6 @@
 import type { CAC } from "cac";
-import { banner, runBot } from "../utils/common";
 import pc from "picocolors";
+import { banner, runBot } from "../utils/common";
 
 export function registerStartCommand(cli: CAC) {
 	cli

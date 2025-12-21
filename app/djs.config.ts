@@ -1,4 +1,5 @@
 import type { Config } from "@djs-core/dev";
+
 if (!process.env.TOKEN) {
 	throw new Error("TOKEN environment variable is required");
 }

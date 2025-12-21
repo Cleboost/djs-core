@@ -1,15 +1,15 @@
 import {
-	DjsClient,
-	type Command,
 	type Button,
-	type Route,
-	type EventLister,
+	type ChannelSelectMenu,
+	type Command,
 	type ContextMenu,
+	DjsClient,
+	type EventLister,
+	type MentionableSelectMenu,
+	type RoleSelectMenu,
+	type Route,
 	type StringSelectMenu,
 	type UserSelectMenu,
-	type RoleSelectMenu,
-	type ChannelSelectMenu,
-	type MentionableSelectMenu,
 } from "@djs-core/runtime";
 
 type SelectMenu =
@@ -18,11 +18,12 @@ type SelectMenu =
 	| RoleSelectMenu
 	| ChannelSelectMenu
 	| MentionableSelectMenu;
-import type { Config } from "../../utils/types/config";
-import path, { resolve } from "path";
-import fs from "fs/promises";
-import pc from "picocolors";
+
 import { Events } from "discord.js";
+import fs from "fs/promises";
+import path, { resolve } from "path";
+import pc from "picocolors";
+import type { Config } from "../../utils/types/config";
 
 export const banner = `
    ${pc.bold(pc.blue("djs-core"))} ${pc.dim(`v1.0.0`)}

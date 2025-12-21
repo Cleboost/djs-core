@@ -1,17 +1,17 @@
 import type {
+	ChannelSelectMenuInteraction,
 	Client,
+	MentionableSelectMenuInteraction,
+	RoleSelectMenuInteraction,
 	StringSelectMenuInteraction,
 	UserSelectMenuInteraction,
-	RoleSelectMenuInteraction,
-	ChannelSelectMenuInteraction,
-	MentionableSelectMenuInteraction,
 } from "discord.js";
 import { MessageFlags } from "discord.js";
-import type StringSelectMenu from "../interaction/StringSelectMenu";
-import type UserSelectMenu from "../interaction/UserSelectMenu";
-import type RoleSelectMenu from "../interaction/RoleSelectMenu";
 import type ChannelSelectMenu from "../interaction/ChannelSelectMenu";
 import type MentionableSelectMenu from "../interaction/MentionableSelectMenu";
+import type RoleSelectMenu from "../interaction/RoleSelectMenu";
+import type StringSelectMenu from "../interaction/StringSelectMenu";
+import type UserSelectMenu from "../interaction/UserSelectMenu";
 
 type SelectMenu =
 	| StringSelectMenu

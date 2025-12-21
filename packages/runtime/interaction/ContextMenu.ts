@@ -1,9 +1,9 @@
 import {
+	ApplicationCommandType,
 	ContextMenuCommandBuilder,
+	type ContextMenuCommandType,
 	type MessageContextMenuCommandInteraction,
 	type UserContextMenuCommandInteraction,
-	ApplicationCommandType,
-	type ContextMenuCommandType,
 } from "discord.js";
 
 export type ContextMenuRunFn<

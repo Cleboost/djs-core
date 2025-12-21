@@ -1,7 +1,7 @@
 import {
 	StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder,
 	type StringSelectMenuInteraction,
+	StringSelectMenuOptionBuilder,
 } from "discord.js";
 
 export type StringSelectMenuRunFn = (

@@ -1,23 +1,23 @@
 import {
+	type ButtonInteraction,
+	type ChannelSelectMenuInteraction,
 	type ChatInputCommandInteraction,
 	Client,
+	type ContextMenuCommandInteraction,
 	Events,
 	IntentsBitField,
 	type Interaction,
-	type ButtonInteraction,
-	type ContextMenuCommandInteraction,
+	type MentionableSelectMenuInteraction,
+	type RoleSelectMenuInteraction,
 	type StringSelectMenuInteraction,
 	type UserSelectMenuInteraction,
-	type RoleSelectMenuInteraction,
-	type ChannelSelectMenuInteraction,
-	type MentionableSelectMenuInteraction,
 } from "discord.js";
-import CommandHandler from "./handler/CommandHandler";
-import ButtonHandler from "./handler/ButtonHandler";
-import ContextMenuHandler from "./handler/ContextMenuHandler";
-import SelectMenuHandler from "./handler/SelectMenuHandler";
-import EventHandler from "./handler/EventHandler";
 import ApplicationCommandHandler from "./handler/ApplicationCommandHandler";
+import ButtonHandler from "./handler/ButtonHandler";
+import CommandHandler from "./handler/CommandHandler";
+import ContextMenuHandler from "./handler/ContextMenuHandler";
+import EventHandler from "./handler/EventHandler";
+import SelectMenuHandler from "./handler/SelectMenuHandler";
 import { cleanupExpiredTokens } from "./store/ButtonDataStore";
 
 export default class DjsClient extends Client {

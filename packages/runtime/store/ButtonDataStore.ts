@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
-import { join, dirname } from "path";
 import { mkdirSync } from "fs";
+import { dirname, join } from "path";
 
 declare global {
 	var __djsCoreButtonDataStore: Database | undefined;
