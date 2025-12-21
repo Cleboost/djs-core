@@ -5,7 +5,7 @@ import type {
 	Client,
 } from "discord.js";
 import type { Collection } from "discord.js";
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type Command from "../interaction/Command";
 
 export interface Route {
@@ -88,7 +88,7 @@ export default class CommandHandler {
 			if (!interaction.replied && !interaction.deferred) {
 				await interaction.reply({
 					content: "An error occurred.",
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				});
 			}
 		}

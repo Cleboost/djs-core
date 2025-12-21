@@ -5,7 +5,19 @@ import {
 	type Route,
 	type EventLister,
 	type ContextMenu,
+	type StringSelectMenu,
+	type UserSelectMenu,
+	type RoleSelectMenu,
+	type ChannelSelectMenu,
+	type MentionableSelectMenu,
 } from "@djs-core/runtime";
+
+type SelectMenu =
+	| StringSelectMenu
+	| UserSelectMenu
+	| RoleSelectMenu
+	| ChannelSelectMenu
+	| MentionableSelectMenu;
 import type { Config } from "../../utils/types/config";
 import path, { resolve } from "path";
 import fs from "fs/promises";
@@ -36,10 +48,12 @@ export async function runBot(projectPath: string) {
 	const commands: Route[] = [];
 	const buttons: Button[] = [];
 	const contextMenus: ContextMenu[] = [];
+	const selectMenus: SelectMenu[] = [];
 	const events: Record<string, EventLister> = {};
 	const fileRouteMap = new Map<string, string>();
 	const buttonFileRouteMap = new Map<string, string>();
 	const contextMenuFileRouteMap = new Map<string, string>();
+	const selectMenuFileRouteMap = new Map<string, string>();
 	const eventFileIdMap = new Map<string, string>();
 
 	commands.push(
@@ -79,6 +93,17 @@ export async function runBot(projectPath: string) {
 		`${pc.green("✓")}  Loaded ${pc.bold(contextMenus.length)} context menus`,
 	);
 
+	selectMenus.push(
+		...(await scanSelectMenus(
+			path.join(root, "interactions", "selects"),
+			"",
+			selectMenuFileRouteMap,
+		)),
+	);
+	console.log(
+		`${pc.green("✓")}  Loaded ${pc.bold(selectMenus.length)} select menus`,
+	);
+
 	const client = new DjsClient({ servers: config.servers });
 
 	client.eventsHandler.set(events);
@@ -89,6 +114,7 @@ export async function runBot(projectPath: string) {
 		client.commandsHandler.set(commands);
 		client.buttonsHandler.set(buttons);
 		client.contextMenusHandler.set(contextMenus);
+		client.selectMenusHandler.set(selectMenus);
 		console.log(
 			pc.green("🚀 Bot is ready! ") +
 				pc.dim(`Logged in as ${client.user?.tag}`),
@@ -102,6 +128,7 @@ export async function runBot(projectPath: string) {
 		fileRouteMap,
 		buttonFileRouteMap,
 		contextMenuFileRouteMap,
+		selectMenuFileRouteMap,
 		eventFileIdMap,
 	};
 }
@@ -279,4 +306,55 @@ async function scanContextMenus(
 	}
 
 	return contextMenus;
+}
+
+async function scanSelectMenus(
+	dir: string,
+	prefix: string = "",
+	map?: Map<string, string>,
+): Promise<SelectMenu[]> {
+	const selectMenus: SelectMenu[] = [];
+
+	try {
+		await fs.access(dir);
+	} catch {
+		return [];
+	}
+
+	const entries = await fs.readdir(dir, { withFileTypes: true });
+
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+
+		if (entry.isDirectory()) {
+			const newPrefix = prefix ? `${prefix}.${entry.name}` : entry.name;
+			selectMenus.push(...(await scanSelectMenus(fullPath, newPrefix, map)));
+		} else if (entry.isFile() && entry.name.endsWith(".ts")) {
+			const mod = await import(fullPath);
+			const selectMenu = mod.default as SelectMenu | undefined;
+
+			if (!selectMenu) continue;
+
+			const routeName = entry.name.replace(".ts", "");
+			let route = "";
+
+			if (routeName === "index") {
+				if (prefix) route = prefix;
+			} else {
+				route = prefix ? `${prefix}.${routeName}` : routeName;
+			}
+
+			if (!route) continue;
+
+			const customId = selectMenu.data.custom_id;
+			if (!customId) {
+				selectMenu.setCustomId(route);
+			}
+
+			if (map) map.set(fullPath, route);
+			selectMenus.push(selectMenu);
+		}
+	}
+
+	return selectMenus;
 }

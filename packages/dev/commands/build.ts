@@ -55,7 +55,10 @@ async function listTsFilesRecursive(dir: string): Promise<string[]> {
 	return out;
 }
 
-function makeVar(prefix: "cmd" | "btn" | "ctx" | "evt", route: string): string {
+function makeVar(
+	prefix: "cmd" | "btn" | "ctx" | "sel" | "evt",
+	route: string,
+): string {
 	const safe = route.replace(/[^a-zA-Z0-9_]+/g, "_");
 	return `${prefix}_${safe}`;
 }
@@ -65,10 +68,11 @@ function buildGeneratedEntry(opts: {
 	commandsDir: string;
 	buttonsDir: string;
 	contextsDir: string;
-	eventsDir: string;
+	selectsDir: string;
 	commandFiles: string[];
 	buttonFiles: string[];
 	contextFiles: string[];
+	selectFiles: string[];
 	eventFiles: string[];
 }): string {
 	const {
@@ -76,10 +80,11 @@ function buildGeneratedEntry(opts: {
 		commandsDir,
 		buttonsDir,
 		contextsDir,
-		eventsDir,
+		selectsDir,
 		commandFiles,
 		buttonFiles,
 		contextFiles,
+		selectFiles,
 		eventFiles,
 	} = opts;
 
@@ -87,6 +92,7 @@ function buildGeneratedEntry(opts: {
 	const commandRoutes: Array<{ route: string; varName: string }> = [];
 	const buttonRoutes: Array<{ route: string; varName: string }> = [];
 	const contextRoutes: Array<{ route: string; varName: string }> = [];
+	const selectRoutes: Array<{ route: string; varName: string }> = [];
 	const eventRoutes: Array<{ id: string; varName: string }> = [];
 
 	for (const f of commandFiles) {
@@ -116,6 +122,15 @@ function buildGeneratedEntry(opts: {
 		contextRoutes.push({ route, varName });
 	}
 
+	for (const f of selectFiles) {
+		const route = routeFromFile(selectsDir, f);
+		if (!route) continue;
+		const varName = makeVar("sel", route);
+		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
+		imports.push(`import ${varName} from "${rel}";`);
+		selectRoutes.push({ route, varName });
+	}
+
 	for (const f of eventFiles) {
 		const fileName = path.basename(f, ".ts");
 		const varName = makeVar("evt", fileName);
@@ -131,6 +146,9 @@ function buildGeneratedEntry(opts: {
 		a.route.localeCompare(b.route),
 	);
 	const sortedCtxs = contextRoutes.sort((a, b) =>
+		a.route.localeCompare(b.route),
+	);
+	const sortedSels = selectRoutes.sort((a, b) =>
 		a.route.localeCompare(b.route),
 	);
 	const sortedEvts = eventRoutes.sort((a, b) => a.id.localeCompare(b.id));
@@ -174,6 +192,12 @@ ${sortedCtxs
 	})
 	.join("\n")}
 
+  const selectMenus = [
+${sortedSels.map((s) => `    ${s.varName},`).join("\n")}
+  ];
+
+${sortedSels.map((s) => `  ${s.varName}.setCustomId(${JSON.stringify(s.route)});`).join("\n")}
+
   const events = {
 ${sortedEvts.map((e) => `    ${JSON.stringify(e.id)}: ${e.varName},`).join("\n")}
   };
@@ -186,6 +210,7 @@ ${sortedEvts.map((e) => `    ${JSON.stringify(e.id)}: ${e.varName},`).join("\n")
     client.commandsHandler.set(commands);
     client.buttonsHandler.set(buttons);
     client.contextMenusHandler.set(contextMenus);
+    client.selectMenusHandler.set(selectMenus);
     console.log(\`✅ Bot online (\${client.user?.tag ?? "unknown"})\`);
   });
 
@@ -228,6 +253,7 @@ export function registerBuildCommand(cli: CAC) {
 			const commandsDir = path.join(botRoot, "interactions", "commands");
 			const buttonsDir = path.join(botRoot, "interactions", "buttons");
 			const contextsDir = path.join(botRoot, "interactions", "contexts");
+			const selectsDir = path.join(botRoot, "interactions", "selects");
 			const eventsDir = path.join(botRoot, "interactions", "events");
 
 			console.log(`${pc.cyan("ℹ")}  Project: ${pc.bold(botRoot)}`);
@@ -238,6 +264,7 @@ export function registerBuildCommand(cli: CAC) {
 			const commandFiles = await listTsFilesRecursive(commandsDir);
 			const buttonFiles = await listTsFilesRecursive(buttonsDir);
 			const contextFiles = await listTsFilesRecursive(contextsDir);
+			const selectFiles = await listTsFilesRecursive(selectsDir);
 			const eventFiles = await listTsFilesRecursive(eventsDir);
 
 			const code = buildGeneratedEntry({
@@ -245,10 +272,11 @@ export function registerBuildCommand(cli: CAC) {
 				commandsDir,
 				buttonsDir,
 				contextsDir,
-				eventsDir,
+				selectsDir,
 				commandFiles,
 				buttonFiles,
 				contextFiles,
+				selectFiles,
 				eventFiles,
 			});
 

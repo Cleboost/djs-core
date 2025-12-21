@@ -7,6 +7,20 @@ import type { Button } from "@djs-core/runtime";
 import type { Command } from "@djs-core/runtime";
 import type { ContextMenu } from "@djs-core/runtime";
 import type { EventLister } from "@djs-core/runtime";
+import type {
+	StringSelectMenu,
+	UserSelectMenu,
+	RoleSelectMenu,
+	ChannelSelectMenu,
+	MentionableSelectMenu,
+} from "@djs-core/runtime";
+
+type SelectMenu =
+	| StringSelectMenu
+	| UserSelectMenu
+	| RoleSelectMenu
+	| ChannelSelectMenu
+	| MentionableSelectMenu;
 
 export function registerDevCommand(cli: CAC) {
 	cli
@@ -22,16 +36,18 @@ export function registerDevCommand(cli: CAC) {
 				fileRouteMap,
 				buttonFileRouteMap,
 				contextMenuFileRouteMap,
+				selectMenuFileRouteMap,
 				eventFileIdMap,
 			} = await runBot(options.path);
 			const commandsDir = path.join(root, "interactions", "commands");
 			const buttonsDir = path.join(root, "interactions", "buttons");
 			const contextsDir = path.join(root, "interactions", "contexts");
+			const selectsDir = path.join(root, "interactions", "selects");
 			const eventsDir = path.join(root, "interactions", "events");
 
 			console.log(
 				pc.dim(
-					`\nWatching for changes in:\n - ${commandsDir}\n - ${buttonsDir}\n - ${contextsDir}\n - ${eventsDir}\n`,
+					`\nWatching for changes in:\n - ${commandsDir}\n - ${buttonsDir}\n - ${contextsDir}\n - ${selectsDir}\n - ${eventsDir}\n`,
 				),
 			);
 
@@ -299,8 +315,86 @@ export function registerDevCommand(cli: CAC) {
 				contextMenuFileRouteMap.delete(absPath);
 			}
 
+			function routeFromWatchedSelectFile(
+				rootDir: string,
+				absPath: string,
+			): string | null {
+				const rel = path.relative(rootDir, absPath);
+				if (!rel || rel.startsWith("..")) return null;
+				if (!rel.endsWith(".ts")) return null;
+				const parts = rel.replace(/\.ts$/, "").split(path.sep);
+				if (parts[parts.length - 1] === "index") parts.pop();
+				if (parts.length === 0) return "index";
+				return parts.join(".");
+			}
+
+			async function reloadSelectMenu(
+				absPath: string,
+				opts?: { retries?: number },
+			): Promise<void> {
+				const route = routeFromWatchedSelectFile(selectsDir, absPath);
+				if (!route) return;
+
+				const retries = opts?.retries ?? 0;
+
+				try {
+					const mod = await import(
+						`${absPath}?t=${Date.now()}&r=${Math.random()}`
+					);
+					const selectMenu = mod.default as SelectMenu | undefined;
+					if (!selectMenu) {
+						if (retries > 0) {
+							await sleep(150);
+							return await reloadSelectMenu(absPath, {
+								retries: retries - 1,
+							});
+						}
+						return;
+					}
+
+					const customId = selectMenu.data.custom_id;
+					if (!customId) {
+						selectMenu.setCustomId(route);
+					}
+
+					const existingRoute = selectMenuFileRouteMap.get(absPath);
+					if (existingRoute && existingRoute !== route) {
+						client.selectMenusHandler.delete(existingRoute);
+					}
+					console.log(
+						`${pc.green("✨ Reloading select menu:")} ${pc.bold(route)}`,
+					);
+					client.selectMenusHandler.delete(route);
+					client.selectMenusHandler.add(selectMenu);
+					selectMenuFileRouteMap.set(absPath, route);
+				} catch (error) {
+					if (retries > 0) {
+						await sleep(150);
+						return await reloadSelectMenu(absPath, {
+							retries: retries - 1,
+						});
+					}
+					console.error(
+						pc.red(`❌ Error reloading select menu ${absPath}:`),
+						error,
+					);
+				}
+			}
+
+			function deleteSelectMenu(absPath: string): void {
+				const knownRoute =
+					selectMenuFileRouteMap.get(absPath) ??
+					routeFromWatchedSelectFile(selectsDir, absPath);
+				if (!knownRoute) return;
+				console.log(
+					`${pc.red("🗑️  Deleting select menu:")} ${pc.bold(knownRoute)}`,
+				);
+				client.selectMenusHandler.delete(knownRoute);
+				selectMenuFileRouteMap.delete(absPath);
+			}
+
 			const watcher = chokidar.watch(
-				[commandsDir, buttonsDir, contextsDir, eventsDir],
+				[commandsDir, buttonsDir, contextsDir, selectsDir, eventsDir],
 				{
 					ignoreInitial: true,
 					ignored: /(^|[/\\])\../,
@@ -319,6 +413,8 @@ export function registerDevCommand(cli: CAC) {
 						await reloadButton(absPath, { retries: 5 });
 					} else if (absPath.startsWith(contextsDir)) {
 						await reloadContextMenu(absPath, { retries: 5 });
+					} else if (absPath.startsWith(selectsDir)) {
+						await reloadSelectMenu(absPath, { retries: 5 });
 					} else if (absPath.startsWith(eventsDir)) {
 						await reloadEvent(absPath, { retries: 5 });
 					}
@@ -331,6 +427,8 @@ export function registerDevCommand(cli: CAC) {
 						await reloadButton(absPath, { retries: 3 });
 					} else if (absPath.startsWith(contextsDir)) {
 						await reloadContextMenu(absPath, { retries: 3 });
+					} else if (absPath.startsWith(selectsDir)) {
+						await reloadSelectMenu(absPath, { retries: 3 });
 					} else if (absPath.startsWith(eventsDir)) {
 						await reloadEvent(absPath, { retries: 3 });
 					}
@@ -343,6 +441,8 @@ export function registerDevCommand(cli: CAC) {
 						deleteButton(absPath);
 					} else if (absPath.startsWith(contextsDir)) {
 						await deleteContextMenu(absPath);
+					} else if (absPath.startsWith(selectsDir)) {
+						deleteSelectMenu(absPath);
 					} else if (absPath.startsWith(eventsDir)) {
 						deleteEvent(absPath);
 					}

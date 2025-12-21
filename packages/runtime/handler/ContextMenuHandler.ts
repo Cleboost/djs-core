@@ -4,6 +4,7 @@ import type {
 	MessageContextMenuCommandInteraction,
 	UserContextMenuCommandInteraction,
 } from "discord.js";
+import { MessageFlags } from "discord.js";
 import type ContextMenu from "../interaction/ContextMenu";
 
 export default class ContextMenuHandler {
@@ -108,7 +109,7 @@ export default class ContextMenuHandler {
 			if (!interaction.replied && !interaction.deferred) {
 				await interaction.reply({
 					content: "An error occurred.",
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				});
 			}
 		}
