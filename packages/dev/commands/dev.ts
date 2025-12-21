@@ -15,7 +15,7 @@ import type { CAC } from "cac";
 import chokidar from "chokidar";
 import path from "path";
 import pc from "picocolors";
-import { banner, runBot } from "../utils/common";
+import { banner, PATH_ALIASES, runBot } from "../utils/common";
 
 type SelectMenu =
 	| StringSelectMenu
@@ -58,12 +58,12 @@ export function registerDevCommand(cli: CAC) {
 			} = await runBot(options.path);
 
 			const dirs = {
-				commands: path.join(root, "interactions", "commands"),
-				buttons: path.join(root, "interactions", "buttons"),
-				contexts: path.join(root, "interactions", "contexts"),
-				selects: path.join(root, "interactions", "selects"),
-				modals: path.join(root, "interactions", "modals"),
-				events: path.join(root, "interactions", "events"),
+				commands: path.join(root, PATH_ALIASES.interactions, "commands"),
+				buttons: path.join(root, PATH_ALIASES.components, "buttons"),
+				contexts: path.join(root, PATH_ALIASES.interactions, "contexts"),
+				selects: path.join(root, PATH_ALIASES.components, "selects"),
+				modals: path.join(root, PATH_ALIASES.components, "modals"),
+				events: path.join(root, PATH_ALIASES.events),
 			};
 
 			console.log(

@@ -1,6 +1,6 @@
+import subdemo from "@components/buttons/demo/subdemo";
 import { Command } from "@djs-core/runtime";
 import { ActionRowBuilder, type ButtonBuilder, MessageFlags } from "discord.js";
-import subdemo from "../../buttons/demo/subdemo";
 
 export default new Command()
 	.setDescription("Demo button command")

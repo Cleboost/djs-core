@@ -1,6 +1,6 @@
+import demo from "@components/selects/string/demo";
 import { Command } from "@djs-core/runtime";
 import { ActionRowBuilder, type StringSelectMenuBuilder } from "discord.js";
-import demo from "../../selects/string/demo";
 
 export default new Command()
 	.setDescription("A demo command that shows how to use a select menu")

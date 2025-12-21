@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@components/*": ["./src/components/*"],
+			"@interactions/*": ["./src/interactions/*"],
+			"@events/*": ["./src/events/*"]
+		}
+	},
+	"include": ["src/**/*"]
+}

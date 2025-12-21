@@ -30,6 +30,16 @@ export const banner = `
    ${pc.bold(pc.blue("djs-core"))} ${pc.dim(`v1.0.0`)}
 `;
 
+// Path constants matching TypeScript aliases in tsconfig.json
+// @components/* -> src/components/*
+// @interactions/* -> src/interactions/*
+// @events/* -> src/events/*
+export const PATH_ALIASES = {
+	components: "src/components",
+	interactions: "src/interactions",
+	events: "src/events",
+} as const;
+
 export async function runBot(projectPath: string) {
 	const root = resolve(process.cwd(), projectPath);
 	const configModule = await import(path.join(root, "djs.config.ts"));
@@ -62,7 +72,7 @@ export async function runBot(projectPath: string) {
 
 	commands.push(
 		...(await scanCommands(
-			path.join(root, "interactions", "commands"),
+			path.join(root, PATH_ALIASES.interactions, "commands"),
 			"",
 			fileRouteMap,
 		)),
@@ -71,7 +81,7 @@ export async function runBot(projectPath: string) {
 
 	buttons.push(
 		...(await scanButtons(
-			path.join(root, "interactions", "buttons"),
+			path.join(root, PATH_ALIASES.components, "buttons"),
 			"",
 			buttonFileRouteMap,
 		)),
@@ -80,7 +90,7 @@ export async function runBot(projectPath: string) {
 
 	Object.assign(
 		events,
-		await scanEvents(path.join(root, "interactions", "events"), eventFileIdMap),
+		await scanEvents(path.join(root, PATH_ALIASES.events), eventFileIdMap),
 	);
 	console.log(
 		`${pc.green("✓")}  Loaded ${pc.bold(Object.keys(events).length)} events`,
@@ -88,7 +98,7 @@ export async function runBot(projectPath: string) {
 
 	contextMenus.push(
 		...(await scanContextMenus(
-			path.join(root, "interactions", "contexts"),
+			path.join(root, PATH_ALIASES.interactions, "contexts"),
 			"",
 			contextMenuFileRouteMap,
 		)),
@@ -99,7 +109,7 @@ export async function runBot(projectPath: string) {
 
 	selectMenus.push(
 		...(await scanSelectMenus(
-			path.join(root, "interactions", "selects"),
+			path.join(root, PATH_ALIASES.components, "selects"),
 			"",
 			selectMenuFileRouteMap,
 		)),
@@ -110,7 +120,7 @@ export async function runBot(projectPath: string) {
 
 	modals.push(
 		...(await scanModals(
-			path.join(root, "interactions", "modals"),
+			path.join(root, PATH_ALIASES.components, "modals"),
 			"",
 			modalFileRouteMap,
 		)),
