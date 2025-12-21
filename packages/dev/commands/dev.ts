@@ -239,9 +239,9 @@ export function registerDevCommand(cli: CAC) {
 				const route = config.getRoute(absPath, config.dir);
 				if (!route) return;
 
-				// Debounce reloads to prevent multiple rapid reloads
-				if (reloadState.timeouts.has(absPath)) {
-					clearTimeout(reloadState.timeouts.get(absPath)!);
+				const existingTimeout = reloadState.timeouts.get(absPath);
+				if (existingTimeout) {
+					clearTimeout(existingTimeout);
 				}
 				if (reloadState.reloading.has(absPath)) {
 					return;
