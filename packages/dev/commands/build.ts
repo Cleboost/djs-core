@@ -206,10 +206,15 @@ ${sortedEvts.map((e) => `    ${JSON.stringify(e.id)}: ${e.varName},`).join("\n")
 
   client.eventsHandler.set(events);
 
-  client.once(Events.ClientReady, () => {
+  client.once(Events.ClientReady, async () => {
     client.commandsHandler.set(commands);
-    client.buttonsHandler.set(buttons);
     client.contextMenusHandler.set(contextMenus);
+    client.applicationCommandHandler.setCommands(commands);
+    client.applicationCommandHandler.setContextMenus(
+      client.contextMenusHandler.getContextMenus(),
+    );
+    await client.applicationCommandHandler.sync();
+    client.buttonsHandler.set(buttons);
     client.selectMenusHandler.set(selectMenus);
     console.log(\`✅ Bot online (\${client.user?.tag ?? "unknown"})\`);
   });

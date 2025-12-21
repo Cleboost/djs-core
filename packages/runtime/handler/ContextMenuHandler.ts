@@ -37,25 +37,15 @@ export default class ContextMenuHandler {
 		}
 	}
 
-	public async set(contextMenus: ContextMenu[]): Promise<void> {
-		this.assertReady();
+	public set(contextMenus: ContextMenu[]): void {
 		this.contextMenus.clear();
-
-		if (!this.client.application) {
-			throw new Error("Client application is not available");
-		}
-
-		if (this.guilds.length > 0) {
-			for (const guildId of this.guilds) {
-				await this.client.application.commands.set(contextMenus, guildId);
-			}
-		} else {
-			await this.client.application.commands.set(contextMenus);
-		}
-
 		for (const contextMenu of contextMenus) {
 			this.contextMenus.set(contextMenu.name, contextMenu);
 		}
+	}
+
+	public getContextMenus(): ContextMenu[] {
+		return Array.from(this.contextMenus.values());
 	}
 
 	public async delete(name: string): Promise<void> {

@@ -103,6 +103,13 @@ export function registerDevCommand(cli: CAC) {
 					}
 					console.log(`${pc.green("✨ Reloading route:")} ${pc.bold(route)}`);
 					await client.commandsHandler.add({ route, command });
+					client.applicationCommandHandler.setCommands(
+						client.commandsHandler.getRoutes(),
+					);
+					client.applicationCommandHandler.setContextMenus(
+						client.contextMenusHandler.getContextMenus(),
+					);
+					await client.applicationCommandHandler.sync();
 					fileRouteMap.set(absPath, route);
 				} catch (error) {
 					if (retries > 0) {
@@ -125,6 +132,13 @@ export function registerDevCommand(cli: CAC) {
 				if (!knownRoute) return;
 				console.log(`${pc.red("🗑️  Deleting route:")} ${pc.bold(knownRoute)}`);
 				await client.commandsHandler.delete(knownRoute);
+				client.applicationCommandHandler.setCommands(
+					client.commandsHandler.getRoutes(),
+				);
+				client.applicationCommandHandler.setContextMenus(
+					client.contextMenusHandler.getContextMenus(),
+				);
+				await client.applicationCommandHandler.sync();
 				fileRouteMap.delete(absPath);
 			}
 
@@ -288,6 +302,13 @@ export function registerDevCommand(cli: CAC) {
 					);
 					await client.contextMenusHandler.delete(route);
 					await client.contextMenusHandler.add(contextMenu);
+					client.applicationCommandHandler.setCommands(
+						client.commandsHandler.getRoutes(),
+					);
+					client.applicationCommandHandler.setContextMenus(
+						client.contextMenusHandler.getContextMenus(),
+					);
+					await client.applicationCommandHandler.sync();
 					contextMenuFileRouteMap.set(absPath, route);
 				} catch (error) {
 					if (retries > 0) {
@@ -312,6 +333,13 @@ export function registerDevCommand(cli: CAC) {
 					`${pc.red("🗑️  Deleting context menu:")} ${pc.bold(knownRoute)}`,
 				);
 				await client.contextMenusHandler.delete(knownRoute);
+				client.applicationCommandHandler.setCommands(
+					client.commandsHandler.getRoutes(),
+				);
+				client.applicationCommandHandler.setContextMenus(
+					client.contextMenusHandler.getContextMenus(),
+				);
+				await client.applicationCommandHandler.sync();
 				contextMenuFileRouteMap.delete(absPath);
 			}
 

@@ -40,30 +40,13 @@ export default class CommandHandler {
 		await this.upsertRootEverywhere(root);
 	}
 
-	public async set(router: Route[]): Promise<void> {
-		this.assertReady();
+	public set(router: Route[]): void {
 		this.router = router;
-
 		this.enforceNoExecutableRootWhenHasChildren();
+	}
 
-		const payload = this.compileAllRoots();
-
-		if (!this.client.application) {
-			throw new Error("Client application is not available");
-		}
-
-		if (this.guilds.length > 0) {
-			for (const guildId of this.guilds) {
-				const created = await this.client.application.commands.set(
-					payload,
-					guildId,
-				);
-				this.refreshCacheFromSetResult(created, guildId);
-			}
-		} else {
-			const created = await this.client.application.commands.set(payload);
-			this.refreshCacheFromSetResult(created, "global");
-		}
+	public getRoutes(): Route[] {
+		return this.router;
 	}
 
 	public async delete(routeKey: string): Promise<void> {

@@ -6,7 +6,7 @@ export default new Command()
 	.setDescription("A demo command that shows how to use a select menu")
 	.run(async (_client, interaction) => {
 		await interaction.reply({
-			content: "Hello, world!",
+			content: "Hello, worlld!",
 			components: [
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 					demo.addOptions([

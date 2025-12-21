@@ -17,6 +17,7 @@ import ButtonHandler from "./handler/ButtonHandler";
 import ContextMenuHandler from "./handler/ContextMenuHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import EventHandler from "./handler/EventHandler";
+import ApplicationCommandHandler from "./handler/ApplicationCommandHandler";
 import { cleanupExpiredTokens } from "./store/ButtonDataStore";
 
 export default class DjsClient extends Client {
@@ -25,6 +26,8 @@ export default class DjsClient extends Client {
 	public buttonsHandler: ButtonHandler = new ButtonHandler(this);
 	public contextMenusHandler: ContextMenuHandler = new ContextMenuHandler(this);
 	public selectMenusHandler: SelectMenuHandler = new SelectMenuHandler(this);
+	public applicationCommandHandler: ApplicationCommandHandler =
+		new ApplicationCommandHandler(this);
 
 	constructor({ servers }: { servers: string[] }) {
 		super({
@@ -38,6 +41,7 @@ export default class DjsClient extends Client {
 
 		this.commandsHandler.setGuilds(servers);
 		this.contextMenusHandler.setGuilds(servers);
+		this.applicationCommandHandler.setGuilds(servers);
 
 		this.once(Events.ClientReady, () => {
 			const deleted = cleanupExpiredTokens();

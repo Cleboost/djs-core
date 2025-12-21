@@ -110,10 +110,15 @@ export async function runBot(projectPath: string) {
 
 	console.log(pc.dim("Connecting to Discord..."));
 	client.login(config.token);
-	client.once(Events.ClientReady, () => {
+	client.once(Events.ClientReady, async () => {
 		client.commandsHandler.set(commands);
-		client.buttonsHandler.set(buttons);
 		client.contextMenusHandler.set(contextMenus);
+		client.applicationCommandHandler.setCommands(commands);
+		client.applicationCommandHandler.setContextMenus(
+			client.contextMenusHandler.getContextMenus(),
+		);
+		await client.applicationCommandHandler.sync();
+		client.buttonsHandler.set(buttons);
 		client.selectMenusHandler.set(selectMenus);
 		console.log(
 			pc.green("🚀 Bot is ready! ") +
