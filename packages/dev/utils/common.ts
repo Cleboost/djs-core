@@ -109,7 +109,25 @@ export async function runBot(projectPath: string) {
 	client.eventsHandler.set(events);
 
 	console.log(pc.dim("Connecting to Discord..."));
-	client.login(config.token);
+	client.login(config.token).catch((error) => {
+		console.error(
+			pc.red("✗") +
+				" " +
+				pc.bold("Failed to connect to Discord"),
+		);
+		console.error(
+			pc.dim("Error: ") + pc.red(error.message || String(error)),
+		);
+		if (error.message?.includes("token") || error.message?.includes("401")) {
+			console.error(
+				pc.yellow("\n💡 Tip: ") +
+					pc.dim(
+						"Vérifiez que votre token Discord est valide dans djs.config.ts",
+					),
+			);
+		}
+		process.exit(1);
+	});
 	client.once(Events.ClientReady, async () => {
 		client.commandsHandler.set(commands);
 		client.contextMenusHandler.set(contextMenus);
