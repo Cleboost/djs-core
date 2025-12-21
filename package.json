@@ -21,6 +21,7 @@
 		"lint:fix": "biome lint --write",
 		"check": "biome check",
 		"check:fix": "biome check --write",
-		"build": "bun run --filter @djs-core/runtime build && bun run --filter @djs-core/dev build"
+		"build": "bun run --filter @djs-core/runtime build && bun run --filter @djs-core/dev build",
+		"dev": "bun run --filter @djs-core/runtime dev & bun run --filter @djs-core/dev dev"
 	}
 }

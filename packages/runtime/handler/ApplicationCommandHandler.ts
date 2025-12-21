@@ -150,9 +150,10 @@ export default class ApplicationCommandHandler {
 			if (!cmd) {
 				throw new Error("Root command not found in subcommands");
 			}
-			const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
-			builder.setDescription(cmdWithDesc.description ?? "No description");
-			return builder.toJSON();
+			if (!cmd.name) {
+				cmd.setName(root);
+			}
+			return cmd.toJSON();
 		}
 
 		for (const [name, cmd] of subcommands) {
