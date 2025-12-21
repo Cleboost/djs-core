@@ -6,6 +6,7 @@ import {
 	DjsClient,
 	type EventLister,
 	type MentionableSelectMenu,
+	type Modal,
 	type RoleSelectMenu,
 	type Route,
 	type StringSelectMenu,
@@ -50,11 +51,13 @@ export async function runBot(projectPath: string) {
 	const buttons: Button[] = [];
 	const contextMenus: ContextMenu[] = [];
 	const selectMenus: SelectMenu[] = [];
+	const modals: Modal[] = [];
 	const events: Record<string, EventLister> = {};
 	const fileRouteMap = new Map<string, string>();
 	const buttonFileRouteMap = new Map<string, string>();
 	const contextMenuFileRouteMap = new Map<string, string>();
 	const selectMenuFileRouteMap = new Map<string, string>();
+	const modalFileRouteMap = new Map<string, string>();
 	const eventFileIdMap = new Map<string, string>();
 
 	commands.push(
@@ -105,6 +108,15 @@ export async function runBot(projectPath: string) {
 		`${pc.green("✓")}  Loaded ${pc.bold(selectMenus.length)} select menus`,
 	);
 
+	modals.push(
+		...(await scanModals(
+			path.join(root, "interactions", "modals"),
+			"",
+			modalFileRouteMap,
+		)),
+	);
+	console.log(`${pc.green("✓")}  Loaded ${pc.bold(modals.length)} modals`);
+
 	const client = new DjsClient({ servers: config.servers });
 
 	client.eventsHandler.set(events);
@@ -133,6 +145,7 @@ export async function runBot(projectPath: string) {
 		await client.applicationCommandHandler.sync();
 		client.buttonsHandler.set(buttons);
 		client.selectMenusHandler.set(selectMenus);
+		client.modalsHandler.set(modals);
 		console.log(
 			pc.green("🚀 Bot is ready! ") +
 				pc.dim(`Logged in as ${client.user?.tag}`),
@@ -147,6 +160,7 @@ export async function runBot(projectPath: string) {
 		buttonFileRouteMap,
 		contextMenuFileRouteMap,
 		selectMenuFileRouteMap,
+		modalFileRouteMap,
 		eventFileIdMap,
 	};
 }
@@ -375,4 +389,52 @@ async function scanSelectMenus(
 	}
 
 	return selectMenus;
+}
+
+async function scanModals(
+	dir: string,
+	prefix: string = "",
+	map?: Map<string, string>,
+): Promise<Modal[]> {
+	const modals: Modal[] = [];
+
+	try {
+		await fs.access(dir);
+	} catch {
+		return [];
+	}
+
+	const entries = await fs.readdir(dir, { withFileTypes: true });
+
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+
+		if (entry.isDirectory()) {
+			const newPrefix = prefix ? `${prefix}.${entry.name}` : entry.name;
+			modals.push(...(await scanModals(fullPath, newPrefix, map)));
+		} else if (entry.isFile() && entry.name.endsWith(".ts")) {
+			const mod = await import(fullPath);
+			const modal = mod.default as Modal | undefined;
+
+			if (!modal) continue;
+
+			const routeName = entry.name.replace(".ts", "");
+			let route = "";
+
+			if (routeName === "index") {
+				if (prefix) route = prefix;
+			} else {
+				route = prefix ? `${prefix}.${routeName}` : routeName;
+			}
+
+			if (!route) continue;
+
+			modal.setCustomId(route);
+
+			if (map) map.set(fullPath, route);
+			modals.push(modal);
+		}
+	}
+
+	return modals;
 }

@@ -53,6 +53,7 @@ export function registerDevCommand(cli: CAC) {
 				buttonFileRouteMap,
 				contextMenuFileRouteMap,
 				selectMenuFileRouteMap,
+				modalFileRouteMap,
 				eventFileIdMap,
 			} = await runBot(options.path);
 
@@ -61,6 +62,7 @@ export function registerDevCommand(cli: CAC) {
 				buttons: path.join(root, "interactions", "buttons"),
 				contexts: path.join(root, "interactions", "contexts"),
 				selects: path.join(root, "interactions", "selects"),
+				modals: path.join(root, "interactions", "modals"),
 				events: path.join(root, "interactions", "events"),
 			};
 
@@ -191,6 +193,20 @@ export function registerDevCommand(cli: CAC) {
 						client.selectMenusHandler.add(sm);
 					},
 					unload: async (route) => client.selectMenusHandler.delete(route),
+				},
+				{
+					label: "modal",
+					dir: dirs.modals,
+					map: modalFileRouteMap,
+					getRoute: getRouteStandard,
+					load: async (mod, route) => {
+						const modal = (mod as { default: import("@djs-core/runtime").Modal })
+							.default;
+						if (!modal) return;
+						if (!modal.baseCustomId) modal.setCustomId(route);
+						client.modalsHandler.add(modal);
+					},
+					unload: async (route) => client.modalsHandler.delete(route),
 				},
 				{
 					label: "event",

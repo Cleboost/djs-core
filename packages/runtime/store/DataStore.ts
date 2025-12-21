@@ -47,6 +47,15 @@ function getDatabase(): Database {
 	`);
 
 	db.run(`
+		CREATE TABLE IF NOT EXISTS modal_data (
+			token TEXT PRIMARY KEY,
+			data TEXT NOT NULL,
+			created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+			expires_at INTEGER NOT NULL
+		)
+	`);
+
+	db.run(`
 		CREATE INDEX IF NOT EXISTS idx_button_data_created_at ON button_data(created_at)
 	`);
 	db.run(`
@@ -57,6 +66,12 @@ function getDatabase(): Database {
 	`);
 	db.run(`
 		CREATE INDEX IF NOT EXISTS idx_select_menu_data_expires_at ON select_menu_data(expires_at)
+	`);
+	db.run(`
+		CREATE INDEX IF NOT EXISTS idx_modal_data_created_at ON modal_data(created_at)
+	`);
+	db.run(`
+		CREATE INDEX IF NOT EXISTS idx_modal_data_expires_at ON modal_data(expires_at)
 	`);
 
 	globalThis.__djsCoreDataStore = db;
@@ -155,6 +170,51 @@ export function deleteSelectMenuData(token: string): void {
 	db.prepare("DELETE FROM select_menu_data WHERE token = ?").run(token);
 }
 
+export function storeModalData(
+	token: string,
+	data: unknown,
+	ttlMinutes?: number,
+): void {
+	const db = dataStore;
+	const jsonData = JSON.stringify(data);
+	const now = Math.floor(Date.now() / 1000);
+
+	const ttl = ttlMinutes ?? 120;
+	const expiresAt = ttl === 0 ? 0 : now + ttl * 60;
+
+	db.prepare(
+		"INSERT OR REPLACE INTO modal_data (token, data, created_at, expires_at) VALUES (?, ?, ?, ?)",
+	).run(token, jsonData, now, expiresAt);
+}
+
+export function getModalData(token: string): unknown | undefined {
+	const db = dataStore;
+	const result = db
+		.prepare("SELECT data, expires_at FROM modal_data WHERE token = ?")
+		.get(token) as { data: string; expires_at: number } | undefined;
+
+	if (!result) {
+		return undefined;
+	}
+
+	const now = Math.floor(Date.now() / 1000);
+	if (result.expires_at > 0 && result.expires_at < now) {
+		deleteModalData(token);
+		return undefined;
+	}
+
+	try {
+		return JSON.parse(result.data);
+	} catch {
+		return undefined;
+	}
+}
+
+export function deleteModalData(token: string): void {
+	const db = dataStore;
+	db.prepare("DELETE FROM modal_data WHERE token = ?").run(token);
+}
+
 export function cleanupExpiredTokens(): number {
 	const db = dataStore;
 	const now = Math.floor(Date.now() / 1000);
@@ -166,5 +226,8 @@ export function cleanupExpiredTokens(): number {
 			"DELETE FROM select_menu_data WHERE expires_at > 0 AND expires_at < ?",
 		)
 		.run(now);
-	return buttonResult.changes + selectMenuResult.changes;
+	const modalResult = db
+		.prepare("DELETE FROM modal_data WHERE expires_at > 0 AND expires_at < ?")
+		.run(now);
+	return buttonResult.changes + selectMenuResult.changes + modalResult.changes;
 }

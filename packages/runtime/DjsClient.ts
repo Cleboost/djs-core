@@ -8,6 +8,7 @@ import {
 	IntentsBitField,
 	type Interaction,
 	type MentionableSelectMenuInteraction,
+	type ModalSubmitInteraction,
 	type RoleSelectMenuInteraction,
 	type StringSelectMenuInteraction,
 	type UserSelectMenuInteraction,
@@ -17,6 +18,7 @@ import ButtonHandler from "./handler/ButtonHandler";
 import CommandHandler from "./handler/CommandHandler";
 import ContextMenuHandler from "./handler/ContextMenuHandler";
 import EventHandler from "./handler/EventHandler";
+import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import { cleanupExpiredTokens } from "./store/DataStore";
 
@@ -26,6 +28,7 @@ export default class DjsClient extends Client {
 	public buttonsHandler: ButtonHandler = new ButtonHandler(this);
 	public contextMenusHandler: ContextMenuHandler = new ContextMenuHandler(this);
 	public selectMenusHandler: SelectMenuHandler = new SelectMenuHandler(this);
+	public modalsHandler: ModalHandler = new ModalHandler(this);
 	public applicationCommandHandler: ApplicationCommandHandler =
 		new ApplicationCommandHandler(this);
 
@@ -87,6 +90,11 @@ export default class DjsClient extends Client {
 						| RoleSelectMenuInteraction
 						| ChannelSelectMenuInteraction
 						| MentionableSelectMenuInteraction,
+				);
+			}
+			if (interaction.isModalSubmit()) {
+				this.modalsHandler.onModalSubmit(
+					interaction as ModalSubmitInteraction,
 				);
 			}
 		});
