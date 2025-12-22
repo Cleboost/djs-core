@@ -4,7 +4,7 @@ import {
 	type Command,
 	type ContextMenu,
 	DjsClient,
-	type EventLister,
+	type EventListner,
 	type MentionableSelectMenu,
 	type Modal,
 	type RoleSelectMenu,
@@ -62,7 +62,7 @@ export async function runBot(projectPath: string) {
 	const contextMenus: ContextMenu[] = [];
 	const selectMenus: SelectMenu[] = [];
 	const modals: Modal[] = [];
-	const events: Record<string, EventLister> = {};
+	const events: Record<string, EventListner> = {};
 	const fileRouteMap = new Map<string, string>();
 	const buttonFileRouteMap = new Map<string, string>();
 	const contextMenuFileRouteMap = new Map<string, string>();
@@ -270,8 +270,8 @@ async function scanCommands(
 async function scanEvents(
 	dir: string,
 	map?: Map<string, string>,
-): Promise<Record<string, EventLister>> {
-	const events: Record<string, EventLister> = {};
+): Promise<Record<string, EventListner>> {
+	const events: Record<string, EventListner> = {};
 
 	try {
 		await fs.access(dir);
@@ -286,7 +286,7 @@ async function scanEvents(
 
 		if (entry.isFile() && entry.name.endsWith(".ts")) {
 			const mod = await import(fullPath);
-			const event = mod.default as EventLister;
+			const event = mod.default as EventListner;
 
 			if (!event) continue;
 

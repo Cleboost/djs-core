@@ -7,7 +7,7 @@ import Button from "./interaction/Button";
 import ChannelSelectMenu from "./interaction/ChannelSelectMenu";
 import Command from "./interaction/Command";
 import ContextMenu from "./interaction/ContextMenu";
-import EventLister from "./interaction/EventLister";
+import EventListner from "./interaction/EventListner";
 import MentionableSelectMenu from "./interaction/MentionableSelectMenu";
 import Modal from "./interaction/Modal";
 import RoleSelectMenu from "./interaction/RoleSelectMenu";
@@ -23,7 +23,7 @@ export {
 	ContextMenuHandler,
 	DjsClient,
 	EventHandler,
-	EventLister,
+	EventListner,
 	MentionableSelectMenu,
 	Modal,
 	ModalHandler,
