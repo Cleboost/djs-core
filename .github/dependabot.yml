@@ -9,5 +9,6 @@ updates:
     directories: 
       - "/packages/**/*"
       - "/app/"
+      - "/docs/"
     schedule:
       interval: "daily"
