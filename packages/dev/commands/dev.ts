@@ -2,7 +2,7 @@ import type {
 	Button,
 	Command,
 	ContextMenu,
-	EventLister,
+	EventListner,
 } from "@djs-core/runtime";
 import {
 	ChannelSelectMenu,
@@ -222,7 +222,7 @@ export function registerDevCommand(cli: CAC) {
 					map: eventFileIdMap,
 					getRoute: (_, __) => getEventId(_),
 					load: async (mod, id) => {
-						const ev = (mod as { default: EventLister }).default;
+						const ev = (mod as { default: EventListner }).default;
 						if (ev) client.eventsHandler.add(id, ev);
 					},
 					unload: async (id) => {

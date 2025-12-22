@@ -1,22 +1,22 @@
 import type { Client, ClientEvents } from "discord.js";
-import type EventLister from "../interaction/EventLister";
+import type EventListner from "../interaction/EventListner";
 
-type ListenerInfo = {
-	listener: EventLister;
-	event: keyof ClientEvents;
-	fn: (...args: unknown[]) => void;
+type ListenerInfo<K extends keyof ClientEvents = keyof ClientEvents> = {
+	listener: EventListner<K>;
+	event: K;
+	fn: (...args: ClientEvents[K]) => void;
 };
 
 export default class EventHandler {
 	private readonly client: Client;
-	private listeners: Map<string, EventLister> = new Map();
+	private listeners: Map<string, EventListner> = new Map();
 	private listenerInfo: Map<string, ListenerInfo> = new Map();
 
 	constructor(client: Client) {
 		this.client = client;
 	}
 
-	public set(listeners: Record<string, EventLister>): void {
+	public set(listeners: Record<string, EventListner>): void {
 		for (const [_id, info] of this.listenerInfo.entries()) {
 			this.client.off(info.event, info.fn);
 		}
@@ -29,7 +29,7 @@ export default class EventHandler {
 		}
 	}
 
-	public add(id: string, listener: EventLister): void {
+	public add(id: string, listener: EventListner): void {
 		if (this.listeners.has(id)) {
 			throw new Error(
 				`A listener with id '${id}' already exists. Use remove() first or choose a different id.`,
@@ -50,21 +50,29 @@ export default class EventHandler {
 		return false;
 	}
 
-	private registerListener(id: string, listener: EventLister): void {
+	private registerListener(id: string, listener: EventListner): void {
 		const event = listener.getEvent();
 		const fn = listener.getListener();
 
 		if (!event || !fn) {
 			throw new Error(
-				`EventLister with id '${id}' must have both event and listener defined. Use .event() and .run() before adding.`,
+				`EventListner with id '${id}' must have both event and listener defined. Use .event() and .run() before adding.`,
 			);
 		}
 
+		const eventKey = event as keyof ClientEvents;
+		const wrappedFn = ((...args: unknown[]) => {
+			(fn as (client: Client, ...args: unknown[]) => void)(
+				this.client,
+				...args,
+			);
+		}) as (...args: ClientEvents[typeof eventKey]) => void;
+
 		this.listenerInfo.set(id, {
 			listener,
-			event,
-			fn: fn as (...args: unknown[]) => void,
-		});
-		this.client.on(event, fn as (...args: unknown[]) => void);
+			event: eventKey,
+			fn: wrappedFn,
+		} as ListenerInfo<typeof eventKey>);
+		this.client.on(eventKey, wrappedFn);
 	}
 }
