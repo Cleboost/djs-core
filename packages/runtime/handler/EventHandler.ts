@@ -62,7 +62,10 @@ export default class EventHandler {
 
 		const eventKey = event as keyof ClientEvents;
 		const wrappedFn = ((...args: unknown[]) => {
-			(fn as (client: Client, ...args: unknown[]) => void)(this.client, ...args);
+			(fn as (client: Client, ...args: unknown[]) => void)(
+				this.client,
+				...args,
+			);
 		}) as (...args: ClientEvents[typeof eventKey]) => void;
 
 		this.listenerInfo.set(id, {

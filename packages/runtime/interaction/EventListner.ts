@@ -14,7 +14,9 @@ export default class EventListner<
 		return newLister;
 	}
 
-	public run(listener: (client: Client, ...args: ClientEvents[K]) => void): this {
+	public run(
+		listener: (client: Client, ...args: ClientEvents[K]) => void,
+	): this {
 		this._listener = listener;
 		return this;
 	}
@@ -36,7 +38,9 @@ export default class EventListner<
 		return this._event;
 	}
 
-	public getListener(): ((client: Client, ...args: ClientEvents[K]) => void) | undefined {
+	public getListener():
+		| ((client: Client, ...args: ClientEvents[K]) => void)
+		| undefined {
 		return this._listener;
 	}
 }
