@@ -9,6 +9,6 @@ export default {
 	token: process.env.TOKEN,
 	servers: ["1333211545920077896"],
 	commands: {
-		defaultContext: [InteractionContextType.Guild]
-	}
+		defaultContext: [InteractionContextType.Guild],
+	},
 } satisfies Config;

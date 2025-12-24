@@ -228,8 +228,7 @@ export default class ApplicationCommandHandler {
 			if (targetJson.contexts && targetJson.contexts.length > 0) {
 				return;
 			}
-		} catch {
-		}
+		} catch {}
 
 		for (const r of routes) {
 			try {
@@ -238,9 +237,7 @@ export default class ApplicationCommandHandler {
 					target.setContexts(cmdJson.contexts);
 					return;
 				}
-			} catch {
-				continue;
-			}
+			} catch {}
 		}
 
 		target.setContexts(defaultContext);

@@ -14,6 +14,7 @@ import {
 	type StringSelectMenuInteraction,
 	type UserSelectMenuInteraction,
 } from "discord.js";
+import type { Config } from "../utils/types/config";
 import ApplicationCommandHandler from "./handler/ApplicationCommandHandler";
 import ButtonHandler from "./handler/ButtonHandler";
 import CommandHandler from "./handler/CommandHandler";
@@ -22,7 +23,6 @@ import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import { cleanupExpiredTokens } from "./store/DataStore";
-import type { Config } from "../utils/types/config";
 
 export default class DjsClient extends Client {
 	public eventsHandler: EventHandler = new EventHandler(this);
