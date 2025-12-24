@@ -1,25 +1,26 @@
 import type {
 	ApplicationCommand,
 	ApplicationCommandDataResolvable,
-	Client,
 	Collection,
 } from "discord.js";
 import {
 	SlashCommandBuilder,
 	type SlashCommandSubcommandBuilder,
 } from "discord.js";
+import type DjsClient from "../DjsClient";
 import type Command from "../interaction/Command";
 import type ContextMenu from "../interaction/ContextMenu";
 import type { Route } from "./CommandHandler";
 
 export default class ApplicationCommandHandler {
-	private readonly client: Client;
+	private readonly client: DjsClient;
 	private commands: Route[] = [];
 	private contextMenus: ContextMenu[] = [];
 	private guilds: string[] = [];
 	private rootIdCache = new Map<string, Map<string, string>>();
+	private hasWarnedEmptyContext = false;
 
-	constructor(client: Client) {
+	constructor(client: DjsClient) {
 		this.client = client;
 	}
 
@@ -156,7 +157,12 @@ export default class ApplicationCommandHandler {
 			if (!cmd.name) {
 				cmd.setName(root);
 			}
-			return cmd.toJSON();
+			this.applyDefaultContext(cmd, routes);
+			const json = cmd.toJSON();
+			if (json.contexts && json.contexts.length === 0) {
+				delete json.contexts;
+			}
+			return json;
 		}
 
 		for (const [name, cmd] of subcommands) {
@@ -191,7 +197,53 @@ export default class ApplicationCommandHandler {
 			});
 		}
 
-		return builder.toJSON();
+		this.applyDefaultContext(builder, routes);
+		const json = builder.toJSON();
+		if (json.contexts && json.contexts.length === 0) {
+			delete json.contexts;
+		}
+		return json;
+	}
+
+	private applyDefaultContext(
+		target: Command | SlashCommandBuilder,
+		routes: Array<{ parts: string[]; cmd: Command }>,
+	): void {
+		const defaultContext = this.client.getDjsConfig()?.commands?.defaultContext;
+		if (!defaultContext) {
+			return;
+		}
+		if (!Array.isArray(defaultContext) || defaultContext.length === 0) {
+			if (!this.hasWarnedEmptyContext) {
+				console.warn(
+					"⚠️  config.commands.defaultContext is defined but empty. Default context will not be applied.",
+				);
+				this.hasWarnedEmptyContext = true;
+			}
+			return;
+		}
+
+		try {
+			const targetJson = target.toJSON();
+			if (targetJson.contexts && targetJson.contexts.length > 0) {
+				return;
+			}
+		} catch {
+		}
+
+		for (const r of routes) {
+			try {
+				const cmdJson = r.cmd.toJSON();
+				if (cmdJson.contexts && cmdJson.contexts.length > 0) {
+					target.setContexts(cmdJson.contexts);
+					return;
+				}
+			} catch {
+				continue;
+			}
+		}
+
+		target.setContexts(defaultContext);
 	}
 
 	private getRootDescription(root: string): string | undefined {

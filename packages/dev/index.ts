@@ -5,7 +5,7 @@ import { registerBuildCommand } from "./commands/build";
 import { registerDevCommand } from "./commands/dev";
 import { registerStartCommand } from "./commands/start";
 
-const cli = cac("djs-core").version("1.0.0").help();
+const cli = cac("djs-core").version("2.0.0").help();
 
 registerStartCommand(cli);
 registerDevCommand(cli);

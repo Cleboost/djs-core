@@ -22,6 +22,7 @@ import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import { cleanupExpiredTokens } from "./store/DataStore";
+import type { Config } from "../utils/types/config";
 
 export default class DjsClient extends Client {
 	public eventsHandler: EventHandler = new EventHandler(this);
@@ -32,8 +33,9 @@ export default class DjsClient extends Client {
 	public modalsHandler: ModalHandler = new ModalHandler(this);
 	public applicationCommandHandler: ApplicationCommandHandler =
 		new ApplicationCommandHandler(this);
+	private readonly djsConfig: Config;
 
-	constructor({ servers }: { servers: string[] }) {
+	constructor({ djsConfig }: { djsConfig: Config }) {
 		super({
 			intents: [
 				IntentsBitField.Flags.Guilds,
@@ -42,10 +44,13 @@ export default class DjsClient extends Client {
 				IntentsBitField.Flags.GuildVoiceStates,
 			],
 		});
+		this.djsConfig = djsConfig;
 
-		this.commandsHandler.setGuilds(servers);
-		this.contextMenusHandler.setGuilds(servers);
-		this.applicationCommandHandler.setGuilds(servers);
+		if (djsConfig.servers && djsConfig.servers.length > 0) {
+			this.commandsHandler.setGuilds(djsConfig.servers);
+			this.contextMenusHandler.setGuilds(djsConfig.servers);
+			this.applicationCommandHandler.setGuilds(djsConfig.servers);
+		}
 
 		this.once(Events.ClientReady, () => {
 			const deleted = cleanupExpiredTokens();
@@ -102,5 +107,9 @@ export default class DjsClient extends Client {
 				this.modalsHandler.onModalSubmit(interaction as ModalSubmitInteraction);
 			}
 		});
+	}
+
+	public getDjsConfig(): Config {
+		return this.djsConfig;
 	}
 }

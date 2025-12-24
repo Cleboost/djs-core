@@ -30,10 +30,6 @@ export const banner = `
    ${pc.bold(pc.blue("djs-core"))} ${pc.dim(`v1.0.0`)}
 `;
 
-// Path constants matching TypeScript aliases in tsconfig.json
-// @components/* -> src/components/*
-// @interactions/* -> src/interactions/*
-// @events/* -> src/events/*
 export const PATH_ALIASES = {
 	components: "src/components",
 	interactions: "src/interactions",
@@ -127,7 +123,7 @@ export async function runBot(projectPath: string) {
 	);
 	console.log(`${pc.green("✓")}  Loaded ${pc.bold(modals.length)} modals`);
 
-	const client = new DjsClient({ servers: config.servers });
+	const client = new DjsClient({ djsConfig: config });
 
 	client.eventsHandler.set(events);
 
@@ -228,7 +224,6 @@ async function scanCommands(
 ): Promise<Route[]> {
 	const routes: Route[] = [];
 
-	// Create dir if not exists to avoid error
 	try {
 		await fs.access(dir);
 	} catch {
