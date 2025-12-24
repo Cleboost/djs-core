@@ -7,4 +7,7 @@ if (!process.env.TOKEN) {
 export default {
 	token: process.env.TOKEN,
 	servers: ["1333211545920077896"],
+	experimental: {
+		cron: true,
+	},
 } satisfies Config;

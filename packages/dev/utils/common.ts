@@ -10,6 +10,7 @@ import {
 	type RoleSelectMenu,
 	type Route,
 	type StringSelectMenu,
+	type Task,
 	type UserSelectMenu,
 } from "@djs-core/runtime";
 
@@ -63,12 +64,14 @@ export async function runBot(projectPath: string) {
 	const selectMenus: SelectMenu[] = [];
 	const modals: Modal[] = [];
 	const events: Record<string, EventListner> = {};
+	const tasks = new Map<string, Task>();
 	const fileRouteMap = new Map<string, string>();
 	const buttonFileRouteMap = new Map<string, string>();
 	const contextMenuFileRouteMap = new Map<string, string>();
 	const selectMenuFileRouteMap = new Map<string, string>();
 	const modalFileRouteMap = new Map<string, string>();
 	const eventFileIdMap = new Map<string, string>();
+	const cronFileIdMap = new Map<string, string>();
 
 	commands.push(
 		...(await scanCommands(
@@ -127,6 +130,17 @@ export async function runBot(projectPath: string) {
 	);
 	console.log(`${pc.green("✓")}  Loaded ${pc.bold(modals.length)} modals`);
 
+	if (config.experimental?.cron) {
+		const cronTasks = await scanCron(
+			path.join(root, "src", "cron"),
+			cronFileIdMap,
+		);
+		for (const [id, task] of cronTasks.entries()) {
+			tasks.set(id, task);
+		}
+		console.log(`${pc.green("✓")}  Loaded ${pc.bold(tasks.size)} cron tasks`);
+	}
+
 	const client = new DjsClient({ servers: config.servers });
 
 	client.eventsHandler.set(events);
@@ -156,6 +170,9 @@ export async function runBot(projectPath: string) {
 		client.buttonsHandler.set(buttons);
 		client.selectMenusHandler.set(selectMenus);
 		client.modalsHandler.set(modals);
+		if (config.experimental?.cron && tasks.size > 0) {
+			client.cronHandler.set(tasks);
+		}
 		console.log(
 			pc.green("🚀 Bot is ready! ") +
 				pc.dim(`Logged in as ${client.user?.tag}`),
@@ -172,6 +189,7 @@ export async function runBot(projectPath: string) {
 		selectMenuFileRouteMap,
 		modalFileRouteMap,
 		eventFileIdMap,
+		cronFileIdMap,
 	};
 }
 
@@ -447,4 +465,37 @@ async function scanModals(
 	}
 
 	return modals;
+}
+
+async function scanCron(
+	dir: string,
+	map?: Map<string, string>,
+): Promise<Map<string, Task>> {
+	const tasks = new Map<string, Task>();
+
+	try {
+		await fs.access(dir);
+	} catch {
+		return tasks;
+	}
+
+	const entries = await fs.readdir(dir, { withFileTypes: true });
+
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name);
+
+		if (entry.isFile() && entry.name.endsWith(".ts")) {
+			const mod = await import(fullPath);
+			const task = mod.default as Task | undefined;
+
+			if (!task) continue;
+
+			const taskId = entry.name.replace(".ts", "");
+
+			if (map) map.set(fullPath, taskId);
+			tasks.set(taskId, task);
+		}
+	}
+
+	return tasks;
 }

@@ -3,6 +3,7 @@ import type {
 	Command,
 	ContextMenu,
 	EventListner,
+	Task,
 } from "@djs-core/runtime";
 import {
 	ChannelSelectMenu,
@@ -49,12 +50,14 @@ export function registerDevCommand(cli: CAC) {
 			const {
 				client,
 				root,
+				config,
 				fileRouteMap,
 				buttonFileRouteMap,
 				contextMenuFileRouteMap,
 				selectMenuFileRouteMap,
 				modalFileRouteMap,
 				eventFileIdMap,
+				cronFileIdMap,
 			} = await runBot(options.path);
 
 			const dirs = {
@@ -64,11 +67,13 @@ export function registerDevCommand(cli: CAC) {
 				selects: path.join(root, PATH_ALIASES.components, "selects"),
 				modals: path.join(root, PATH_ALIASES.components, "modals"),
 				events: path.join(root, PATH_ALIASES.events),
+				cron: config.experimental?.cron ? path.join(root, "src", "cron") : null,
 			};
 
 			console.log(
 				pc.dim(
 					`\nWatching for changes in:\n${Object.values(dirs)
+						.filter((d) => d !== null)
 						.map((d) => ` - ${d}`)
 						.join("\n")}\n`,
 				),
@@ -89,6 +94,10 @@ export function registerDevCommand(cli: CAC) {
 			}
 
 			function getEventId(absPath: string): string | null {
+				return absPath.endsWith(".ts") ? path.basename(absPath, ".ts") : null;
+			}
+
+			function getCronId(absPath: string): string | null {
 				return absPath.endsWith(".ts") ? path.basename(absPath, ".ts") : null;
 			}
 
@@ -231,6 +240,22 @@ export function registerDevCommand(cli: CAC) {
 				},
 			];
 
+			if (config.experimental?.cron && dirs.cron) {
+				handlers.push({
+					label: "cron task",
+					dir: dirs.cron,
+					map: cronFileIdMap,
+					getRoute: (_, __) => getCronId(_),
+					load: async (mod, id) => {
+						const task = (mod as { default: Task }).default;
+						if (task) client.cronHandler.add(id, task);
+					},
+					unload: async (id) => {
+						client.cronHandler.remove(id);
+					},
+				});
+			}
+
 			async function handleReload(
 				absPath: string,
 				config: HandlerConfig,
@@ -336,13 +361,16 @@ export function registerDevCommand(cli: CAC) {
 				}
 			}
 
-			const watcher = chokidar.watch(Object.values(dirs), {
-				ignoreInitial: true,
-				ignored: /(^|[/\\])\../,
-				usePolling: true,
-				interval: 300,
-				binaryInterval: 300,
-			});
+			const watcher = chokidar.watch(
+				Object.values(dirs).filter((d) => d !== null) as string[],
+				{
+					ignoreInitial: true,
+					ignored: /(^|[/\\])\../,
+					usePolling: true,
+					interval: 300,
+					binaryInterval: 300,
+				},
+			);
 
 			const processFile = async (
 				event: "add" | "change" | "unlink",

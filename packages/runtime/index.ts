@@ -1,6 +1,7 @@
 import DjsClient from "./DjsClient";
 import CommandHandler, { type Route } from "./handler/CommandHandler";
 import ContextMenuHandler from "./handler/ContextMenuHandler";
+import CronHandler from "./handler/CronHandler";
 import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import Button from "./interaction/Button";
@@ -13,6 +14,7 @@ import Modal from "./interaction/Modal";
 import RoleSelectMenu from "./interaction/RoleSelectMenu";
 import StringSelectMenu from "./interaction/StringSelectMenu";
 import UserSelectMenu from "./interaction/UserSelectMenu";
+import Task from "./Task";
 
 export {
 	Button,
@@ -21,6 +23,7 @@ export {
 	CommandHandler,
 	ContextMenu,
 	ContextMenuHandler,
+	CronHandler,
 	DjsClient,
 	EventHandler,
 	EventListner,
@@ -31,4 +34,5 @@ export {
 	StringSelectMenu,
 	UserSelectMenu,
 	type Route,
+	Task,
 };

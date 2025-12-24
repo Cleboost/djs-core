@@ -11,6 +11,9 @@
 		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check",
 		"prepack": "bun run build"
 	},
+	"dependencies": {
+		"cron": "^4.4.0"
+	},
 	"devDependencies": {
 		"typescript": "^5",
 		"@types/bun": "latest",
