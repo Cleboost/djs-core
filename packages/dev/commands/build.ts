@@ -222,7 +222,7 @@ ${sortedCrons.map((c) => `    [${JSON.stringify(c.id)}, ${c.varName}],`).join("\
 		: ""
 }
 
-  const client = new DjsClient({ servers: config.servers });
+  const client = new DjsClient({ djsConfig: config });
 
   client.eventsHandler.set(events);
 
