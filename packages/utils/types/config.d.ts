@@ -6,4 +6,7 @@ export interface Config {
 	commands?: {
 		defaultContext?: InteractionContextType[];
 	};
+	experimental?: {
+		cron?: boolean;
+	};
 }

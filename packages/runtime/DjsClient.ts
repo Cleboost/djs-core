@@ -19,6 +19,7 @@ import ApplicationCommandHandler from "./handler/ApplicationCommandHandler";
 import ButtonHandler from "./handler/ButtonHandler";
 import CommandHandler from "./handler/CommandHandler";
 import ContextMenuHandler from "./handler/ContextMenuHandler";
+import CronHandler from "./handler/CronHandler";
 import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
@@ -33,6 +34,7 @@ export default class DjsClient extends Client {
 	public modalsHandler: ModalHandler = new ModalHandler(this);
 	public applicationCommandHandler: ApplicationCommandHandler =
 		new ApplicationCommandHandler(this);
+	public cronHandler: CronHandler = new CronHandler(this);
 	private readonly djsConfig: Config;
 
 	constructor({ djsConfig }: { djsConfig: Config }) {

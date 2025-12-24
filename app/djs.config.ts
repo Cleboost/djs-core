@@ -11,4 +11,7 @@ export default {
 	commands: {
 		defaultContext: [InteractionContextType.Guild],
 	},
+	experimental: {
+		cron: true,
+	},
 } satisfies Config;
