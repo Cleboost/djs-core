@@ -3,7 +3,7 @@ import type { CAC } from "cac";
 import fs from "fs/promises";
 import path from "path";
 import pc from "picocolors";
-import { banner } from "../utils/common";
+import { banner, PATH_ALIASES } from "../utils/common";
 
 declare const Bun: typeof import("bun");
 
@@ -255,11 +255,19 @@ export function registerBuildCommand(cli: CAC) {
 			const genDir = path.join(botRoot, ".djscore");
 			const entryPath = path.join(genDir, "index.ts");
 
-			const commandsDir = path.join(botRoot, "interactions", "commands");
-			const buttonsDir = path.join(botRoot, "interactions", "buttons");
-			const contextsDir = path.join(botRoot, "interactions", "contexts");
-			const selectsDir = path.join(botRoot, "interactions", "selects");
-			const eventsDir = path.join(botRoot, "interactions", "events");
+			const commandsDir = path.join(
+				botRoot,
+				PATH_ALIASES.interactions,
+				"commands",
+			);
+			const buttonsDir = path.join(botRoot, PATH_ALIASES.components, "buttons");
+			const contextsDir = path.join(
+				botRoot,
+				PATH_ALIASES.interactions,
+				"contexts",
+			);
+			const selectsDir = path.join(botRoot, PATH_ALIASES.components, "selects");
+			const eventsDir = path.join(botRoot, PATH_ALIASES.events);
 
 			console.log(`${pc.cyan("ℹ")}  Project: ${pc.bold(botRoot)}`);
 			console.log(`${pc.cyan("ℹ")}  Generating: ${pc.bold(entryPath)}\n`);
@@ -358,9 +366,16 @@ export function registerBuildCommand(cli: CAC) {
 			const sizeDisplay =
 				stats.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
 
+			const totalSourceFiles =
+				commandFiles.length +
+				buttonFiles.length +
+				contextFiles.length +
+				selectFiles.length +
+				eventFiles.length;
+
 			console.log(
 				pc.green("✓") +
-					`  Build success (${outputs.length} file${outputs.length === 1 ? "" : "s"}, ${sizeDisplay})`,
+					`  Build success (${totalSourceFiles} file${totalSourceFiles === 1 ? "" : "s"} → ${outputs.length} output${outputs.length === 1 ? "" : "s"}, ${sizeDisplay})`,
 			);
 			for (const p of outputs) console.log(pc.dim(`  - ${p}`));
 
