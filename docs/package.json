@@ -1,12 +1,12 @@
 {
-  "name": "Djs-Core",
-  "scripts": {
-    "dev": "nuxt dev --extends docus",
-    "build": "nuxt build --extends docus"
-  },
-  "dependencies": {
-    "docus": "^5.4.1",
-    "better-sqlite3": "^12.2.0",
-    "nuxt": "^4.1.2"
-  }
+	"name": "Djs-Core",
+	"scripts": {
+		"dev": "nuxt dev --extends docus",
+		"build": "nuxt build --extends docus"
+	},
+	"dependencies": {
+		"docus": "^5.4.1",
+		"better-sqlite3": "^12.2.0",
+		"nuxt": "^4.1.2"
+	}
 }
