@@ -1,0 +1,12 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "name": "mydb"
+  },
+  "features": {
+    "premium": true,
+    "maxUsers": 100
+  },
+  "apiKeys": ["key1", "key2"]
+}

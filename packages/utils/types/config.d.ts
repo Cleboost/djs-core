@@ -8,5 +8,6 @@ export interface Config {
 	};
 	experimental?: {
 		cron?: boolean;
+		userConfig?: boolean;
 	};
 }

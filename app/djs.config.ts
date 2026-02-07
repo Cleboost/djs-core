@@ -13,5 +13,6 @@ export default {
 	},
 	experimental: {
 		cron: true,
+		userConfig: true,
 	},
 } satisfies Config;
