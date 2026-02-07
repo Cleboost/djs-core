@@ -137,7 +137,23 @@ export async function runBot(projectPath: string) {
 		console.log(`${pc.green("✓")}  Loaded ${pc.bold(tasks.size)} cron tasks`);
 	}
 
-	const client = new DjsClient({ djsConfig: config });
+	let userConfig: unknown = undefined;
+	if (config.experimental?.userConfig) {
+		try {
+			const configJsonPath = path.join(root, "config.json");
+			const configJsonContent = await fs.readFile(configJsonPath, "utf-8");
+			userConfig = JSON.parse(configJsonContent);
+			console.log(`${pc.green("✓")}  User config loaded`);
+		} catch (error) {
+			console.warn(
+				pc.yellow(
+					"⚠️  userConfig is enabled but config.json not found or invalid",
+				),
+			);
+		}
+	}
+
+	const client = new DjsClient({ djsConfig: config, userConfig });
 
 	client.eventsHandler.set(events);
 
