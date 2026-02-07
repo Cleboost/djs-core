@@ -394,9 +394,10 @@ export function registerDevCommand(cli: CAC) {
 				.on("unlink", (p) => processFile("unlink", p));
 
 			// Watch config.json for changes if userConfig is enabled
+			let configWatcher: chokidar.FSWatcher | null = null;
 			if (config.experimental?.userConfig) {
 				const configJsonPath = path.join(root, "config.json");
-				const configWatcher = chokidar.watch(configJsonPath, {
+				configWatcher = chokidar.watch(configJsonPath, {
 					ignoreInitial: true,
 				});
 
@@ -413,15 +414,14 @@ export function registerDevCommand(cli: CAC) {
 					);
 					await autoGenerateConfigTypes(root);
 				});
-
-				process.on("SIGINT", async () => {
-					await configWatcher.close();
-				});
 			}
 
 			process.on("SIGINT", async () => {
 				console.log(pc.dim("\nShutting down..."));
 				await watcher.close();
+				if (configWatcher) {
+					await configWatcher.close();
+				}
 				await client.destroy();
 				process.exit(0);
 			});

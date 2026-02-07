@@ -121,7 +121,17 @@ export async function autoGenerateConfigTypes(
 		return true;
 	} catch (error: unknown) {
 		if (!silent) {
-			console.warn(pc.yellow("⚠️  Error generating config types:"), error);
+			console.warn(
+				pc.yellow(
+					`⚠️  Error generating config types from ${configJsonPath}`,
+				),
+			);
+			console.warn(
+				pc.dim("   Possible causes: invalid JSON syntax, file permissions"),
+			);
+			if (error instanceof Error) {
+				console.warn(pc.dim(`   ${error.message}`));
+			}
 		}
 		return false;
 	}
