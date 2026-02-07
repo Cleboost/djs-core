@@ -224,6 +224,10 @@ ${sortedCrons.map((c) => `    [${JSON.stringify(c.id)}, ${c.varName}],`).join("\
 		: ""
 }
 
+  // Load user config if enabled. The type assertion is safe because:
+  // 1. The config.json is parsed and validated at build time
+  // 2. The UserConfig type is auto-generated from config.json structure
+  // 3. Any runtime mismatch will be caught during bot initialization
 ${opts.hasUserConfigEnabled ? "  const client = new DjsClient<UserConfig>({ djsConfig: config, userConfig: userConfigData as UserConfig });" : "  const client = new DjsClient({ djsConfig: config });"}
 
   client.eventsHandler.set(events);

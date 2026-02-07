@@ -90,6 +90,7 @@ export default new EventListner<UserConfig>()
 - Re-run `generate-config-types` whenever you update your `config.json`
 - The `client.conf` property is typed as `UserConfig` when using the generic type parameter
 - If `userConfig` is not enabled, `client.conf` will be `undefined`
+- Empty arrays in config.json are typed as `unknown[]` - add at least one element for better type inference
 
 ## Example Use Cases
 

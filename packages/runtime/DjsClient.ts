@@ -36,7 +36,7 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 		new ApplicationCommandHandler(this);
 	public cronHandler: CronHandler = new CronHandler(this);
 	private readonly djsConfig: Config;
-	public readonly conf: UserConfig;
+	public readonly conf?: UserConfig;
 
 	constructor({ djsConfig, userConfig }: { djsConfig: Config; userConfig?: UserConfig }) {
 		super({
