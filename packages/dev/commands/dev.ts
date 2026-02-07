@@ -17,6 +17,7 @@ import chokidar from "chokidar";
 import path from "path";
 import pc from "picocolors";
 import { banner, PATH_ALIASES, runBot } from "../utils/common";
+import { autoGenerateConfigTypes } from "../utils/config-type-generator";
 
 type SelectMenu =
 	| StringSelectMenu
@@ -391,6 +392,32 @@ export function registerDevCommand(cli: CAC) {
 				.on("add", (p) => processFile("add", p))
 				.on("change", (p) => processFile("change", p))
 				.on("unlink", (p) => processFile("unlink", p));
+
+			// Watch config.json for changes if userConfig is enabled
+			if (config.experimental?.userConfig) {
+				const configJsonPath = path.join(root, "config.json");
+				const configWatcher = chokidar.watch(configJsonPath, {
+					ignoreInitial: true,
+				});
+
+				configWatcher.on("change", async () => {
+					console.log(
+						`${pc.cyan("ℹ")}  config.json changed, regenerating types...`,
+					);
+					await autoGenerateConfigTypes(root);
+				});
+
+				configWatcher.on("add", async () => {
+					console.log(
+						`${pc.green("✓")}  config.json created, generating types...`,
+					);
+					await autoGenerateConfigTypes(root);
+				});
+
+				process.on("SIGINT", async () => {
+					await configWatcher.close();
+				});
+			}
 
 			process.on("SIGINT", async () => {
 				console.log(pc.dim("\nShutting down..."));

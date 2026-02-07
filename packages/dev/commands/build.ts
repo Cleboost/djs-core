@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import pc from "picocolors";
 import { banner, PATH_ALIASES } from "../utils/common";
+import { autoGenerateConfigTypes } from "../utils/config-type-generator";
 
 declare const Bun: typeof import("bun");
 
@@ -315,6 +316,11 @@ export function registerBuildCommand(cli: CAC) {
 			};
 			const hasCronEnabled = config.experimental?.cron === true;
 			const hasUserConfigEnabled = config.experimental?.userConfig === true;
+
+			// Auto-generate config types if userConfig is enabled
+			if (hasUserConfigEnabled) {
+				await autoGenerateConfigTypes(botRoot, true);
+			}
 
 			const code = buildGeneratedEntry({
 				genDir,

@@ -26,6 +26,7 @@ import fs from "fs/promises";
 import path, { resolve } from "path";
 import pc from "picocolors";
 import type { Config } from "../../utils/types/config";
+import { autoGenerateConfigTypes } from "./config-type-generator";
 
 export const banner = `
    ${pc.bold(pc.blue("djs-core"))} ${pc.dim(`v1.0.0`)}
@@ -53,6 +54,11 @@ export async function runBot(projectPath: string) {
 	}
 
 	console.log(`${pc.green("✓")}  Config loaded`);
+
+	// Auto-generate config types if userConfig is enabled
+	if (config.experimental?.userConfig) {
+		await autoGenerateConfigTypes(root);
+	}
 
 	const commands: Route[] = [];
 	const buttons: Button[] = [];

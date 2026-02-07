@@ -39,17 +39,17 @@ Create a `config.json` file in your project root with your custom configuration:
 }
 ```
 
-### 3. Generate TypeScript Types
+### 3. Types Auto-Generated
 
-Run the CLI command to generate TypeScript types from your `config.json`:
+When you run `dev`, `build`, or `start`, the TypeScript types are **automatically generated** from your `config.json`:
 
 ```bash
-bun djs-core generate-config-types
-# or with a custom path
-bun djs-core generate-config-types -p ./path/to/your/bot
+bun djs-core dev    # Types auto-generated
+bun djs-core build  # Types auto-generated
+bun djs-core start  # Types auto-generated
 ```
 
-This will create a `config.types.ts` file with the inferred TypeScript types:
+A `config.types.ts` file will be created automatically:
 
 ```typescript
 // Auto-generated from config.json. Do not edit manually.
@@ -62,6 +62,8 @@ interface UserConfig {
 
 export type { UserConfig };
 ```
+
+**In dev mode**, types are regenerated automatically when you modify `config.json`.
 
 ### 4. Use the Config in Your Code
 
@@ -83,11 +85,22 @@ export default new EventListner<UserConfig>()
   });
 ```
 
+## Manual Type Generation (Optional)
+
+If you need to generate types manually (e.g., for IDE refresh), you can use:
+
+```bash
+bun djs-core generate-config-types
+```
+
+This is optional since types are auto-generated when running dev/build/start.
+
 ## Notes
 
 - The `config.json` file is loaded at runtime
 - The `config.types.ts` file is auto-generated and should not be edited manually
-- Re-run `generate-config-types` whenever you update your `config.json`
+- Types are **automatically regenerated** when you run `dev`, `build`, or `start`
+- In **dev mode**, types regenerate when you modify `config.json`
 - The `client.conf` property is typed as `UserConfig` when using the generic type parameter
 - If `userConfig` is not enabled, `client.conf` will be `undefined`
 - Empty arrays in config.json are typed as `unknown[]` - add at least one element for better type inference
