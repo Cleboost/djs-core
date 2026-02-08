@@ -26,6 +26,7 @@ import fs from "fs/promises";
 import path, { resolve } from "path";
 import pc from "picocolors";
 import type { Config } from "../../utils/types/config";
+import { autoGenerateConfigTypes } from "./config-type-generator";
 
 export const banner = `
    ${pc.bold(pc.blue("djs-core"))} ${pc.dim(`v1.0.0`)}
@@ -53,6 +54,11 @@ export async function runBot(projectPath: string) {
 	}
 
 	console.log(`${pc.green("✓")}  Config loaded`);
+
+	// Auto-generate config types if userConfig is enabled
+	if (config.experimental?.userConfig) {
+		await autoGenerateConfigTypes(root);
+	}
 
 	const commands: Route[] = [];
 	const buttons: Button[] = [];
@@ -137,7 +143,23 @@ export async function runBot(projectPath: string) {
 		console.log(`${pc.green("✓")}  Loaded ${pc.bold(tasks.size)} cron tasks`);
 	}
 
-	const client = new DjsClient({ djsConfig: config });
+	let userConfig: unknown;
+	if (config.experimental?.userConfig) {
+		try {
+			const configJsonPath = path.join(root, "config.json");
+			const configJsonContent = await fs.readFile(configJsonPath, "utf-8");
+			userConfig = JSON.parse(configJsonContent);
+			console.log(`${pc.green("✓")}  User config loaded`);
+		} catch (_error) {
+			console.warn(
+				pc.yellow(
+					"⚠️  userConfig is enabled but config.json not found or invalid",
+				),
+			);
+		}
+	}
+
+	const client = new DjsClient({ djsConfig: config, userConfig });
 
 	client.eventsHandler.set(events);
 

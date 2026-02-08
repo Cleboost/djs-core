@@ -25,7 +25,7 @@ import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import { cleanupExpiredTokens } from "./store/DataStore";
 
-export default class DjsClient extends Client {
+export default class DjsClient<UserConfig = unknown> extends Client {
 	public eventsHandler: EventHandler = new EventHandler(this);
 	public commandsHandler: CommandHandler = new CommandHandler(this);
 	public buttonsHandler: ButtonHandler = new ButtonHandler(this);
@@ -36,8 +36,12 @@ export default class DjsClient extends Client {
 		new ApplicationCommandHandler(this);
 	public cronHandler: CronHandler = new CronHandler(this);
 	private readonly djsConfig: Config;
+	public readonly config?: UserConfig;
 
-	constructor({ djsConfig }: { djsConfig: Config }) {
+	constructor({
+		djsConfig,
+		userConfig,
+	}: { djsConfig: Config; userConfig?: UserConfig }) {
 		super({
 			intents: [
 				IntentsBitField.Flags.Guilds,
@@ -47,6 +51,7 @@ export default class DjsClient extends Client {
 			],
 		});
 		this.djsConfig = djsConfig;
+		this.config = userConfig as UserConfig;
 
 		if (djsConfig.servers && djsConfig.servers.length > 0) {
 			this.commandsHandler.setGuilds(djsConfig.servers);

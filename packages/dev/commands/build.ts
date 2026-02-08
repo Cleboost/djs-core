@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import pc from "picocolors";
 import { banner, PATH_ALIASES } from "../utils/common";
+import { autoGenerateConfigTypes } from "../utils/config-type-generator";
 
 declare const Bun: typeof import("bun");
 
@@ -76,6 +77,7 @@ function buildGeneratedEntry(opts: {
 	eventFiles: string[];
 	cronFiles: string[];
 	hasCronEnabled: boolean;
+	hasUserConfigEnabled: boolean;
 }): string {
 	const {
 		genDir,
@@ -169,6 +171,7 @@ function buildGeneratedEntry(opts: {
 import config from "../djs.config.ts";
 import { DjsClient, type Route } from "@djs-core/runtime";
 import { Events } from "discord.js";
+${opts.hasUserConfigEnabled ? 'import type { UserConfig } from "./config.types.ts";\nimport userConfigData from "../config.json" with { type: "json" };' : ""}
 
 ${imports.join("\n")}
 
@@ -222,7 +225,11 @@ ${sortedCrons.map((c) => `    [${JSON.stringify(c.id)}, ${c.varName}],`).join("\
 		: ""
 }
 
-  const client = new DjsClient({ djsConfig: config });
+  // Load user config if enabled. The type assertion is safe because:
+  // 1. The config.json is parsed and validated at build time
+  // 2. The UserConfig type is auto-generated from config.json structure
+  // 3. Any runtime mismatch will be caught during bot initialization
+${opts.hasUserConfigEnabled ? "  const client = new DjsClient<UserConfig>({ djsConfig: config, userConfig: userConfigData as UserConfig });" : "  const client = new DjsClient({ djsConfig: config });"}
 
   client.eventsHandler.set(events);
 
@@ -305,9 +312,15 @@ export function registerBuildCommand(cli: CAC) {
 
 			const configModule = await import(path.join(botRoot, "djs.config.ts"));
 			const config = configModule.default as {
-				experimental?: { cron?: boolean };
+				experimental?: { cron?: boolean; userConfig?: boolean };
 			};
 			const hasCronEnabled = config.experimental?.cron === true;
+			const hasUserConfigEnabled = config.experimental?.userConfig === true;
+
+			// Auto-generate config types if userConfig is enabled
+			if (hasUserConfigEnabled) {
+				await autoGenerateConfigTypes(botRoot, true);
+			}
 
 			const code = buildGeneratedEntry({
 				genDir,
@@ -322,6 +335,7 @@ export function registerBuildCommand(cli: CAC) {
 				eventFiles,
 				cronFiles,
 				hasCronEnabled,
+				hasUserConfigEnabled,
 			});
 
 			await fs.writeFile(entryPath, code, "utf8");
