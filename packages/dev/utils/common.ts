@@ -150,7 +150,7 @@ export async function runBot(projectPath: string) {
 			const configJsonContent = await fs.readFile(configJsonPath, "utf-8");
 			userConfig = JSON.parse(configJsonContent);
 			console.log(`${pc.green("✓")}  User config loaded`);
-		} catch (error) {
+		} catch (_error) {
 			console.warn(
 				pc.yellow(
 					"⚠️  userConfig is enabled but config.json not found or invalid",
