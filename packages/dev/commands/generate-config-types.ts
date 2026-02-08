@@ -15,9 +15,10 @@ export function registerGenerateConfigTypesCommand(cli: CAC) {
 
 			const projectRoot = path.resolve(process.cwd(), options.path);
 			const configJsonPath = path.join(projectRoot, "config.json");
-			const outputPath = path.join(projectRoot, "config.types.ts");
+			const outputPath = path.join(projectRoot, ".djscore", "config.types.ts");
 
 			try {
+				await fs.mkdir(path.dirname(outputPath), { recursive: true });
 				await fs.access(configJsonPath);
 			} catch {
 				console.error(

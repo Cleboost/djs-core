@@ -171,7 +171,7 @@ function buildGeneratedEntry(opts: {
 import config from "../djs.config.ts";
 import { DjsClient, type Route } from "@djs-core/runtime";
 import { Events } from "discord.js";
-${opts.hasUserConfigEnabled ? 'import type { UserConfig } from "../config.types.ts";\nimport userConfigData from "../config.json" with { type: "json" };' : ""}
+${opts.hasUserConfigEnabled ? 'import type { UserConfig } from "./config.types.ts";\nimport userConfigData from "../config.json" with { type: "json" };' : ""}
 
 ${imports.join("\n")}
 

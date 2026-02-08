@@ -88,6 +88,66 @@ export type { UserConfig };
 	await fs.writeFile(outputPath, fileContent, "utf-8");
 }
 
+const DISCORD_D_TS_CONTENT = `import type { UserConfig } from "./config.types";
+
+declare module "discord.js" {
+	interface Client {
+		config?: UserConfig;
+	}
+}
+`;
+
+const TSCONFIG_INCLUDE_ENTRY = ".djscore/**/*.d.ts";
+
+/**
+ * Creates .djscore/discord.d.ts and ensures tsconfig.json include contains the .djscore types entry.
+ */
+export async function ensureDiscordAugmentation(
+	projectRoot: string,
+	silent = false,
+): Promise<void> {
+	const djscoreDir = path.join(projectRoot, ".djscore");
+	const discordDtsPath = path.join(djscoreDir, "discord.d.ts");
+	const tsconfigPath = path.join(projectRoot, "tsconfig.json");
+
+	try {
+		await fs.mkdir(djscoreDir, { recursive: true });
+		await fs.writeFile(discordDtsPath, DISCORD_D_TS_CONTENT.trimStart(), "utf-8");
+	} catch (error: unknown) {
+		if (!silent) {
+			console.warn(
+				pc.yellow("⚠️  Could not write .djscore/discord.d.ts"),
+				error instanceof Error ? error.message : error,
+			);
+		}
+		return;
+	}
+
+	try {
+		const raw = await fs.readFile(tsconfigPath, "utf-8");
+		const tsconfig = JSON.parse(raw) as { include?: string[] };
+		const include = tsconfig.include;
+		if (!Array.isArray(include)) {
+			return;
+		}
+		if (include.includes(TSCONFIG_INCLUDE_ENTRY)) {
+			return;
+		}
+		include.push(TSCONFIG_INCLUDE_ENTRY);
+		tsconfig.include = include;
+		await fs.writeFile(
+			tsconfigPath,
+			JSON.stringify(tsconfig, null, 2),
+			"utf-8",
+		);
+		if (!silent) {
+			console.log(pc.green("✓  tsconfig.json include updated for .djscore types"));
+		}
+	} catch {
+		// tsconfig not found or invalid: skip, no need to warn every time
+	}
+}
+
 /**
  * Auto-generate config types if userConfig is enabled and config.json exists
  * This is called automatically by dev/build/start commands
@@ -97,7 +157,7 @@ export async function autoGenerateConfigTypes(
 	silent = false,
 ): Promise<boolean> {
 	const configJsonPath = path.join(projectRoot, "config.json");
-	const outputPath = path.join(projectRoot, "config.types.ts");
+	const outputPath = path.join(projectRoot, ".djscore", "config.types.ts");
 
 	try {
 		await fs.access(configJsonPath);
@@ -114,7 +174,9 @@ export async function autoGenerateConfigTypes(
 	}
 
 	try {
+		await fs.mkdir(path.dirname(outputPath), { recursive: true });
 		await generateTypesFromJson(configJsonPath, outputPath);
+		await ensureDiscordAugmentation(projectRoot, silent);
 		if (!silent) {
 			console.log(pc.green("✓  Config types auto-generated"));
 		}

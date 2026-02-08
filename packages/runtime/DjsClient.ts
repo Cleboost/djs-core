@@ -36,7 +36,7 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 		new ApplicationCommandHandler(this);
 	public cronHandler: CronHandler = new CronHandler(this);
 	private readonly djsConfig: Config;
-	public readonly conf?: UserConfig;
+	public readonly config?: UserConfig;
 
 	constructor({ djsConfig, userConfig }: { djsConfig: Config; userConfig?: UserConfig }) {
 		super({
@@ -48,7 +48,7 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 			],
 		});
 		this.djsConfig = djsConfig;
-		this.conf = userConfig as UserConfig;
+		this.config = userConfig as UserConfig;
 
 		if (djsConfig.servers && djsConfig.servers.length > 0) {
 			this.commandsHandler.setGuilds(djsConfig.servers);
