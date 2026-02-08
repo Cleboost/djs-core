@@ -112,7 +112,11 @@ export async function ensureDiscordAugmentation(
 
 	try {
 		await fs.mkdir(djscoreDir, { recursive: true });
-		await fs.writeFile(discordDtsPath, DISCORD_D_TS_CONTENT.trimStart(), "utf-8");
+		await fs.writeFile(
+			discordDtsPath,
+			DISCORD_D_TS_CONTENT.trimStart(),
+			"utf-8",
+		);
 	} catch (error: unknown) {
 		if (!silent) {
 			console.warn(
@@ -141,7 +145,9 @@ export async function ensureDiscordAugmentation(
 			"utf-8",
 		);
 		if (!silent) {
-			console.log(pc.green("✓  tsconfig.json include updated for .djscore types"));
+			console.log(
+				pc.green("✓  tsconfig.json include updated for .djscore types"),
+			);
 		}
 	} catch {
 		// tsconfig not found or invalid: skip, no need to warn every time
@@ -184,9 +190,7 @@ export async function autoGenerateConfigTypes(
 	} catch (error: unknown) {
 		if (!silent) {
 			console.warn(
-				pc.yellow(
-					`⚠️  Error generating config types from ${configJsonPath}`,
-				),
+				pc.yellow(`⚠️  Error generating config types from ${configJsonPath}`),
 			);
 			console.warn(
 				pc.dim("   Possible causes: invalid JSON syntax, file permissions"),

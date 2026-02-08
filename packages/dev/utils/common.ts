@@ -143,7 +143,7 @@ export async function runBot(projectPath: string) {
 		console.log(`${pc.green("✓")}  Loaded ${pc.bold(tasks.size)} cron tasks`);
 	}
 
-	let userConfig: unknown = undefined;
+	let userConfig: unknown;
 	if (config.experimental?.userConfig) {
 		try {
 			const configJsonPath = path.join(root, "config.json");

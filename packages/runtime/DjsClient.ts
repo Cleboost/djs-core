@@ -38,7 +38,10 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 	private readonly djsConfig: Config;
 	public readonly config?: UserConfig;
 
-	constructor({ djsConfig, userConfig }: { djsConfig: Config; userConfig?: UserConfig }) {
+	constructor({
+		djsConfig,
+		userConfig,
+	}: { djsConfig: Config; userConfig?: UserConfig }) {
 		super({
 			intents: [
 				IntentsBitField.Flags.Guilds,

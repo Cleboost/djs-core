@@ -7,7 +7,10 @@ import { generateTypesFromJson } from "../utils/config-type-generator";
 
 export function registerGenerateConfigTypesCommand(cli: CAC) {
 	cli
-		.command("generate-config-types", "Generate TypeScript types from config.json")
+		.command(
+			"generate-config-types",
+			"Generate TypeScript types from config.json",
+		)
 		.option("-p, --path <path>", "Custom project path", { default: "." })
 		.action(async (options: { path: string }) => {
 			console.log(banner);
