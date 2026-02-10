@@ -102,7 +102,7 @@ const TSCONFIG_INCLUDE_ENTRY = ".djscore/**/*.d.ts";
 /**
  * Creates .djscore/discord.d.ts and ensures tsconfig.json include contains the .djscore types entry.
  */
-export async function ensureDiscordAugmentation(
+async function ensureDiscordAugmentation(
 	projectRoot: string,
 	silent = false,
 ): Promise<void> {
