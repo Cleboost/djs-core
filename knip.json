@@ -7,10 +7,8 @@
 	"tags": ["-lintignore"],
 	"workspaces": {
 		".": {
-			"ignore": ["app/**", ".github/workflows/**", "packages/utils/**"]
+			"ignore": ["app/**", ".github/workflows/**", "packages/utils/**", "docs/**"]
 		},
-		"app": {
-			"ignoreDependencies": ["@djs-core/runtime", "discord.js"]
-		}
+		"app": {}
 	}
 }
