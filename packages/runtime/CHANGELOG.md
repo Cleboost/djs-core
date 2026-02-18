@@ -1,5 +1,11 @@
 # @djs-core/runtime
 
+## 1.5.0
+
+### Minor Changes
+
+- 97b702a: Add support of client.config (managed by djs-core)
+
 ## 1.4.0
 
 ### Minor Changes
