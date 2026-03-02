@@ -15,7 +15,7 @@
 	},
 	"dependencies": {
 		"@clack/prompts": "^1.0.0",
-		"cac": "^6.7.14",
+		"cac": "^7.0.0",
 		"chokidar": "^5.0.0",
 		"picocolors": "^1.1.1"
 	},
