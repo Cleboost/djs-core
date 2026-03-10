@@ -7,7 +7,7 @@
 		"packages/dev": {
 			"entry": "index.ts"
 		},
-		"packages/plugin-demo": {
+		"plugins/plugin-demo": {
 			"entry": "index.ts"
 		},
 		"app": {

@@ -50,37 +50,6 @@
         "discord.js": "^14.25.1",
       },
     },
-    "packages/plugin-demo": {
-      "name": "@djs-core/plugin-demo",
-      "version": "1.0.0",
-      "dependencies": {
-        "@djs-core/runtime": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "latest",
-        "dts-bundle-generator": "^9.5.1",
-        "typescript": "^5",
-      },
-      "peerDependencies": {
-        "discord.js": "^14.25.1",
-      },
-    },
-    "packages/plugin-sql": {
-      "name": "@djs-core/plugin-sql",
-      "version": "1.0.0",
-      "dependencies": {
-        "@djs-core/runtime": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "latest",
-        "dts-bundle-generator": "^9.5.1",
-        "typescript": "^5",
-      },
-      "peerDependencies": {
-        "@djs-core/runtime": "workspace:*",
-        "discord.js": "^14.25.1",
-      },
-    },
     "packages/runtime": {
       "name": "@djs-core/runtime",
       "version": "1.6.1",
@@ -92,6 +61,37 @@
         "@types/bun": "latest",
         "dts-bundle-generator": "^9.4.0",
         "typescript": "^5",
+      },
+    },
+    "plugins/plugin-demo": {
+      "name": "@djs-core/plugin-demo",
+      "version": "0.0.0",
+      "dependencies": {
+        "@djs-core/runtime": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "dts-bundle-generator": "^9.5.1",
+        "typescript": "^5",
+      },
+      "peerDependencies": {
+        "discord.js": "^14.25.1",
+      },
+    },
+    "plugins/plugin-sql": {
+      "name": "@djs-core/plugin-sql",
+      "version": "0.0.0",
+      "dependencies": {
+        "@djs-core/runtime": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "dts-bundle-generator": "^9.5.1",
+        "typescript": "^5",
+      },
+      "peerDependencies": {
+        "@djs-core/runtime": "workspace:*",
+        "discord.js": "^14.25.1",
       },
     },
   },
@@ -168,9 +168,9 @@
 
     "@djs-core/dev": ["@djs-core/dev@workspace:packages/dev"],
 
-    "@djs-core/plugin-demo": ["@djs-core/plugin-demo@workspace:packages/plugin-demo"],
+    "@djs-core/plugin-demo": ["@djs-core/plugin-demo@workspace:plugins/plugin-demo"],
 
-    "@djs-core/plugin-sql": ["@djs-core/plugin-sql@workspace:packages/plugin-sql"],
+    "@djs-core/plugin-sql": ["@djs-core/plugin-sql@workspace:plugins/plugin-sql"],
 
     "@djs-core/runtime": ["@djs-core/runtime@workspace:packages/runtime"],
 
