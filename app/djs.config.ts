@@ -23,7 +23,7 @@ const config = defineConfig({
 			message: "yoyo",
 		},
 		sql: {
-			path: ":memory:",
+			path: "todos.db",
 		},
 	},
 });
