@@ -24,6 +24,6 @@
     "types": "turbo types --filter=./packages/* --filter=./plugins/*",
     "changeset": "changeset",
     "ci:version": "changeset version && bun update",
-    "ci:publish": "for dir in packages/* plugins/*; do (cd \"$dir\" && [ -d \"$dir\" ] && [ -f package.json ] && bun publish || true); done && changeset tag"
+    "ci:publish": "for dir in packages/* plugins/*; do [ -d \"$dir\" ] && [ -f \"$dir/package.json\" ] && (cd \"$dir\" && bun publish || true); done && changeset tag"
   }
 }
