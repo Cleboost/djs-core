@@ -97,7 +97,59 @@ declare module "discord.js" {
 }
 `;
 
+const PLUGIN_D_TS_CONTENT = `import UserConfig from "../djs.config";
+import type { DjsPlugin } from "@djs-core/runtime";
+
+type TupleToUnion<T> = T extends Array<infer U> ? U : never;
+type UnionToIntersection<U> = (U extends any ? (k: U)=>void : never) extends ((k: infer I)=>void) ? I : never;
+
+type ExtractExtensions<P> = UnionToIntersection<
+	P extends DjsPlugin<infer N, any, infer R>
+		? { [K in N]: R }
+		: never
+>;
+
+declare module "discord.js" {
+	interface Client extends ExtractExtensions<TupleToUnion<(typeof UserConfig)["plugins"]>> {}
+}
+`;
+
 const TSCONFIG_INCLUDE_ENTRY = ".djscore/**/*.d.ts";
+
+/**
+ * Creates .djscore/plugins.d.ts to augment discord.js Client with plugins.
+ */
+async function ensurePluginAugmentation(
+	projectRoot: string,
+	silent = false,
+): Promise<void> {
+	const djscoreDir = path.join(projectRoot, ".djscore");
+	const pluginDtsPath = path.join(djscoreDir, "plugins.d.ts");
+	const djsConfigPath = path.join(projectRoot, "djs.config.ts");
+
+	try {
+		await fs.access(djsConfigPath);
+	} catch {
+		// djs.config.ts doesn't exist, skip
+		return;
+	}
+
+	try {
+		await fs.mkdir(djscoreDir, { recursive: true });
+		await fs.writeFile(
+			pluginDtsPath,
+			PLUGIN_D_TS_CONTENT.trimStart(),
+			"utf-8",
+		);
+	} catch (error: unknown) {
+		if (!silent) {
+			console.warn(
+				pc.yellow("⚠️  Could not write .djscore/plugins.d.ts"),
+				error instanceof Error ? error.message : error,
+			);
+		}
+	}
+}
 
 /**
  * Creates .djscore/discord.d.ts and ensures tsconfig.json include contains the .djscore types entry.
@@ -183,6 +235,7 @@ export async function autoGenerateConfigTypes(
 		await fs.mkdir(path.dirname(outputPath), { recursive: true });
 		await generateTypesFromJson(configJsonPath, outputPath);
 		await ensureDiscordAugmentation(projectRoot, silent);
+		await ensurePluginAugmentation(projectRoot, silent);
 		if (!silent) {
 			console.log(pc.green("✓  Config types auto-generated"));
 		}
