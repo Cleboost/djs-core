@@ -1,0 +1,35 @@
+import { Database } from "bun:sqlite";
+import { definePlugin } from "@djs-core/runtime";
+
+export interface SqlConfig {
+	/** Path to the SQLite database file. Use ":memory:" for in-memory DB. */
+	path: string;
+}
+
+export const sqlPlugin = definePlugin({
+	name: "sql",
+	setup: (_client, config: SqlConfig) => {
+		const db = new Database(config.path);
+
+		return {
+			/**
+			 * Execute a raw SQL query.
+			 */
+			execute: (query: string, params: any[] = []) => {
+				return db.query(query).all(...params);
+			},
+			/**
+			 * Execute a SQL statement and return no results.
+			 */
+			run: (query: string, params: any[] = []) => {
+				return db.run(query, ...params);
+			},
+			/**
+			 * Close the database connection.
+			 */
+			close: () => {
+				db.close();
+			},
+		};
+	},
+});

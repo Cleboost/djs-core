@@ -5,8 +5,8 @@ import type { Client, InteractionContextType } from "discord.js";
  */
 export interface DjsPlugin<
 	Name extends string = string,
-	Config = unknown,
-	Extension = unknown,
+	Config = any,
+	Extension = any,
 > {
 	name: Name;
 	setup: (client: Client, config: Config) => Extension | Promise<Extension>;
@@ -41,20 +41,18 @@ interface CoreConfig {
 	};
 }
 
-type ExtractPluginConfig<P> =
-	P extends DjsPlugin<string, infer C, unknown> ? C : never;
+type ExtractPluginConfig<P> = P extends DjsPlugin<string, infer C, any>
+	? C
+	: never;
 
-export type PluginsConfigMap<P extends DjsPlugin<string, unknown, unknown>[]> =
-	{
-		[K in P[number] as K["name"]]?: ExtractPluginConfig<K>;
-	};
+export type PluginsConfigMap<P extends DjsPlugin<string, any, any>[]> = {
+	[K in P[number] as K["name"]]?: ExtractPluginConfig<K>;
+};
 
 /**
  * Helper to define djs-core configuration with plugin type inference.
  */
-export function defineConfig<
-	const P extends DjsPlugin<string, unknown, unknown>[],
->(
+export function defineConfig<const P extends DjsPlugin<string, any, any>[]>(
 	config: CoreConfig & {
 		plugins?: P;
 		pluginsConfig?: PluginsConfigMap<P>;

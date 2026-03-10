@@ -11,6 +11,6 @@ export interface Config {
 		cron?: boolean;
 		userConfig?: boolean;
 	};
-	plugins?: DjsPlugin<string, unknown, unknown>[];
-	pluginsConfig?: Record<string, unknown>;
+	plugins?: DjsPlugin<string, any, any>[];
+	pluginsConfig?: Record<string, any>;
 }

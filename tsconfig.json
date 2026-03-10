@@ -30,7 +30,8 @@
 		"paths": {
 			"@djs-core/runtime": ["./packages/runtime/index.ts"],
 			"@djs-core/dev": ["./packages/dev/index.ts"],
-			"@djs-core/plugin-demo": ["./packages/plugin-demo/index.ts"]
+			"@djs-core/plugin-demo": ["./packages/plugin-demo/index.ts"],
+			"@djs-core/plugin-sql": ["./packages/plugin-sql/index.ts"]
 		}
 	}
 }
