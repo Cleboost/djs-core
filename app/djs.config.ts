@@ -1,11 +1,12 @@
-import type { Config } from "@djs-core/dev";
+import { defineConfig } from "@djs-core/runtime";
 import { InteractionContextType } from "discord.js";
+import { demoPlugin } from "@djs-core/plugin-demo";
 
 if (!process.env.TOKEN) {
 	throw new Error("TOKEN environment variable is required");
 }
 
-export default {
+const config = defineConfig({
 	token: process.env.TOKEN,
 	servers: ["1333211545920077896"],
 	commands: {
@@ -15,4 +16,13 @@ export default {
 		cron: true,
 		userConfig: true,
 	},
-} satisfies Config;
+	plugins: [demoPlugin],
+	pluginsConfig: {
+    demo: {
+      message: "yoyo",
+		}
+	},
+});
+
+export default config;
+export type AppConfig = typeof config;

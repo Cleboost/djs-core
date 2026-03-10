@@ -10,6 +10,7 @@
 	},
 	"dependencies": {
 		"@djs-core/runtime": "workspace:*",
+		"@djs-core/plugin-demo": "workspace:*",
 		"discord.js": "^14.25.1"
 	},
 	"devDependencies": {
