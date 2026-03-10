@@ -115,6 +115,7 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 			try {
 				const config = this.djsConfig.pluginsConfig?.[plugin.name] ?? {};
 				const extension = await plugin.setup(this, config);
+				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin injection
 				(this as any)[plugin.name] = extension;
 
 				if (plugin.onReady) {
