@@ -13,6 +13,7 @@
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"noEmit": true,
+		"baseUrl": ".",
 
 		// Best practices
 		"strict": true,
@@ -24,6 +25,12 @@
 		// Some stricter flags (disabled by default)
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
-		"noPropertyAccessFromIndexSignature": false
+		"noPropertyAccessFromIndexSignature": false,
+
+		"paths": {
+			"@djs-core/runtime": ["./packages/runtime/index.ts"],
+			"@djs-core/dev": ["./packages/dev/index.ts"],
+			"@djs-core/plugin-demo": ["./packages/plugin-demo/index.ts"]
+		}
 	}
 }
