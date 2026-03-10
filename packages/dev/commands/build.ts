@@ -410,7 +410,9 @@ export function registerBuildCommand(cli: CAC) {
 						`  Build success: ${pc.bold(exeName)} (${sizeMB} MB)`,
 				);
 				console.log(pc.dim(`  - ${outputPath}`));
-				console.log(pc.dim(`\nTip: run your bot with: ./${options.outdir}/${exeName}\n`));
+				console.log(
+					pc.dim(`\nTip: run your bot with: ./${options.outdir}/${exeName}\n`),
+				);
 				process.exit(0);
 			}
 
