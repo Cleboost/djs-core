@@ -23,18 +23,13 @@ jobs:
         with:
           fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
       - run: bun i 
-      - run: bun run build
-
-      - name: Create Release Pull Request or Publish to npm
-        uses: changesets/action@v1
+      - uses: changesets/action@v1
         with:
           version: bun ci:version
           publish: bun ci:publish
