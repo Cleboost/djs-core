@@ -7,5 +7,5 @@
 	"access": "restricted",
 	"baseBranch": "master",
 	"updateInternalDependencies": "patch",
-	"ignore": ["app","@djs-core/plugin-demo"]
+	"ignore": ["app", "@djs-core/plugin-demo"]
 }
