@@ -411,7 +411,7 @@ export function registerBuildCommand(cli: CAC) {
 				);
 				console.log(pc.dim(`  - ${outputPath}`));
 				console.log(pc.dim(`\nTip: run your bot with: ./${options.outdir}/${exeName}\n`));
-				return;
+				process.exit(0);
 			}
 
 			const botPackageJsonPath = path.join(botRoot, "package.json");
@@ -536,5 +536,7 @@ CMD ["bun", "index.js"]
 					),
 				);
 			}
+
+			process.exit(0);
 		});
 }
