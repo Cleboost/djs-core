@@ -1,0 +1,25 @@
+{
+	"name": "@djs-core/plugin-demo",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --minify",
+		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check",
+		"prepack": "bun run build && bun run types"
+	},
+	"dependencies": {
+		"@djs-core/runtime": "workspace:*"
+	},
+	"devDependencies": {
+		"typescript": "^5",
+		"dts-bundle-generator": "^9.5.1"
+	},
+	"peerDependencies": {
+		"discord.js": "^14.25.1"
+	},
+	"files": [
+		"dist"
+	]
+}
