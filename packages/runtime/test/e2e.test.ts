@@ -16,13 +16,15 @@ describe("E2E Integration (Ready to Prod)", () => {
 		DjsClient.prototype.login = mock(() => Promise.resolve("mock-token"));
 		DjsClient.prototype.isReady = () => true;
 
-		const { ApplicationCommandManager } = await import("discord.js");
-		ApplicationCommandManager.prototype.set = mock(() =>
-			Promise.resolve(new Map()),
-		);
-
 		const projectPath = resolve(process.cwd(), "app");
 		bot = (await runBot(projectPath)) as any;
+
+		// Mock user to prevent crash in ready event
+		bot.client.user = {
+			id: "1234567890",
+			tag: "MockBot#0000",
+			setActivity: mock(() => ({})),
+		};
 
 		bot.client.emit(Events.ClientReady, bot.client);
 		await new Promise((resolve) => setTimeout(resolve, 100));

@@ -4,7 +4,7 @@ export default class EventListener<
 	K extends keyof ClientEvents = keyof ClientEvents,
 > {
 	private _event?: K;
-	private _listener?: (client: Client, ...args: ClientEvents[K]) => void;
+	private _listener?: (client: Client<true>, ...args: ClientEvents[K]) => void;
 
 	public event<EventKey extends keyof ClientEvents>(
 		event: EventKey,
@@ -15,7 +15,7 @@ export default class EventListener<
 	}
 
 	public run(
-		listener: (client: Client, ...args: ClientEvents[K]) => void,
+		listener: (client: Client<true>, ...args: ClientEvents[K]) => void,
 	): this {
 		this._listener = listener;
 		return this;
@@ -30,7 +30,7 @@ export default class EventListener<
 		const listener = this._listener;
 		const event = this._event;
 		client.on(event, (...args: ClientEvents[K]) => {
-			listener(client, ...args);
+			listener(client as Client<true>, ...args);
 		});
 	}
 
@@ -39,7 +39,7 @@ export default class EventListener<
 	}
 
 	public getListener():
-		| ((client: Client, ...args: ClientEvents[K]) => void)
+		| ((client: Client<true>, ...args: ClientEvents[K]) => void)
 		| undefined {
 		return this._listener;
 	}
