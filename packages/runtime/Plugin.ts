@@ -5,7 +5,9 @@ import type { Client, InteractionContextType } from "discord.js";
  */
 export interface DjsPlugin<
 	Name extends string = string,
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin config
 	Config = any,
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin extension
 	Extension = any,
 > {
 	name: Name;
@@ -41,10 +43,11 @@ interface CoreConfig {
 	};
 }
 
-type ExtractPluginConfig<P> = P extends DjsPlugin<string, infer C, any>
-	? C
-	: never;
+type ExtractPluginConfig<P> =
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin inference
+	P extends DjsPlugin<string, infer C, any> ? C : never;
 
+// biome-ignore lint/suspicious/noExplicitAny: generic plugin map
 export type PluginsConfigMap<P extends DjsPlugin<string, any, any>[]> = {
 	[K in P[number] as K["name"]]?: ExtractPluginConfig<K>;
 };
@@ -52,6 +55,7 @@ export type PluginsConfigMap<P extends DjsPlugin<string, any, any>[]> = {
 /**
  * Helper to define djs-core configuration with plugin type inference.
  */
+// biome-ignore lint/suspicious/noExplicitAny: generic plugin inference
 export function defineConfig<const P extends DjsPlugin<string, any, any>[]>(
 	config: CoreConfig & {
 		plugins?: P;

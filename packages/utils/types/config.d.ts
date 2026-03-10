@@ -11,6 +11,8 @@ export interface Config {
 		cron?: boolean;
 		userConfig?: boolean;
 	};
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
 	plugins?: DjsPlugin<string, any, any>[];
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin config
 	pluginsConfig?: Record<string, any>;
 }

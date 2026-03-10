@@ -15,12 +15,14 @@ export const sqlPlugin = definePlugin({
 			/**
 			 * Execute a raw SQL query.
 			 */
+			// biome-ignore lint/suspicious/noExplicitAny: raw SQL params
 			execute: (query: string, params: any[] = []) => {
 				return db.query(query).all(...params);
 			},
 			/**
 			 * Execute a SQL statement and return no results.
 			 */
+			// biome-ignore lint/suspicious/noExplicitAny: raw SQL params
 			run: (query: string, params: any[] = []) => {
 				return db.run(query, ...params);
 			},

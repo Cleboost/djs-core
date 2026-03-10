@@ -126,7 +126,9 @@ export default class Command extends SlashCommandBuilder {
 	override addSubcommand(
 		input:
 			| SlashCommandSubcommandBuilder
-			| ((subcommand: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder),
+			| ((
+					subcommand: SlashCommandSubcommandBuilder,
+			  ) => SlashCommandSubcommandBuilder),
 	): this {
 		super.addSubcommand(input);
 		return this;
