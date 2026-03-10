@@ -1,0 +1,20 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"workspaces": {
+		".": {
+			"entry": ["packages/runtime/index.ts", "packages/dev/index.ts"],
+			"project": ["packages/**/*.ts"],
+			"ignore": [
+				"app/**",
+				".github/workflows/**",
+				"packages/utils/**",
+				"docs/**",
+				"packages/runtime/test/**"
+			]
+		},
+		"app": {
+			"entry": ["djs.config.ts"],
+			"project": ["**/*.ts"]
+		}
+	}
+}

@@ -1,0 +1,12 @@
+# Node & Bun artifacts
+node_modules/
+dist/
+.djs-core/
+
+# Environment variables
+.env
+
+# Dev
+*.dev
+*.db
+.djscore

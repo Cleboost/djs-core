@@ -1,0 +1,52 @@
+name: CI
+permissions:
+  contents: read
+
+on:
+  push:
+
+jobs:
+  build:
+    concurrency:
+      group: build-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun i
+      - run: bun run build
+  test:
+    concurrency:
+      group: test-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun i
+      - run: bun test
+  knip:
+    concurrency:
+      group: knip-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun i
+      - run: bun knip
+  biome:
+    concurrency:
+      group: check-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun i
+      - run: bun check
