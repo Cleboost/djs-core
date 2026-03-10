@@ -1,5 +1,33 @@
 # @djs-core/dev
 
+## 5.1.0
+
+### Minor Changes
+
+- 6240da1: feat: add support for native binary compilation using `bun build --compile`.
+  Includes a new `--compile` (or `-c`) flag and an interactive menu option with a size warning.
+- b5594d9: Introduce a major new plugin system for djs-core.
+  - Modular architecture to extend the native client functions.
+  - Fully typed configuration in `djs.config.ts`.
+  - Automatic type augmentation for perfect DX (autocompletion on `client.pluginName`).
+  - Support for life-cycle hooks like `onReady`.
+
+### Patch Changes
+
+- c7d6460: - **plugin-sql**: Initial release of the SQL plugin using Bun SQLite.
+  - **runtime**:
+    - Improve `Command` class type support for fluent API with subcommands and groups.
+    - Ensure plugins are fully initialized before bot startup to prevent race conditions.
+  - **dev**:
+    - Stabilize type generation in monorepo by adding local `tsconfig.json` support and `bundler` module resolution.
+    - Wait for plugin initialization in the generated production entry point.
+  - **example**: Added a comprehensive SQL Todo List example using filesystem-based subcommands.
+- 6240da1: fix: ensure build command exits cleanly after completion by forcing process exit.
+- Updated dependencies [c7d6460]
+- Updated dependencies [b5594d9]
+- Updated dependencies [d5ab9f8]
+  - @djs-core/runtime@1.7.0
+
 ## 5.0.2
 
 ### Patch Changes

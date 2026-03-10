@@ -1,5 +1,27 @@
 # @djs-core/runtime
 
+## 1.7.0
+
+### Minor Changes
+
+- b5594d9: Introduce a major new plugin system for djs-core.
+  - Modular architecture to extend the native client functions.
+  - Fully typed configuration in `djs.config.ts`.
+  - Automatic type augmentation for perfect DX (autocompletion on `client.pluginName`).
+  - Support for life-cycle hooks like `onReady`.
+
+### Patch Changes
+
+- c7d6460: - **plugin-sql**: Initial release of the SQL plugin using Bun SQLite.
+  - **runtime**:
+    - Improve `Command` class type support for fluent API with subcommands and groups.
+    - Ensure plugins are fully initialized before bot startup to prevent race conditions.
+  - **dev**:
+    - Stabilize type generation in monorepo by adding local `tsconfig.json` support and `bundler` module resolution.
+    - Wait for plugin initialization in the generated production entry point.
+  - **example**: Added a comprehensive SQL Todo List example using filesystem-based subcommands.
+- d5ab9f8: refactor: update EventListener to use Client<true> for better type safety and cleaner user code.
+
 ## 1.6.1
 
 ### Patch Changes
