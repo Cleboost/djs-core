@@ -1,6 +1,6 @@
 {
 	"name": "@djs-core/plugin-sql",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -14,14 +14,15 @@
 	},
 	"devDependencies": {
 		"typescript": "^5",
-		"@types/bun": "latest",
-		"dts-bundle-generator": "^9.5.1"
+		"@types/bun": "latest"
 	},
 	"peerDependencies": {
-		"@djs-core/runtime": "workspace:*",
 		"discord.js": "^14.25.1"
 	},
 	"files": [
 		"dist"
-	]
+	],
+	"publishConfig": {
+		"access": "public"
+	}
 }
