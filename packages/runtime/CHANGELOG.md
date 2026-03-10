@@ -1,5 +1,11 @@
 # @djs-core/runtime
 
+## 1.6.1
+
+### Patch Changes
+
+- 100d38b: Move @djs-core/runtime and discord.js from peerDependencies to dependencies to prevent automatic major version bumps by Changesets.
+
 ## 1.6.0
 
 ### Minor Changes
