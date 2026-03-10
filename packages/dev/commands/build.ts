@@ -13,6 +13,7 @@ type BuildOptions = {
 	path: string;
 	outdir: string;
 	minify: boolean;
+	compile: boolean;
 };
 
 function toPosixPath(p: string): string {
@@ -277,6 +278,7 @@ export function registerBuildCommand(cli: CAC) {
 			{ default: "dist" },
 		)
 		.option("--no-minify", "Disable minification")
+		.option("-c, --compile", "Compile to a standalone binary")
 		.action(async (options: BuildOptions) => {
 			console.log(banner);
 
@@ -341,14 +343,19 @@ export function registerBuildCommand(cli: CAC) {
 
 			await fs.writeFile(entryPath, code, "utf8");
 
-			const buildType = await select({
-				message: "Select build type:",
-				options: [
-					{ value: "bun", label: "Bun (bundled)" },
-					{ value: "bun-external", label: "Bun (external deps)" },
-					{ value: "docker", label: "Docker" },
-				],
-			});
+			let buildType = options.compile ? "compile" : null;
+
+			if (!buildType) {
+				buildType = (await select({
+					message: "Select build type:",
+					options: [
+						{ value: "bun", label: "Bun (bundled)" },
+						{ value: "bun-external", label: "Bun (external deps)" },
+						{ value: "compile", label: "Compile (Native binary, ~90MB)" },
+						{ value: "docker", label: "Docker" },
+					],
+				})) as string;
+			}
 
 			if (typeof buildType !== "string") {
 				console.log(pc.red("❌ Build cancelled"));
@@ -364,6 +371,50 @@ export function registerBuildCommand(cli: CAC) {
 			}
 
 			await fs.mkdir(outdirAbs, { recursive: true });
+
+			if (buildType === "compile") {
+				const exeName = process.platform === "win32" ? "bot.exe" : "bot";
+				const outputPath = path.join(outdirAbs, exeName);
+
+				console.log(`${pc.cyan("ℹ")}  Compiling native binary...`);
+
+				const buildArgs = [
+					"build",
+					entryPath,
+					"--compile",
+					"--outfile",
+					outputPath,
+				];
+
+				if (options.minify !== false) {
+					buildArgs.push("--minify");
+				}
+
+				const proc = Bun.spawn(["bun", ...buildArgs], {
+					stdout: "inherit",
+					stderr: "inherit",
+				});
+
+				const exitCode = await proc.exited;
+
+				if (exitCode !== 0) {
+					console.error(pc.red("\n❌ Compilation failed"));
+					process.exit(1);
+				}
+
+				const stats = await fs.stat(outputPath);
+				const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
+
+				console.log(
+					pc.green("\n✓") +
+						`  Build success: ${pc.bold(exeName)} (${sizeMB} MB)`,
+				);
+				console.log(pc.dim(`  - ${outputPath}`));
+				console.log(
+					pc.dim(`\nTip: run your bot with: ./${options.outdir}/${exeName}\n`),
+				);
+				process.exit(0);
+			}
 
 			const botPackageJsonPath = path.join(botRoot, "package.json");
 			let externalDeps: string[] = [];
@@ -487,5 +538,7 @@ CMD ["bun", "index.js"]
 					),
 				);
 			}
+
+			process.exit(0);
 		});
 }
