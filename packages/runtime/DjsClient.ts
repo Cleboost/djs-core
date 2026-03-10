@@ -52,6 +52,8 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 		this.djsConfig = djsConfig;
 		this.config = userConfig as UserConfig;
 
+		this.initPlugins();
+
 		if (djsConfig.servers && djsConfig.servers.length > 0) {
 			this.commandsHandler.setGuilds(djsConfig.servers);
 			this.contextMenusHandler.setGuilds(djsConfig.servers);
@@ -103,5 +105,30 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 
 	public getDjsConfig(): Config {
 		return this.djsConfig;
+	}
+
+	private async initPlugins() {
+		const plugins = this.djsConfig.plugins;
+		if (!plugins) return;
+
+		for (const plugin of plugins) {
+			try {
+				const config = this.djsConfig.pluginsConfig?.[plugin.name] ?? {};
+				const extension = await plugin.setup(this, config);
+				(this as any)[plugin.name] = extension;
+
+				if (plugin.onReady) {
+					this.once(Events.ClientReady, async () => {
+						try {
+							await plugin.onReady!(this, config, extension);
+						} catch (error) {
+							console.error(`[Plugin:${plugin.name}] Error in onReady:`, error);
+						}
+					});
+				}
+			} catch (error) {
+				console.error(`[Plugin:${plugin.name}] Error in setup:`, error);
+			}
+		}
 	}
 }
