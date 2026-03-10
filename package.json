@@ -17,7 +17,7 @@
 		"typescript": "^5.9.3"
 	},
 	"scripts": {
-		"check:fix": "biome check --write",
+		"check": "biome check",
 		"build": "turbo build types --filter='./packages/*'",
 		"dev": "turbo dev --filter='./packages/*'",
 		"types": "turbo types --filter='./packages/*'",
