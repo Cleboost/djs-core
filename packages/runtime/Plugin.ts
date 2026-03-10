@@ -29,7 +29,7 @@ export function definePlugin<Name extends string, Config, Extension>(
 /**
  * Basic djs-core configuration.
  */
-export interface CoreConfig {
+interface CoreConfig {
 	token: string;
 	servers: string[];
 	commands?: {
