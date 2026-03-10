@@ -1,20 +1,19 @@
 {
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
-		".": {
-			"entry": ["packages/runtime/index.ts", "packages/dev/index.ts"],
-			"project": ["packages/**/*.ts"],
-			"ignore": [
-				"app/**",
-				".github/workflows/**",
-				"packages/utils/**",
-				"docs/**",
-				"packages/runtime/test/**"
-			]
+		"packages/runtime": {
+			"entry": "index.ts"
+		},
+		"packages/dev": {
+			"entry": "index.ts"
+		},
+		"packages/plugin-demo": {
+			"entry": "index.ts"
 		},
 		"app": {
-			"entry": ["djs.config.ts"],
-			"project": ["**/*.ts"]
+			"entry": ["djs.config.ts", "src/**/*.ts"]
 		}
-	}
+	},
+	"ignoreBinaries": ["i"],
+	"ignore": ["docs/**", ".changeset/**", "packages/utils/**"]
 }

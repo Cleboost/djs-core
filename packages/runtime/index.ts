@@ -28,6 +28,12 @@ import StringSelectMenu, {
 import UserSelectMenu, {
 	type UserSelectMenuRunFn,
 } from "./interaction/UserSelectMenu";
+import {
+	type DjsPlugin,
+	defineConfig,
+	definePlugin,
+	type PluginsConfigMap,
+} from "./Plugin";
 import Task from "./Task";
 
 export {
@@ -60,6 +66,10 @@ export {
 	type UserSelectMenuRunFn,
 	type Route,
 	Task,
+	defineConfig,
+	definePlugin,
+	type DjsPlugin,
+	type PluginsConfigMap,
 };
 
 export * from "./interaction/BaseInteraction";
