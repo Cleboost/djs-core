@@ -7,9 +7,10 @@
 	"types": "./dist/index.d.ts",
 	"scripts": {
 		"dev": "bun build index.ts --outdir dist --target bun --external discord.js --watch",
-		"build": "bun build index.ts --outdir dist --target bun --external discord.js --minify && bun run types",
+		"build": "bun build index.ts --outdir dist --target bun --external discord.js --minify",
 		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check",
-		"prepack": "bun run build"
+		"test": "bun test",
+		"prepack": "turbo build types"
 	},
 	"dependencies": {
 		"cron": "^4.4.0",
