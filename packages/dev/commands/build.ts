@@ -233,6 +233,8 @@ ${sortedCrons.map((c) => `    [${JSON.stringify(c.id)}, ${c.varName}],`).join("\
   // 3. Any runtime mismatch will be caught during bot initialization
 ${opts.hasUserConfigEnabled ? "  const client = new DjsClient<UserConfig>({ djsConfig: config, userConfig: userConfigData as UserConfig });" : "  const client = new DjsClient({ djsConfig: config });"}
 
+  await client.waitForPlugins();
+
   client.eventsHandler.set(events);
 
   client.once(Events.ClientReady, async () => {

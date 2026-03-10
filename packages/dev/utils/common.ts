@@ -161,6 +161,7 @@ export async function runBot(projectPath: string) {
 	}
 
 	const client = new DjsClient({ djsConfig: config, userConfig });
+	await client.waitForPlugins();
 
 	client.eventsHandler.set(events);
 

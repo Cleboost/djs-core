@@ -36,6 +36,7 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 	public cronHandler: CronHandler = new CronHandler(this);
 	private readonly djsConfig: Config;
 	public readonly config?: UserConfig;
+	private pluginInitPromise: Promise<void>;
 
 	constructor({
 		djsConfig,
@@ -52,7 +53,7 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 		this.djsConfig = djsConfig;
 		this.config = userConfig as UserConfig;
 
-		this.initPlugins();
+		this.pluginInitPromise = this.initPlugins();
 
 		if (djsConfig.servers && djsConfig.servers.length > 0) {
 			this.commandsHandler.setGuilds(djsConfig.servers);
@@ -105,6 +106,13 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 
 	public getDjsConfig(): Config {
 		return this.djsConfig;
+	}
+
+	/**
+	 * Wait for all plugins to be initialized.
+	 */
+	public async waitForPlugins(): Promise<void> {
+		await this.pluginInitPromise;
 	}
 
 	private async initPlugins() {
