@@ -1,52 +1,52 @@
 name: CI
-
-on:
-  push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
-
 permissions:
   contents: read
 
+on:
+  push:
+
 jobs:
   build:
-    name: Build
+    concurrency:
+      group: build-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - uses: dtinth/setup-github-actions-cache@v2
-      - run: turbo build --filter='./packages/*'
 
-  types:
-    name: Types
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - uses: dtinth/setup-github-actions-cache@v2
-      - run: bun run types
-
+      - run: bun i
+      - run: bun run build
   test:
-    name: Tests
+    concurrency:
+      group: test-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
-    needs: build
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - uses: dtinth/setup-github-actions-cache@v2
-      - run: bun run test
 
-  biome:
-    name: Biome Check
+      - run: bun i
+      - run: bun test
+  knip:
+    concurrency:
+      group: knip-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run check
+
+      - run: bun i
+      - run: bun knip
+  biome:
+    concurrency:
+      group: check-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun i
+      - run: bun check
