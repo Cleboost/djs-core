@@ -56,11 +56,11 @@
         "@djs-core/runtime": "workspace:*",
       },
       "devDependencies": {
+        "@types/bun": "latest",
         "dts-bundle-generator": "^9.5.1",
         "typescript": "^5",
       },
       "peerDependencies": {
-        "@djs-core/runtime": "workspace:*",
         "discord.js": "^14.25.1",
       },
     },

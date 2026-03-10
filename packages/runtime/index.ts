@@ -28,13 +28,13 @@ import StringSelectMenu, {
 import UserSelectMenu, {
 	type UserSelectMenuRunFn,
 } from "./interaction/UserSelectMenu";
-import Task from "./Task";
 import {
+	type DjsPlugin,
 	defineConfig,
 	definePlugin,
-	type DjsPlugin,
 	type PluginsConfigMap,
 } from "./Plugin";
+import Task from "./Task";
 
 export {
 	Button,

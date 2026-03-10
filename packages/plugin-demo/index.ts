@@ -6,7 +6,7 @@ export interface DemoConfig {
 
 export const demoPlugin = definePlugin({
 	name: "demo",
-	setup: (client, config: DemoConfig) => {
+	setup: (_client, config: DemoConfig) => {
 		return {
 			sayHello: () => {
 				console.log(`[Demo Plugin] ${config.message}`);
@@ -14,8 +14,8 @@ export const demoPlugin = definePlugin({
 			},
 		};
 	},
-	onReady: (client, config, extension) => {
+	onReady: (_client, _config, extension) => {
 		console.log("[Demo Plugin] Ready!");
 		extension.sayHello();
-  },
+	},
 });

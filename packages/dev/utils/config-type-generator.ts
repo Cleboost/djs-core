@@ -136,11 +136,7 @@ async function ensurePluginAugmentation(
 
 	try {
 		await fs.mkdir(djscoreDir, { recursive: true });
-		await fs.writeFile(
-			pluginDtsPath,
-			PLUGIN_D_TS_CONTENT.trimStart(),
-			"utf-8",
-		);
+		await fs.writeFile(pluginDtsPath, PLUGIN_D_TS_CONTENT.trimStart(), "utf-8");
 	} catch (error: unknown) {
 		if (!silent) {
 			console.warn(

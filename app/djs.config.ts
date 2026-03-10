@@ -1,6 +1,6 @@
+import { demoPlugin } from "@djs-core/plugin-demo";
 import { defineConfig } from "@djs-core/runtime";
 import { InteractionContextType } from "discord.js";
-import { demoPlugin } from "@djs-core/plugin-demo";
 
 if (!process.env.TOKEN) {
 	throw new Error("TOKEN environment variable is required");
@@ -18,9 +18,9 @@ const config = defineConfig({
 	},
 	plugins: [demoPlugin],
 	pluginsConfig: {
-    demo: {
-      message: "yoyo",
-		}
+		demo: {
+			message: "yoyo",
+		},
 	},
 });
 

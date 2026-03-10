@@ -120,7 +120,7 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 				if (plugin.onReady) {
 					this.once(Events.ClientReady, async () => {
 						try {
-							await plugin.onReady!(this, config, extension);
+							await plugin.onReady?.(this, config, extension);
 						} catch (error) {
 							console.error(`[Plugin:${plugin.name}] Error in onReady:`, error);
 						}
