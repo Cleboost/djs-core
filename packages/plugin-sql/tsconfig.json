@@ -1,7 +1,8 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"baseUrl": ".",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
 		"types": ["bun", "node"]
 	},
 	"include": ["index.ts"]

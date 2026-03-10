@@ -5,5 +5,5 @@
 		"moduleResolution": "bundler",
 		"types": ["bun", "node"]
 	},
-	"include": ["index.ts"]
+	"include": ["index.ts", "**/*.ts"]
 }
