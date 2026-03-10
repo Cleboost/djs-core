@@ -1,29 +1,29 @@
 {
-	"name": "djs-core",
-	"type": "module",
-	"private": true,
-	"version": "6.0.0",
-	"packageManager": "bun@1.3.9",
-	"workspaces": [
-		"packages/*",
-		"plugins/*",
-		"app"
-	],
-	"devDependencies": {
-		"@biomejs/biome": "^2.3.14",
-		"@changesets/cli": "^2.29.8",
-		"@types/node": "^25.0.3",
-		"knip": "^5.76.0",
-		"turbo": "^2.8.15",
-		"typescript": "^5.9.3"
-	},
-	"scripts": {
-		"check": "biome check",
-		"build": "turbo build types --filter=./packages/* --filter=./plugins/*",
-		"dev": "turbo dev --filter=./packages/* --filter=./plugins/*",
-		"types": "turbo types --filter=./packages/* --filter=./plugins/*",
-		"changeset": "changeset",
-		"version-packages": "changeset version",
-		"publish-packages": "changeset publish"
-	}
+  "name": "djs-core",
+  "type": "module",
+  "private": true,
+  "version": "6.0.0",
+  "packageManager": "bun@1.3.9",
+  "workspaces": [
+    "packages/*",
+    "plugins/*",
+    "app"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.14",
+    "@changesets/cli": "^2.29.8",
+    "@types/node": "^25.0.3",
+    "knip": "^5.76.0",
+    "turbo": "^2.8.15",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "check": "biome check",
+    "build": "turbo build types --filter=./packages/* --filter=./plugins/*",
+    "dev": "turbo dev --filter=./packages/* --filter=./plugins/*",
+    "types": "turbo types --filter=./packages/* --filter=./plugins/*",
+    "changeset": "changeset",
+    "ci:version": "changeset version && bun update",
+    "ci:publish": "for dir in packages/* plugins/*; do (cd \"$dir\" && [ -d \"$dir\" ] && [ -f package.json ] && bun publish || true); done && changeset tag"
+  }
 }
