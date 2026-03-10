@@ -42,6 +42,7 @@ describe("E2E Integration (Ready to Prod)", () => {
 		const reply = mock(() => Promise.resolve());
 		const interaction = {
 			commandName: "ping",
+			client: bot.client,
 			options: {
 				getSubcommandGroup: () => null,
 				getSubcommand: () => null,
@@ -59,6 +60,7 @@ describe("E2E Integration (Ready to Prod)", () => {
 	test("should handle button flow from demo", async () => {
 		const interaction = {
 			commandName: "demo",
+			client: bot.client,
 			options: {
 				getSubcommandGroup: () => null,
 				getSubcommand: () => "button",
@@ -79,6 +81,7 @@ describe("E2E Integration (Ready to Prod)", () => {
 
 		const buttonInteraction = {
 			customId: `demo.subdemo:${token}`,
+			client: bot.client,
 			isRepliable: () => true,
 			replied: false,
 			deferred: false,

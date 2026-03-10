@@ -34,3 +34,8 @@ test("hello world", () => {
 ```
 
 For more information, read the Bun API docs in `node_modules/bun-types/docs/**.md`.
+
+## Git Operations
+
+- **No Implicit Commits:** Do not commit any changes unless explicitly requested by the user.
+- **No Pushing:** Do not use `git push` under any circumstances. All changes must remain local.

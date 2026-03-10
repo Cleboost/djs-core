@@ -18,6 +18,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@djs-core/plugin-demo": "workspace:*",
+        "@djs-core/plugin-sql": "workspace:*",
         "@djs-core/runtime": "workspace:*",
         "discord.js": "^14.25.1",
       },
@@ -61,6 +62,22 @@
         "typescript": "^5",
       },
       "peerDependencies": {
+        "discord.js": "^14.25.1",
+      },
+    },
+    "packages/plugin-sql": {
+      "name": "@djs-core/plugin-sql",
+      "version": "1.0.0",
+      "dependencies": {
+        "@djs-core/runtime": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "dts-bundle-generator": "^9.5.1",
+        "typescript": "^5",
+      },
+      "peerDependencies": {
+        "@djs-core/runtime": "workspace:*",
         "discord.js": "^14.25.1",
       },
     },
@@ -152,6 +169,8 @@
     "@djs-core/dev": ["@djs-core/dev@workspace:packages/dev"],
 
     "@djs-core/plugin-demo": ["@djs-core/plugin-demo@workspace:packages/plugin-demo"],
+
+    "@djs-core/plugin-sql": ["@djs-core/plugin-sql@workspace:packages/plugin-sql"],
 
     "@djs-core/runtime": ["@djs-core/runtime@workspace:packages/runtime"],
 

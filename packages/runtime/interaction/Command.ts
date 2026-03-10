@@ -10,6 +10,8 @@ import {
 	type SlashCommandNumberOption,
 	type SlashCommandRoleOption,
 	type SlashCommandStringOption,
+	type SlashCommandSubcommandBuilder,
+	type SlashCommandSubcommandGroupBuilder,
 	type SlashCommandUserOption,
 } from "discord.js";
 
@@ -118,6 +120,28 @@ export default class Command extends SlashCommandBuilder {
 			  ) => SlashCommandAttachmentOption),
 	): this {
 		super.addAttachmentOption(input);
+		return this;
+	}
+
+	override addSubcommand(
+		input:
+			| SlashCommandSubcommandBuilder
+			| ((
+					subcommand: SlashCommandSubcommandBuilder,
+			  ) => SlashCommandSubcommandBuilder),
+	): this {
+		super.addSubcommand(input);
+		return this;
+	}
+
+	override addSubcommandGroup(
+		input:
+			| SlashCommandSubcommandGroupBuilder
+			| ((
+					subcommandGroup: SlashCommandSubcommandGroupBuilder,
+			  ) => SlashCommandSubcommandGroupBuilder),
+	): this {
+		super.addSubcommandGroup(input);
 		return this;
 	}
 

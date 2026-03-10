@@ -9,7 +9,7 @@
 	},
 	"scripts": {
 		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --minify",
-		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check",
+		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check --project tsconfig.json",
 		"dev": "bun build index.ts --outdir dist --target bun --watch",
 		"prepack": "turbo build types"
 	},
