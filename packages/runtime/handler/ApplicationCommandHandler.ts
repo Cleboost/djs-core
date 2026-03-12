@@ -5,7 +5,7 @@ import {
 	SlashCommandBuilder,
 	type SlashCommandSubcommandBuilder,
 } from "discord.js";
-import type DjsClient from "../DjsClient";
+import type { DjsClient } from "../DjsClient";
 import type Command from "../interaction/Command";
 import type ContextMenu from "../interaction/ContextMenu";
 import { getRoot, splitRoute } from "../utils/route";
