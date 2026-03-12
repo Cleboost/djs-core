@@ -14,8 +14,8 @@
 		"@changesets/cli": "^2.30.0",
 		"dts-bundle-generator": "^9.5.1",
 		"knip": "^5.86.0",
-		"turbo": "^2.8.15",
 		"typescript": "latest"
+		"turbo": "^2.8.16",
 	},
 	"scripts": {
 		"check": "biome check",
