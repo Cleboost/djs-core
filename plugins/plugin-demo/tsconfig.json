@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"module": "ESNext",
 		"moduleResolution": "bundler",
-		"types": ["bun", "node"]
+		"types": ["bun"]
 	},
 	"include": ["index.ts"]
 }
