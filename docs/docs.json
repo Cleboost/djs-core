@@ -76,5 +76,6 @@
     "socials": {
       "github": "https://github.com/Cleboost/djs-core"
     }
-  }
+  },
+  "description": "Framework for discord.js developpement"
 }
