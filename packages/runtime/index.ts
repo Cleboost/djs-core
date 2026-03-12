@@ -1,4 +1,4 @@
-import DjsClient from "./DjsClient";
+import DjsClient, { type DjsClientInstance } from "./DjsClient";
 import CommandHandler, { type Route } from "./handler/CommandHandler";
 import ContextMenuHandler from "./handler/ContextMenuHandler";
 import CronHandler from "./handler/CronHandler";
@@ -50,6 +50,7 @@ export {
 	ContextMenuHandler,
 	CronHandler,
 	DjsClient,
+	type DjsClientInstance,
 	EventHandler,
 	EventListener,
 	MentionableSelectMenu,
