@@ -4,7 +4,15 @@ permissions:
 
 on:
   push:
-
+    paths:
+      - 'packages/**'
+      - 'plugins/**'
+      - 'package.json'
+      - 'bun.lock'
+      - 'turbo.json'
+      - 'tsconfig.json'
+      - 'biome.json'
+    
 jobs:
   build:
     concurrency:
