@@ -14,7 +14,7 @@
 		"prepack": "turbo build types"
 	},
 	"dependencies": {
-		"@clack/prompts": "^1.0.0",
+		"@clack/prompts": "^1.1.0",
 		"@djs-core/runtime": "workspace:*",
 		"cac": "^7.0.0",
 		"chokidar": "^5.0.0",
