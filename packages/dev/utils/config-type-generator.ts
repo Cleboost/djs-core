@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import { existsSync } from "node:fs";
 import path from "path";
 import pc from "picocolors";
 
@@ -89,63 +90,16 @@ export type { UserConfig };
 }
 
 const DISCORD_D_TS_CONTENT = `import type { UserConfig } from "./config.types";
+import type { PluginsExtensions } from "@djs-core/runtime";
 
 declare module "discord.js" {
-	interface Client {
+	interface Client extends PluginsExtensions {
 		config?: UserConfig;
 	}
 }
 `;
 
-const PLUGIN_D_TS_CONTENT = `import UserConfig from "../djs.config";
-import type { DjsPlugin } from "@djs-core/runtime";
-
-type TupleToUnion<T> = T extends Array<infer U> ? U : never;
-type UnionToIntersection<U> = (U extends any ? (k: U)=>void : never) extends ((k: infer I)=>void) ? I : never;
-
-type ExtractExtensions<P> = UnionToIntersection<
-	P extends DjsPlugin<infer N, any, infer R>
-		? { [K in N]: R }
-		: never
->;
-
-declare module "discord.js" {
-	interface Client extends ExtractExtensions<TupleToUnion<(typeof UserConfig)["plugins"]>> {}
-}
-`;
-
 const TSCONFIG_INCLUDE_ENTRY = ".djscore/**/*.d.ts";
-
-/**
- * Creates .djscore/plugins.d.ts to augment discord.js Client with plugins.
- */
-async function ensurePluginAugmentation(
-	projectRoot: string,
-	silent = false,
-): Promise<void> {
-	const djscoreDir = path.join(projectRoot, ".djscore");
-	const pluginDtsPath = path.join(djscoreDir, "plugins.d.ts");
-	const djsConfigPath = path.join(projectRoot, "djs.config.ts");
-
-	try {
-		await fs.access(djsConfigPath);
-	} catch {
-		// djs.config.ts doesn't exist, skip
-		return;
-	}
-
-	try {
-		await fs.mkdir(djscoreDir, { recursive: true });
-		await fs.writeFile(pluginDtsPath, PLUGIN_D_TS_CONTENT.trimStart(), "utf-8");
-	} catch (error: unknown) {
-		if (!silent) {
-			console.warn(
-				pc.yellow("⚠️  Could not write .djscore/plugins.d.ts"),
-				error instanceof Error ? error.message : error,
-			);
-		}
-	}
-}
 
 /**
  * Creates .djscore/discord.d.ts and ensures tsconfig.json include contains the .djscore types entry.
@@ -202,26 +156,89 @@ async function ensureDiscordAugmentation(
 	}
 }
 
+import type { Config } from "../../utils/types/config";
+
+/**
+ * Collects and writes types provided by plugins.
+ */
+async function generatePluginTypes(
+	projectRoot: string,
+	config: Config,
+): Promise<void> {
+	const djscoreDir = path.join(projectRoot, ".djscore");
+	const pluginsDtsPath = path.join(djscoreDir, "plugins.d.ts");
+
+	if (!config.plugins || config.plugins.length === 0) {
+		if (existsSync(pluginsDtsPath)) {
+			await fs.unlink(pluginsDtsPath).catch(() => {});
+		}
+		return;
+	}
+
+	const types: string[] = [];
+
+	for (const pluginInput of config.plugins) {
+		// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
+		let plugin: any;
+		if (
+			pluginInput instanceof Promise ||
+			(pluginInput && typeof pluginInput === "object" && "then" in pluginInput)
+		) {
+			const module = await pluginInput;
+			plugin = Object.values(module).find(
+				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
+				(v: any) => v && typeof v === "object" && "name" in v && "setup" in v,
+			);
+		} else {
+			plugin = pluginInput;
+		}
+
+		if (plugin?.types) {
+			const pluginTypes = await plugin.types({ root: projectRoot });
+			types.push(`// --- ${plugin.name} ---\n${pluginTypes}`);
+		}
+	}
+
+	if (types.length > 0) {
+		await fs.mkdir(djscoreDir, { recursive: true });
+		await fs.writeFile(
+			pluginsDtsPath,
+			`// Auto-generated. Do not edit manually.\n\n${types.join("\n\n")}\n`,
+			"utf-8",
+		);
+	} else if (existsSync(pluginsDtsPath)) {
+		await fs.unlink(pluginsDtsPath).catch(() => {});
+	}
+}
+
 /**
  * Auto-generate config types if userConfig is enabled and config.json exists
  * This is called automatically by dev/build/start commands
  */
 export async function autoGenerateConfigTypes(
 	projectRoot: string,
+	config: Config,
 	silent = false,
 ): Promise<boolean> {
 	const configJsonPath = path.join(projectRoot, "config.json");
 	const outputPath = path.join(projectRoot, ".djscore", "config.types.ts");
 
+	// Always generate plugin types
+	await generatePluginTypes(projectRoot, config);
+
 	try {
 		await fs.access(configJsonPath);
 	} catch {
-		// config.json doesn't exist, skip generation
-		if (!silent) {
-			console.log(
-				pc.yellow(
-					"⚠️  userConfig enabled but config.json not found. Skipping type generation.",
-				),
+		// config.json doesn't exist, skip generation but ensure discord types are there
+		await ensureDiscordAugmentation(projectRoot, true);
+
+		// create empty config.types.ts if it doesn't exist
+		if (!existsSync(outputPath)) {
+			await fs.mkdir(path.dirname(outputPath), { recursive: true });
+			await fs.writeFile(
+				outputPath,
+				"// Auto-generated. config.json not found.\nexport interface UserConfig {}\n",
+				"utf-8",
 			);
 		}
 		return false;
@@ -231,7 +248,6 @@ export async function autoGenerateConfigTypes(
 		await fs.mkdir(path.dirname(outputPath), { recursive: true });
 		await generateTypesFromJson(configJsonPath, outputPath);
 		await ensureDiscordAugmentation(projectRoot, silent);
-		await ensurePluginAugmentation(projectRoot, silent);
 		if (!silent) {
 			console.log(pc.green("✓  Config types auto-generated"));
 		}

@@ -57,10 +57,8 @@ export async function runBot(projectPath: string) {
 
 	console.log(`${pc.green("✓")}  Config loaded`);
 
-	// Auto-generate config types if userConfig is enabled
-	if (config.experimental?.userConfig) {
-		await autoGenerateConfigTypes(root);
-	}
+	// Auto-generate config types
+	await autoGenerateConfigTypes(root, config);
 
 	const commands: Route[] = [];
 	const buttons: Button[] = [];

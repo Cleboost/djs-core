@@ -405,14 +405,14 @@ export function registerDevCommand(cli: CAC) {
 					console.log(
 						`${pc.cyan("ℹ")}  config.json changed, regenerating types...`,
 					);
-					await autoGenerateConfigTypes(root);
+					await autoGenerateConfigTypes(root, config);
 				});
 
 				configWatcher.on("add", async () => {
 					console.log(
 						`${pc.green("✓")}  config.json created, generating types...`,
 					);
-					await autoGenerateConfigTypes(root);
+					await autoGenerateConfigTypes(root, config);
 				});
 			}
 

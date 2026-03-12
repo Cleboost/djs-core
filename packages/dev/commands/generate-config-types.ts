@@ -2,8 +2,12 @@ import type { CAC } from "cac";
 import fs from "fs/promises";
 import path from "path";
 import pc from "picocolors";
+import type { Config } from "../../utils/types/config";
 import { banner } from "../utils/common";
-import { generateTypesFromJson } from "../utils/config-type-generator";
+import {
+	autoGenerateConfigTypes,
+	generateTypesFromJson,
+} from "../utils/config-type-generator";
 
 export function registerGenerateConfigTypesCommand(cli: CAC) {
 	cli
@@ -20,20 +24,31 @@ export function registerGenerateConfigTypesCommand(cli: CAC) {
 			const configJsonPath = path.join(projectRoot, "config.json");
 			const outputPath = path.join(projectRoot, ".djscore", "config.types.ts");
 
+			// Load config to pass to autoGenerateConfigTypes
+			let config: Config;
 			try {
-				await fs.mkdir(path.dirname(outputPath), { recursive: true });
-				await fs.access(configJsonPath);
-			} catch {
+				const configModule = await import(path.join(projectRoot, "djs.config.ts"));
+				config = configModule.default as Config;
+			} catch (error) {
 				console.error(
-					pc.red(
-						`❌ config.json not found at ${configJsonPath}\n   Create a config.json file first.`,
-					),
+					pc.red(`❌ djs.config.ts not found at ${projectRoot}`),
+					error,
 				);
 				process.exit(1);
 			}
 
 			try {
-				await generateTypesFromJson(configJsonPath, outputPath);
+				await fs.mkdir(path.dirname(outputPath), { recursive: true });
+				await fs.access(configJsonPath);
+			} catch {
+				// config.json not found, but we still want plugin types
+				await autoGenerateConfigTypes(projectRoot, config, false);
+				console.log(pc.green("✓  Plugin types generated"));
+				return;
+			}
+
+			try {
+				await autoGenerateConfigTypes(projectRoot, config, false);
 				console.log(
 					pc.green(`✓  Types generated successfully at ${outputPath}`),
 				);
