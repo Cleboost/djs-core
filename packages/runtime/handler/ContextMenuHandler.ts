@@ -29,9 +29,11 @@ export default class ContextMenuHandler {
 		}
 
 		if (this.guilds.length > 0) {
-			for (const guildId of this.guilds) {
-				await this.client.application.commands.create(contextMenu, guildId);
-			}
+			await Promise.all(
+				this.guilds.map((guildId) =>
+					this.client.application!.commands.create(contextMenu, guildId),
+				),
+			);
 		} else {
 			await this.client.application.commands.create(contextMenu);
 		}
@@ -60,15 +62,17 @@ export default class ContextMenuHandler {
 		}
 
 		if (this.guilds.length > 0) {
-			for (const guildId of this.guilds) {
-				const commands = await this.client.application.commands.fetch({
-					guildId,
-				});
-				const command = commands.find((cmd) => cmd.name === name);
-				if (command) {
-					await this.client.application.commands.delete(command.id, guildId);
-				}
-			}
+			await Promise.all(
+				this.guilds.map(async (guildId) => {
+					const commands = await this.client.application!.commands.fetch({
+						guildId,
+					});
+					const command = commands.find((cmd) => cmd.name === name);
+					if (command) {
+						await this.client.application!.commands.delete(command.id, guildId);
+					}
+				}),
+			);
 		} else {
 			const commands = await this.client.application.commands.fetch();
 			const command = commands.find((cmd) => cmd.name === name);
