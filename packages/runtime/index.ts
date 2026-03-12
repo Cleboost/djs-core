@@ -33,6 +33,7 @@ import {
 	defineConfig,
 	definePlugin,
 	type PluginsConfigMap,
+	type PluginsExtensions,
 } from "./Plugin";
 import Task from "./Task";
 
