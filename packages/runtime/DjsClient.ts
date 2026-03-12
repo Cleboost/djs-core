@@ -166,5 +166,3 @@ export type DjsClientInstance<
 > = DjsClient<UserConfig, Plugins> &
 	PluginsExtensionsMap<Plugins> &
 	PluginsExtensions;
-
-export default DjsClient;
