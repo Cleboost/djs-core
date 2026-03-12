@@ -1,33 +1,10 @@
 ---
-title: "Events & Cron Tasks"
+title: "Cron Tasks"
 icon: "calendar-check"
-description: "How to listen to Discord events and run scheduled tasks in djs-core."
+description: "How to run scheduled tasks in djs-core."
 ---
 
-`djs-core` provides structured ways to handle Discord events and background tasks, keeping your bot logic modular and easy to manage.
-
-## Event Listeners
-
-Event listeners are defined in the `src/events/` directory. Each file should export a default `EventListener` instance.
-
-```typescript [src/events/ready.ts]
-import { EventListener } from "@djs-core/runtime";
-import { Events, ActivityType } from "discord.js";
-
-export default new EventListener()
-  .event(Events.ClientReady)
-  .run((client) => {
-    console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setActivity({ name: "over your server", type: ActivityType.Watching });
-  });
-```
-
-### Key Methods
-
-- **`.event(Events.EventName)`**: Specifies which Discord event to listen for.
-- **`.run((client, ...args) => { ... })`**: The function that executes when the event is fired. It receives the `client` and any event-specific arguments.
-
-## Cron Tasks
+`djs-core` provides structured ways and background tasks, keeping your bot logic modular and easy to manage.
 
 Cron tasks allow you to run code at specific intervals. This is useful for cleanup, daily messages, or background processing.
 

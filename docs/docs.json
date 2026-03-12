@@ -30,7 +30,8 @@
             "pages": [
               "interaction/index",
               "interaction/commands",
-              "interaction/context-menus"
+              "interaction/context-menus",
+              "interaction/events"
             ]
           },
           {
@@ -53,11 +54,21 @@
             ]
           },
           {
+            "group": "Plugins",
+            "pages": [
+              "essentials/plugins"
+            ]
+          },
+          {
+            "group": "Experimtental",
+            "pages": [
+              "essentials/events-tasks"
+            ]
+          },
+          {
             "group": "Other",
             "pages": [
-              "essentials/configuration",
-              "essentials/events-tasks",
-              "essentials/plugins"
+              "essentials/configuration"
             ]
           },
           {
@@ -68,6 +79,25 @@
               "ai-tools/windsurf"
             ]
           }
+        ]
+      },
+      {
+        "tab": "Plugins Marketplace",
+        "pages": [
+          "plugins-marketplace",
+          {
+            "group": "Plugin SQL",
+            "pages": [
+              "intro",
+              "config"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Partners",
+        "pages": [
+          "partners"
         ]
       }
     ]
