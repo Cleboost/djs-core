@@ -12,7 +12,7 @@ describe("E2E Integration (Ready to Prod)", () => {
 		process.env.GUILD_ID = "1234567890";
 		process.env.SKIP_SYNC = "true";
 
-		const DjsClient = (await import("../DjsClient")).default;
+		const { DjsClient } = (await import("../DjsClient"));
 		DjsClient.prototype.login = mock(() => Promise.resolve("mock-token"));
 		DjsClient.prototype.isReady = () => true;
 

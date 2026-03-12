@@ -18,4 +18,14 @@ export const demoPlugin = definePlugin({
 		console.log("[Demo Plugin] Ready!");
 		extension.sayHello();
 	},
+	types: () => {
+		return `declare module "@djs-core/runtime" {
+  interface PluginsExtensions {
+    demo: {
+      sayHello: () => string;
+    };
+  }
+}
+`;
+	},
 });

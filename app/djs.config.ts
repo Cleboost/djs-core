@@ -1,5 +1,4 @@
 import { demoPlugin } from "@djs-core/plugin-demo";
-import { sqlPlugin } from "@djs-core/plugin-sql";
 import { defineConfig } from "@djs-core/runtime";
 import { InteractionContextType } from "discord.js";
 
@@ -17,11 +16,16 @@ const config = defineConfig({
 		cron: true,
 		userConfig: true,
 	},
-	plugins: [demoPlugin, sqlPlugin],
+	plugins: [
+		import("@djs-core/plugin-sql"),
+		demoPlugin,
+		import("@djs-core/plugin-prisma-sqlite"),
+	],
 	pluginsConfig: {
 		demo: {
 			message: "yoyo",
 		},
+		prisma: {},
 		sql: {
 			path: "todos.db",
 		},

@@ -1,7 +1,8 @@
 import type { InteractionContextType } from "discord.js";
-import type { DjsPlugin } from "../../runtime/Plugin";
+import type { PluginsConfigMap } from "../../runtime/Plugin";
 
-export interface Config {
+// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
+export interface Config<P extends readonly any[] = any[]> {
 	token: string;
 	servers: string[];
 	commands?: {
@@ -11,8 +12,6 @@ export interface Config {
 		cron?: boolean;
 		userConfig?: boolean;
 	};
-	// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
-	plugins?: DjsPlugin<string, any, any>[];
-	// biome-ignore lint/suspicious/noExplicitAny: generic plugin config
-	pluginsConfig?: Record<string, any>;
+	plugins?: P;
+	pluginsConfig?: PluginsConfigMap<P>;
 }

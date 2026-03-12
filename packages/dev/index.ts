@@ -1,18 +1,66 @@
 #!/usr/bin/env bun
+import { resolve } from "node:path";
 import { cac } from "cac";
+import pc from "picocolors";
 import type { Config } from "../utils/types/config";
 import { registerBuildCommand } from "./commands/build";
 import { registerDevCommand } from "./commands/dev";
 import { registerGenerateConfigTypesCommand } from "./commands/generate-config-types";
+import { registerPluginCommand } from "./commands/plugin";
 import { registerStartCommand } from "./commands/start";
 
 export type { Config };
 
-const cli = cac("djs-core").version("2.0.0").help();
+async function run() {
+	const cli = cac("djs-core").version("5.1.0").help();
 
-registerStartCommand(cli);
-registerDevCommand(cli);
-registerBuildCommand(cli);
-registerGenerateConfigTypesCommand(cli);
+	registerStartCommand(cli);
+	registerDevCommand(cli);
+	registerBuildCommand(cli);
+	registerGenerateConfigTypesCommand(cli);
+	registerPluginCommand(cli);
 
-cli.parse();
+	try {
+		const configPath = resolve(process.cwd(), "djs.config.ts");
+		const configModule = await import(configPath);
+		const config = configModule.default as Config;
+
+		if (config.plugins) {
+			for (const pluginInput of config.plugins) {
+				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
+				let plugin: any;
+				if (
+					pluginInput instanceof Promise ||
+					(pluginInput &&
+						typeof pluginInput === "object" &&
+						"then" in pluginInput)
+				) {
+					const module = await pluginInput;
+					plugin = Object.values(module).find(
+						// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
+						(v: any) =>
+							v && typeof v === "object" && "name" in v && "setup" in v,
+					);
+				} else {
+					plugin = pluginInput;
+				}
+
+				if (plugin?.cli) {
+					plugin.cli(cli);
+				}
+			}
+		}
+	} catch (_error) {}
+
+	try {
+		cli.parse();
+	} catch (err) {
+		console.error(pc.red("Error:"), (err as Error).message);
+		process.exit(1);
+	}
+}
+
+run().catch((err) => {
+	console.error(pc.red("Fatal error:"), err);
+	process.exit(1);
+});

@@ -23,8 +23,17 @@ import CronHandler from "./handler/CronHandler";
 import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
+import type {
+	DjsPlugin,
+	PluginsExtensions,
+	PluginsExtensionsMap,
+} from "./Plugin";
 
-export default class DjsClient<UserConfig = unknown> extends Client {
+export class DjsClient<
+	UserConfig = unknown,
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
+	Plugins extends readonly any[] = any[],
+> extends Client {
 	public eventsHandler: EventHandler = new EventHandler(this);
 	public commandsHandler: CommandHandler = new CommandHandler(this);
 	public buttonsHandler: ButtonHandler = new ButtonHandler(this);
@@ -32,16 +41,19 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 	public selectMenusHandler: SelectMenuHandler = new SelectMenuHandler(this);
 	public modalsHandler: ModalHandler = new ModalHandler(this);
 	public applicationCommandHandler: ApplicationCommandHandler =
-		new ApplicationCommandHandler(this);
+		new ApplicationCommandHandler(
+			// biome-ignore lint/suspicious/noExplicitAny: handler initialization
+			this as any,
+		);
 	public cronHandler: CronHandler = new CronHandler(this);
-	private readonly djsConfig: Config;
+	private readonly djsConfig: Config<Plugins>;
 	public readonly config?: UserConfig;
 	private pluginInitPromise: Promise<void>;
 
 	constructor({
 		djsConfig,
 		userConfig,
-	}: { djsConfig: Config; userConfig?: UserConfig }) {
+	}: { djsConfig: Config<Plugins>; userConfig?: UserConfig }) {
 		super({
 			intents: [
 				IntentsBitField.Flags.Guilds,
@@ -104,40 +116,67 @@ export default class DjsClient<UserConfig = unknown> extends Client {
 		});
 	}
 
-	public getDjsConfig(): Config {
+	public getDjsConfig(): Config<Plugins> {
 		return this.djsConfig;
 	}
 
-	/**
-	 * Wait for all plugins to be initialized.
-	 */
 	public async waitForPlugins(): Promise<void> {
 		await this.pluginInitPromise;
 	}
 
 	private async initPlugins() {
-		const plugins = this.djsConfig.plugins;
-		if (!plugins) return;
+		const pluginsInput = this.djsConfig.plugins;
+		if (!pluginsInput) return;
 
-		for (const plugin of plugins) {
+		for (const input of pluginsInput) {
 			try {
-				const config = this.djsConfig.pluginsConfig?.[plugin.name] ?? {};
-				const extension = await plugin.setup(this, config);
+				let plugin: DjsPlugin | undefined;
+
+				if (
+					input instanceof Promise ||
+					(input && typeof input === "object" && "then" in input)
+				) {
+					const module = await input;
+					plugin = Object.values(module).find(
+						// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
+						(v: any) =>
+							v && typeof v === "object" && "name" in v && "setup" in v,
+					) as DjsPlugin;
+				} else {
+					plugin = input as DjsPlugin;
+				}
+
+				if (!plugin) continue;
+
+				const config =
+					// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin config
+					(this.djsConfig.pluginsConfig as any)?.[plugin.name] ?? {};
+				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin injection
+				const extension = await plugin.setup(this as any, config);
 				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin injection
 				(this as any)[plugin.name] = extension;
 
 				if (plugin.onReady) {
 					this.once(Events.ClientReady, async () => {
 						try {
-							await plugin.onReady?.(this, config, extension);
+							// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin injection
+							await plugin.onReady?.(this as any, config, extension);
 						} catch (error) {
 							console.error(`[Plugin:${plugin.name}] Error in onReady:`, error);
 						}
 					});
 				}
 			} catch (error) {
-				console.error(`[Plugin:${plugin.name}] Error in setup:`, error);
+				console.error("[Plugin] Error in setup:", error);
 			}
 		}
 	}
 }
+
+export type DjsClientInstance<
+	UserConfig = unknown,
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
+	Plugins extends readonly any[] = any[],
+> = DjsClient<UserConfig, Plugins> &
+	PluginsExtensionsMap<Plugins> &
+	PluginsExtensions;
