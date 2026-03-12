@@ -69,7 +69,9 @@ export default class ApplicationCommandHandler {
 			await Promise.all(
 				this.guilds.map(async (guildId) => {
 					try {
-						const created = await this.client.application.commands.set(
+						// We already checked this.client.application above, but TS loses context inside map
+						// biome-ignore lint/style/noNonNullAssertion: safe here since application is checked above
+						const created = await this.client.application!.commands.set(
 							allCommands,
 							guildId,
 						);
