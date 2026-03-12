@@ -47,17 +47,10 @@
             ]
           },
           {
-            "group": "Essentials",
-            "pages": [
-              "essentials/markdown-syntax",
-              "essentials/code-blocks",
-              "essentials/components",
-              "essentials/images-embeds"
-            ]
-          },
-          {
             "group": "Bundle",
-            "pages": ["bundle/index"]
+            "pages": [
+              "bundle/index"
+            ]
           },
           {
             "group": "Other",
