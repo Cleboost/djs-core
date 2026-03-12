@@ -7,12 +7,14 @@ export default new Command()
 	)
 	.run(async (interaction) => {
 		const id = interaction.options.getInteger("id", true);
-		
+
 		try {
 			await interaction.client.prisma.prismaTodo.delete({
 				where: { id: id },
 			});
-			return interaction.reply(`🗑️ Removed task with ID: \`#${id}\` (using Prisma)`);
+			return interaction.reply(
+				`🗑️ Removed task with ID: \`#${id}\` (using Prisma)`,
+			);
 		} catch (_error) {
 			return interaction.reply(`❌ Task with ID \`#${id}\` not found.`);
 		}

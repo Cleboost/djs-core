@@ -18,17 +18,17 @@ const config = defineConfig({
 	},
 	plugins: [
 		import("@djs-core/plugin-sql"),
-		demoPlugin, 
-		import("@djs-core/plugin-prisma-sqlite")
+		demoPlugin,
+		import("@djs-core/plugin-prisma-sqlite"),
 	],
 	pluginsConfig: {
 		demo: {
 			message: "yoyo",
 		},
-    prisma: {},
-    sql: {
-      path: "todos.db",
-		}
+		prisma: {},
+		sql: {
+			path: "todos.db",
+		},
 	},
 });
 

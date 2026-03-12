@@ -2,11 +2,10 @@ import {
 	type Button,
 	type ChannelSelectMenu,
 	type Command,
-	ContextMenu,
+	type ContextMenu,
 	DjsClient,
 	type DjsClientInstance,
 	type EventListener,
-
 	type MentionableSelectMenu,
 	type Modal,
 	type RoleSelectMenu,
@@ -162,25 +161,33 @@ export async function runBot(projectPath: string) {
 		}
 	}
 
-	const client = new DjsClient({ djsConfig: config, userConfig }) as unknown as DjsClientInstance;
+	const client = new DjsClient({
+		djsConfig: config,
+		userConfig,
+	}) as unknown as DjsClientInstance;
 	await client.waitForPlugins();
 
 	client.eventsHandler.set(events);
 
 	console.log(pc.dim("Connecting to Discord..."));
-	client.login(config.token).catch((error: any) => {
-		console.error(`${pc.red("✗")} ${pc.bold("Failed to connect to Discord")}`);
-		console.error(pc.dim("Error: ") + pc.red(error.message || String(error)));
-		if (error.message?.includes("token") || error.message?.includes("401")) {
+	client.login(config.token).catch(
+		// biome-ignore lint/suspicious/noExplicitAny: error handling
+		(error: any) => {
 			console.error(
-				pc.yellow("\n💡 Tip: ") +
-					pc.dim(
-						"Vérifiez que votre token Discord est valide dans djs.config.ts",
-					),
+				`${pc.red("✗")} ${pc.bold("Failed to connect to Discord")}`,
 			);
-		}
-		process.exit(1);
-	});
+			console.error(pc.dim("Error: ") + pc.red(error.message || String(error)));
+			if (error.message?.includes("token") || error.message?.includes("401")) {
+				console.error(
+					pc.yellow("\n💡 Tip: ") +
+						pc.dim(
+							"Vérifiez que votre token Discord est valide dans djs.config.ts",
+						),
+				);
+			}
+			process.exit(1);
+		},
+	);
 	client.once(Events.ClientReady, async () => {
 		client.commandsHandler.set(commands);
 		client.contextMenusHandler.set(contextMenus);

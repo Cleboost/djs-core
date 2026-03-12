@@ -23,7 +23,11 @@ import CronHandler from "./handler/CronHandler";
 import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
-import type { DjsPlugin, PluginsExtensionsMap, PluginsExtensions } from "./Plugin";
+import type {
+	DjsPlugin,
+	PluginsExtensions,
+	PluginsExtensionsMap,
+} from "./Plugin";
 
 declare module "discord.js" {
 	interface Client extends PluginsExtensions {}
@@ -31,16 +35,28 @@ declare module "discord.js" {
 
 export class DjsClient<
 	UserConfig = unknown,
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
 	Plugins extends readonly any[] = any[],
 > extends Client {
 	public eventsHandler: EventHandler = new EventHandler(this as Client);
+	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
 	public commandsHandler: CommandHandler = new CommandHandler(this as any);
+	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
 	public buttonsHandler: ButtonHandler = new ButtonHandler(this as any);
-	public contextMenusHandler: ContextMenuHandler = new ContextMenuHandler(this as any);
-	public selectMenusHandler: SelectMenuHandler = new SelectMenuHandler(this as any);
+	public contextMenusHandler: ContextMenuHandler = new ContextMenuHandler(
+		// biome-ignore lint/suspicious/noExplicitAny: handler initialization
+		this as any,
+	);
+	public selectMenusHandler: SelectMenuHandler = new SelectMenuHandler(
+		// biome-ignore lint/suspicious/noExplicitAny: handler initialization
+		this as any,
+	);
+	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
 	public modalsHandler: ModalHandler = new ModalHandler(this as any);
 	public applicationCommandHandler: ApplicationCommandHandler =
+		// biome-ignore lint/suspicious/noExplicitAny: handler initialization
 		new ApplicationCommandHandler(this as any);
+	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
 	public cronHandler: CronHandler = new CronHandler(this as any);
 	private readonly djsConfig: Config<Plugins>;
 	public readonly config?: UserConfig;
@@ -128,10 +144,15 @@ export class DjsClient<
 			try {
 				let plugin: DjsPlugin | undefined;
 
-				if (input instanceof Promise || (input && typeof input === "object" && "then" in input)) {
+				if (
+					input instanceof Promise ||
+					(input && typeof input === "object" && "then" in input)
+				) {
 					const module = await input;
 					plugin = Object.values(module).find(
-						(v: any) => v && typeof v === "object" && "name" in v && "setup" in v
+						// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
+						(v: any) =>
+							v && typeof v === "object" && "name" in v && "setup" in v,
 					) as DjsPlugin;
 				} else {
 					plugin = input as DjsPlugin;
@@ -139,7 +160,10 @@ export class DjsClient<
 
 				if (!plugin) continue;
 
-				const config = (this.djsConfig.pluginsConfig as any)?.[plugin.name] ?? {};
+				const config =
+					// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin config
+					(this.djsConfig.pluginsConfig as any)?.[plugin.name] ?? {};
+				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin injection
 				const extension = await plugin.setup(this as any, config);
 				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin injection
 				(this as any)[plugin.name] = extension;
@@ -147,6 +171,7 @@ export class DjsClient<
 				if (plugin.onReady) {
 					this.once(Events.ClientReady, async () => {
 						try {
+							// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin injection
 							await plugin.onReady?.(this as any, config, extension);
 						} catch (error) {
 							console.error(`[Plugin:${plugin.name}] Error in onReady:`, error);
@@ -162,6 +187,7 @@ export class DjsClient<
 
 export type DjsClientInstance<
 	UserConfig = unknown,
+	// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
 	Plugins extends readonly any[] = any[],
 > = DjsClient<UserConfig, Plugins> &
 	PluginsExtensionsMap<Plugins> &

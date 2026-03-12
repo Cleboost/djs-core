@@ -14,7 +14,9 @@ export default new Command()
 		}
 
 		const list = todos
-			.map((t) => `\`#${t.id}\` - **${t.task}** (${t.createdAt.toLocaleString()})`)
+			.map(
+				(t) => `\`#${t.id}\` - **${t.task}** (${t.createdAt.toLocaleString()})`,
+			)
 			.join("\n");
 		return interaction.reply(`📝 **Your Prisma Todo List:**\n${list}`);
 	});

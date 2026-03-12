@@ -62,32 +62,42 @@ type ExtractPluginExtension<P> =
 	// biome-ignore lint/suspicious/noExplicitAny: generic plugin inference
 	P extends DjsPlugin<string, any, infer E> ? E : any;
 
-// biome-ignore lint/suspicious/noExplicitAny: generic plugin inference
-type PluginInput = DjsPlugin<any, any, any> | Promise<any> | any;
-
-type UnwrapPlugin<T> = T extends Promise<infer M>
-	? M extends { [key: string]: any }
-		? { [K in keyof M]: M[K] extends { name: string } ? M[K] : never }[keyof M]
-		: any
-	: T extends { name: string }
-		? T
-		: any;
+type UnwrapPlugin<T> =
+	T extends Promise<infer M>
+		? // biome-ignore lint/suspicious/noExplicitAny: generic plugin inference
+			M extends { [key: string]: any }
+			? {
+					[K in keyof M]: M[K] extends { name: string } ? M[K] : never;
+				}[keyof M]
+			: // biome-ignore lint/suspicious/noExplicitAny: generic plugin inference
+				any
+		: T extends { name: string }
+			? T
+			: // biome-ignore lint/suspicious/noExplicitAny: generic plugin inference
+				any;
 
 // biome-ignore lint/suspicious/noExplicitAny: generic plugin map
 export type PluginsConfigMap<P extends readonly any[]> = {
-	[K in P[number] as UnwrapPlugin<K> extends { name: infer N } ? (N extends string ? N : never) : never]?: ExtractPluginConfig<UnwrapPlugin<K>>;
+	[K in P[number] as UnwrapPlugin<K> extends { name: infer N }
+		? N extends string
+			? N
+			: never
+		: never]?: ExtractPluginConfig<UnwrapPlugin<K>>;
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: generic plugin map
-export type PluginsExtensionsMap<P extends readonly any[]> =
-	{
-		[K in P[number] as UnwrapPlugin<K> extends { name: infer N } ? (N extends string ? N : never) : never]: ExtractPluginExtension<UnwrapPlugin<K>>;
-	};
+export type PluginsExtensionsMap<P extends readonly any[]> = {
+	[K in P[number] as UnwrapPlugin<K> extends { name: infer N }
+		? N extends string
+			? N
+			: never
+		: never]: ExtractPluginExtension<UnwrapPlugin<K>>;
+};
 
 /**
  * Interface to be augmented by plugins to add properties to DjsClient.
  */
-export interface PluginsExtensions {}
+export type PluginsExtensions = Record<string, unknown>;
 
 /**
  * Helper to define a djs-core configuration with plugin type inference.

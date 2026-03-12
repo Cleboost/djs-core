@@ -1,7 +1,8 @@
 import type { InteractionContextType } from "discord.js";
-import type { DjsPlugin, PluginsConfigMap } from "../../runtime/Plugin";
+import type { PluginsConfigMap } from "../../runtime/Plugin";
 
-export interface Config<const P extends readonly any[] = any[]> {
+// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
+export interface Config<P extends readonly any[] = any[]> {
 	token: string;
 	servers: string[];
 	commands?: {

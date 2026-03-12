@@ -7,7 +7,7 @@ export default new Command()
 	)
 	.run(async (interaction) => {
 		const task = interaction.options.getString("task", true);
-		
+
 		// client.prisma is automatically typed thanks to the updated runtime
 		const result = await interaction.client.prisma.prismaTodo.create({
 			data: {
@@ -15,5 +15,7 @@ export default new Command()
 			},
 		});
 
-		return interaction.reply(`✅ Added task with Prisma: **${result.task}** (ID: \`#${result.id}\`)`);
+		return interaction.reply(
+			`✅ Added task with Prisma: **${result.task}** (ID: \`#${result.id}\`)`,
+		);
 	});
