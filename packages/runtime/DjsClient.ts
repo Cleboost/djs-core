@@ -25,6 +25,10 @@ import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import type { DjsPlugin, PluginsExtensionsMap, PluginsExtensions } from "./Plugin";
 
+declare module "discord.js" {
+	interface Client extends PluginsExtensions {}
+}
+
 export class DjsClient<
 	UserConfig = unknown,
 	Plugins extends readonly any[] = any[],
@@ -162,3 +166,5 @@ export type DjsClientInstance<
 > = DjsClient<UserConfig, Plugins> &
 	PluginsExtensionsMap<Plugins> &
 	PluginsExtensions;
+
+export default DjsClient;
