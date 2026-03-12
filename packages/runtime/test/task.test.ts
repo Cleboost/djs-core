@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import Task from "../Task";
 import type { Client } from "discord.js";
+import Task from "../Task";
 
 describe("Task Class", () => {
 	test("should initialize with undefined values", () => {
