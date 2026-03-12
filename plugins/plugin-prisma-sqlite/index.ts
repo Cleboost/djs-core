@@ -66,7 +66,6 @@ export const prismaPlugin = definePlugin({
 				if (action === "generate") {
 					spawnSync("bunx", ["prisma", "generate"], {
 						stdio: "inherit",
-						shell: true,
 					});
 					process.exit(0);
 				}
@@ -74,7 +73,6 @@ export const prismaPlugin = definePlugin({
 				if (action === "push") {
 					spawnSync("bunx", ["prisma", "db", "push"], {
 						stdio: "inherit",
-						shell: true,
 					});
 					process.exit(0);
 				}
