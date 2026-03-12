@@ -70,7 +70,7 @@ function generateTypeDefinition(
 	return inferType(obj);
 }
 
-export async function generateTypesFromJson(
+async function generateTypesFromJson(
 	configJsonPath: string,
 	outputPath: string,
 ): Promise<void> {
