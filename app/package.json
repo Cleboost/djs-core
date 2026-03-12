@@ -6,12 +6,15 @@
 	"scripts": {
 		"dev": "djs-core dev",
 		"build": "djs-core build",
-		"start": "djs-core start"
+		"start": "djs-core start",
+		"prisma:generate": "djs-core prisma:generate",
+		"prisma:push": "djs-core prisma:push"
 	},
 	"dependencies": {
-		"@djs-core/runtime": "workspace:*",
 		"@djs-core/plugin-demo": "workspace:*",
+		"@djs-core/plugin-prisma-sqlite": "workspace:*",
 		"@djs-core/plugin-sql": "workspace:*",
+		"@djs-core/runtime": "workspace:*",
 		"discord.js": "^14.25.1"
 	},
 	"devDependencies": {

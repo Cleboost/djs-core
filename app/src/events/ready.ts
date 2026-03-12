@@ -13,4 +13,6 @@ export default new EventListener().event(Events.ClientReady).run((client) => {
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`);
+
+	console.log("[Prisma] Database connected and ready.");
 });

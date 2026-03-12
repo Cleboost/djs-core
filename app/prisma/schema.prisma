@@ -1,0 +1,16 @@
+generator client {
+  provider   = "prisma-client"
+  engineType = "client"
+  runtime    = "bun"
+  output     = "../.djscore/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model PrismaTodo {
+  id        Int      @id @default(autoincrement())
+  task      String
+  createdAt DateTime @default(now())
+}
