@@ -22,7 +22,6 @@ async function run() {
 
 	try {
 		const configPath = resolve(process.cwd(), "djs.config.ts");
-		// @ts-expect-error
 		const configModule = await import(configPath);
 		const config = configModule.default as Config;
 

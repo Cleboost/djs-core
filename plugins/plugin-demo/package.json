@@ -7,7 +7,7 @@
 	"private": true,
 	"scripts": {
 		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --minify",
-		"types": "bun x dts-bundle-generator -o dist/index.d.ts index.ts --no-check --project tsconfig.json",
+		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check --project tsconfig.json",
 		"prepack": "bun run build && bun run types"
 	},
 	"dependencies": {
