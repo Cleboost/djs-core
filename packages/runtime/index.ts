@@ -29,9 +29,9 @@ import UserSelectMenu, {
 	type UserSelectMenuRunFn,
 } from "./interaction/UserSelectMenu";
 import {
+	type DjsPlugin,
 	defineConfig,
 	definePlugin,
-	type DjsPlugin,
 	type PluginsConfigMap,
 	PluginsExtensions,
 } from "./Plugin";

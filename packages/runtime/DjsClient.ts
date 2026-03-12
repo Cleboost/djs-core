@@ -39,9 +39,12 @@ export class DjsClient<
 	public buttonsHandler: ButtonHandler = new ButtonHandler(this);
 	public contextMenusHandler: ContextMenuHandler = new ContextMenuHandler(this);
 	public selectMenusHandler: SelectMenuHandler = new SelectMenuHandler(this);
-  public modalsHandler: ModalHandler = new ModalHandler(this);
-	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
-	public applicationCommandHandler: ApplicationCommandHandler = new ApplicationCommandHandler(this as any);
+	public modalsHandler: ModalHandler = new ModalHandler(this);
+	public applicationCommandHandler: ApplicationCommandHandler =
+		new ApplicationCommandHandler(
+			// biome-ignore lint/suspicious/noExplicitAny: handler initialization
+			this as any,
+		);
 	public cronHandler: CronHandler = new CronHandler(this);
 	private readonly djsConfig: Config<Plugins>;
 	public readonly config?: UserConfig;

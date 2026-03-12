@@ -4,10 +4,7 @@ import path from "path";
 import pc from "picocolors";
 import type { Config } from "../../utils/types/config";
 import { banner } from "../utils/common";
-import {
-	autoGenerateConfigTypes,
-	generateTypesFromJson,
-} from "../utils/config-type-generator";
+import { autoGenerateConfigTypes } from "../utils/config-type-generator";
 
 export function registerGenerateConfigTypesCommand(cli: CAC) {
 	cli
@@ -27,7 +24,9 @@ export function registerGenerateConfigTypesCommand(cli: CAC) {
 			// Load config to pass to autoGenerateConfigTypes
 			let config: Config;
 			try {
-				const configModule = await import(path.join(projectRoot, "djs.config.ts"));
+				const configModule = await import(
+					path.join(projectRoot, "djs.config.ts")
+				);
 				config = configModule.default as Config;
 			} catch (error) {
 				console.error(

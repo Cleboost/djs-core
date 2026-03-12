@@ -1,5 +1,5 @@
-import fs from "fs/promises";
 import { existsSync } from "node:fs";
+import fs from "fs/promises";
 import path from "path";
 import pc from "picocolors";
 
