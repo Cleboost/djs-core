@@ -7,6 +7,6 @@ export default new Command()
 	)
 	.run(async (interaction) => {
 		const task = interaction.options.getString("task", true);
-		interaction.client.sql.run("INSERT INTO todos (task) VALUES (?)", [task]);
+		interaction.client.sql.run`INSERT INTO todos (task) VALUES (${task})`;
 		return interaction.reply(`✅ Added task: **${task}**`);
 	});
