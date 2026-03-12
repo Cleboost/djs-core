@@ -63,7 +63,7 @@ type ExtractPluginExtension<P> =
 	P extends DjsPlugin<string, any, infer E> ? E : any;
 
 // biome-ignore lint/suspicious/noExplicitAny: generic plugin inference
-export type PluginInput = DjsPlugin<any, any, any> | Promise<any> | any;
+type PluginInput = DjsPlugin<any, any, any> | Promise<any> | any;
 
 type UnwrapPlugin<T> = T extends Promise<infer M>
 	? M extends { [key: string]: any }

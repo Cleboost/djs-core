@@ -10,10 +10,18 @@
 		"plugins/plugin-demo": {
 			"entry": "index.ts"
 		},
+		"plugins/plugin-prisma-sqlite": {
+			"entry": "index.ts",
+			"ignoreDependencies": ["prisma"]
+		},
+		"plugins/plugin-sql": {
+			"entry": "index.ts"
+		},
 		"app": {
-			"entry": ["djs.config.ts", "src/**/*.ts"]
+			"entry": ["djs.config.ts", "prisma.config.ts", "src/**/*.ts"],
+			"ignoreDependencies": ["dotenv", "prisma"]
 		}
 	},
-	"ignoreBinaries": ["i"],
-	"ignore": ["docs/**", ".changeset/**", "packages/utils/**"]
+	"ignoreBinaries": [],
+	"ignore": ["packages/utils/**"]
 }

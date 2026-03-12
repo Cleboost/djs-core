@@ -112,9 +112,6 @@ export class DjsClient<
 		return this.djsConfig;
 	}
 
-	/**
-	 * Wait for all plugins to be initialized.
-	 */
 	public async waitForPlugins(): Promise<void> {
 		await this.pluginInitPromise;
 	}
@@ -165,5 +162,3 @@ export type DjsClientInstance<
 > = DjsClient<UserConfig, Plugins> &
 	PluginsExtensionsMap<Plugins> &
 	PluginsExtensions;
-
-export default DjsClient;
