@@ -1,0 +1,59 @@
+---
+title: Markdown Components
+icon: "shapes"
+description: Use Markdown components to help you structure your content.
+---
+
+Prose components are replacements for HTML typography tags. They provide a simple way to customize your UI when using Markdown.
+
+### `Accordion`
+
+Use the `<Accordion>` and `<AccordionGroup>` components to display an accordion in your content.
+
+```md
+<AccordionGroup>
+  <Accordion title="What is djs-core?" icon="circle-question">
+    Djs-core is a framework for creating Discord bots with TypeScript.
+  </Accordion>
+  <Accordion title="How do I get started?" icon="circle-question">
+    Check out the [Quickstart](/getting-started/installation) guide.
+  </Accordion>
+</AccordionGroup>
+```
+
+### `Tip`, `Note`, `Warning`, `Info`
+
+Use these components to add eye-catching context to your content.
+
+```md
+<Note>Here's some additional information for you.</Note>
+<Tip>Here's a helpful suggestion.</Tip>
+<Warning>Be careful with this action as it might have unexpected results.</Warning>
+<Info>General information about a feature.</Info>
+```
+
+### `Card` and `CardGroup`
+
+Use the `<Card>` and `<CardGroup>` components to highlight your content.
+
+```md
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/getting-started/installation">
+    Install and set up djs-core for your bot.
+  </Card>
+  <Card title="Commands" icon="terminal" href="/interaction/commands">
+    Build powerful slash commands.
+  </Card>
+</CardGroup>
+```
+
+### `Steps`
+
+Wrap your content with the `<Steps>` component to display a list of steps.
+
+```md
+<Steps>
+  <Step title="Initialize project">Run `bun init`</Step>
+  <Step title="Install djs-core">Run `bun i @djs-core/runtime`</Step>
+</Steps>
+```

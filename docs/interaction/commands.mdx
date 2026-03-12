@@ -1,0 +1,129 @@
+---
+title: Commands
+icon: "terminal"
+description: Learn how to create slash commands with djs-core.
+---
+
+Slash commands are the primary way users interact with your Discord bot. They appear in Discord's command menu and can accept various types of options.
+
+<Note>
+Commands are automatically registered when placed in `src/interactions/commands/`. The command name is derived from the file path, so `src/interactions/commands/ping.ts` becomes `/ping`.
+</Note>
+
+## Creating a Command
+
+Commands in djs-core are created using the `Command` class. Each command file in `src/interactions/commands/` automatically becomes a slash command.
+
+### Basic Command
+
+Here's a simple ping command:
+
+```typescript
+import { Command } from "@djs-core/runtime";
+
+export default new Command()
+        .setDescription("Ping the bot")
+        .run(async (interaction) => {
+                await interaction.reply("Pong!");
+        });
+```
+
+The command name is automatically derived from the file path:
+
+| File Path | Command Name |
+|-----------|--------------|
+| `src/interactions/commands/ping.ts` | `/ping` |
+| `src/interactions/commands/admin/kick.ts` | `/admin kick` |
+| `src/interactions/commands/shop/buy.ts` | `/shop buy` |
+| `src/interactions/commands/admin/moderation/ban.ts` | `/admin moderation ban` |
+
+## Command Options
+
+Commands can accept various types of options to collect user input. Each option type serves a specific purpose:
+
+- **String**: Text input - for names, descriptions, messages, etc.
+- **Integer/Number**: Numeric input - for quantities, IDs, timestamps, etc.
+- **Boolean**: True/false checkbox - for toggles and flags
+- **User**: Discord user selection - for mentions and user-specific actions
+- **Channel**: Discord channel selection - for channel configuration
+- **Role**: Discord role selection - for role assignment
+- **Mentionable**: User or role selection - flexible mention option
+- **Attachment**: File upload - for images, documents, etc.
+
+### String Option
+
+```typescript
+import { Command } from "@djs-core/runtime";
+
+export default new Command()
+        .setDescription("A command with options")
+        .addStringOption((option) =>
+                option
+                        .setName("text")
+                        .setDescription("Enter some text")
+                        .setRequired(true),
+        )
+        .run(async (interaction) => {
+                const text = interaction.options.getString("text");
+                await interaction.reply(`You entered: ${text}`);
+        });
+```
+
+## Autocomplete
+
+Commands can provide autocomplete suggestions for string, integer, and number options. This improves user experience by showing relevant options as they type.
+
+<Tip>
+Autocomplete is especially useful for commands with many possible values, like searching for items, selecting from a list, or choosing from predefined options.
+</Tip>
+
+```typescript
+import { Command } from "@djs-core/runtime";
+
+export default new Command()
+        .setDescription("Search for something")
+        .addStringOption((option) =>
+                option
+                        .setName("query")
+                        .setDescription("Search query")
+                        .setRequired(true)
+                        .setAutocomplete(true)
+        )
+        .run(async (interaction) => {
+                const query = interaction.options.getString("query");
+                await interaction.reply(`You searched for: ${query}`);
+        })
+    .runAutocomplete(async (interaction) => {
+                const focusedValue = interaction.options.getFocused();
+
+                // Filter suggestions based on user input
+                const choices = ["apple", "banana", "cherry"].filter((choice) =>
+                        choice.startsWith(focusedValue),
+                );
+
+                await interaction.respond(
+                        choices.map((choice) => ({ name: choice, value: choice })),
+                );
+        });
+```
+
+## Permissions
+
+You can restrict commands to users with specific permissions. This is essential for administrative or sensitive commands.
+
+<Warning>
+Users without the required permissions won't see the command in Discord's command menu at all.
+</Warning>
+
+```typescript [src/interactions/commands/admin/restart.ts]
+import { Command } from "@djs-core/runtime";
+import { PermissionFlagsBits } from "discord.js";
+
+export default new Command()
+        .setDescription("Restart the bot")
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+        .run(async (interaction) => {
+                await interaction.reply("Bot restarting...");
+                // Restart logic here
+        });
+```

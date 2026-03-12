@@ -1,0 +1,19 @@
+---
+title: Bundle
+icon: "box-open"
+description: Learn about bundling and building your Discord bot with djs-core.
+---
+
+Bundling allows you to compile and optimize your Discord bot for production deployment.
+
+## What is Bundling?
+
+Bundling is the process of compiling your TypeScript code into optimized JavaScript that can be deployed and run in production environments.
+
+## Build Process
+
+djs-core provides build tools to help you bundle your bot efficiently with:
+- TypeScript compilation
+- Code optimization
+- Dependency bundling
+- Production-ready output

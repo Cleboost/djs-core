@@ -1,0 +1,87 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "djs-core",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#5865F2",
+    "light": "#7289DA",
+    "dark": "#4E5D94"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "getting-started/installation",
+              "getting-started/project-structure"
+            ]
+          },
+          {
+            "group": "Interaction",
+            "pages": [
+              "interaction/index",
+              "interaction/commands",
+              "interaction/context-menus"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "components/index",
+              "components/buttons",
+              "components/modals",
+              "components/string-select-menus",
+              "components/user-select-menus",
+              "components/role-select-menus",
+              "components/channel-select-menus",
+              "components/mentionable-select-menus"
+            ]
+          },
+          {
+            "group": "Essentials",
+            "pages": [
+              "essentials/markdown-syntax",
+              "essentials/code-blocks",
+              "essentials/components",
+              "essentials/images-embeds"
+            ]
+          },
+          {
+            "group": "Bundle",
+            "pages": ["bundle/index"]
+          },
+          {
+            "group": "Other",
+            "pages": [
+              "essentials/configuration",
+              "essentials/events-tasks",
+              "essentials/plugins"
+            ]
+          },
+          {
+            "group": "AI tools",
+            "pages": [
+              "ai-tools/cursor",
+              "ai-tools/claude-code",
+              "ai-tools/windsurf"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/Cleboost/djs-core"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+---
+title: Markdown Syntax
+icon: "heading"
+description: Text, title, and styling in standard markdown.
+---
+
+## Titles
+
+Use titles to introduce main sections. They structure your documentation and help users navigate content.
+
+```md
+## Titles
+```
+
+### Subtitles
+
+Use subtitles to divide sections further. They create a more detailed content hierarchy for better readability.
+
+```md
+### Subtitles
+```
+
+<Tip>
+Each title and subtitle creates an anchor and shows up automatically in the table of contents.
+</Tip>
+
+## Text Formatting
+
+Djs-core supports most Markdown formatting options.
+
+| Style  | How to use   | Result     |
+| ------ | ------------ | ---------- |
+| Bold   | `**bold**`   | **Bold**   |
+| Italic | `*italic*`   | *Italic*   |
+| Strike | `~~strike~~` | ~~Strike~~ |
+
+Combine formatting for richer text styles and visual emphasis.
+
+| Style         | How to use          | Result            |
+| ------------- | ------------------- | ----------------- |
+| Bold Italic   | `**_bold italic_**` | ***Bold Italic*** |
+| Bold Strike   | `~~**bold**~~`      | ~~**Bold**~~      |
+| Italic Strike | `~~*italic*~~`      | ~~*Italic*~~      |
+
+## Links
+
+Links connect different parts of your documentation and external resources. To create a link, wrap the link text in brackets `[]()`.
+
+```md
+[Discord.js](https://discord.js.org/)
+```
+
+### Internal links
+
+For linking within your documentation, use root-relative paths like `/getting-started/installation`.
+
+```md
+[Installation](/getting-started/installation)
+```
+
+## Lists
+
+### Unordered
+
+```md
+- I'm a list item.
+- I'm another list item.
+```
+
+### Ordered
+
+```md
+1. I'm a list item.
+2. I'm another list item.
+```
+
+## Tables
+
+Present structured data in rows and columns clearly.
+
+```md
+| Prop    | Default   | Type     |
+| ------- | --------- | -------- |
+| `name`  |           | `string` |
+| `size`  | `md`      | `string` |
+```
+
+## Blockquotes
+
+### Singleline
+
+> Nuxt UI is a collection of Vue components, composables and utils built on top of Reka UI.
+
+```md
+> Your quote here.
+```
