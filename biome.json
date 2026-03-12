@@ -36,7 +36,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["packages/runtime/test/**"],
+			"includes": ["packages/runtime/test/**", "docs/**"],
 			"linter": { "enabled": false },
 			"formatter": { "enabled": false }
 		}
