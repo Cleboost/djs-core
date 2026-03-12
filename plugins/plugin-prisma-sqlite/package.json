@@ -1,0 +1,32 @@
+{
+	"name": "@djs-core/plugin-prisma-sqlite",
+	"version": "0.0.0",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --external @prisma/client --minify",
+		"types": "bun x dts-bundle-generator -o dist/index.d.ts index.ts --no-check --project tsconfig.json",
+		"prepack": "bun run build && bun run types"
+	},
+	"dependencies": {
+		"@djs-core/runtime": "workspace:*",
+		"prisma-adapter-bun-sqlite": "latest"
+	},
+	"devDependencies": {
+		"typescript": "^5",
+		"@types/bun": "latest",
+		"prisma": "latest",
+		"@prisma/client": "latest"
+	},
+	"peerDependencies": {
+		"discord.js": "^14.25.1",
+		"@prisma/client": ">=5.0.0"
+	},
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}
