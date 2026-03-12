@@ -118,7 +118,7 @@ export function registerPluginCommand(cli: CAC) {
 
 			const result = spawnSync("bun", ["add", fullName], {
 				stdio: "inherit",
-				shell: true,
+				shell: false,
 			});
 
 			if (result.status !== 0) {
