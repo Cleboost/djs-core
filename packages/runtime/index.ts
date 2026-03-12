@@ -29,12 +29,13 @@ import UserSelectMenu, {
 	type UserSelectMenuRunFn,
 } from "./interaction/UserSelectMenu";
 import {
-	type DjsPlugin,
 	defineConfig,
 	definePlugin,
+	type DjsPlugin,
 	type PluginsConfigMap,
-	type PluginsExtensions,
+	PluginsExtensions,
 } from "./Plugin";
+
 import Task from "./Task";
 
 export {
@@ -72,7 +73,7 @@ export {
 	definePlugin,
 	type DjsPlugin,
 	type PluginsConfigMap,
-	type PluginsExtensions,
+	PluginsExtensions,
 };
 
 export * from "./interaction/BaseInteraction";

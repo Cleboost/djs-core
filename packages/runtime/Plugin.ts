@@ -24,6 +24,12 @@ export interface DjsPlugin<
 	// biome-ignore lint/suspicious/noExplicitAny: generic plugin cli registration
 	cli?: (cli: any) => void;
 	/**
+	 * Provide TypeScript definitions to be added to the project.
+	 * @param context Context.
+	 * @returns The TypeScript definitions as a string.
+	 */
+	types?: (context: { root: string }) => string | Promise<string>;
+	/**
 	 * Run tasks after the plugin is installed.
 	 * @param context Postinstall context.
 	 */
@@ -97,7 +103,16 @@ export type PluginsExtensionsMap<P extends readonly any[]> = {
 /**
  * Interface to be augmented by plugins to add properties to DjsClient.
  */
-export type PluginsExtensions = Record<string, unknown>;
+export interface PluginsExtensions {
+	/** @internal */
+	_?: never;
+}
+
+export const PluginsExtensions = {};
+
+declare module "discord.js" {
+	interface Client extends PluginsExtensions {}
+}
 
 /**
  * Helper to define a djs-core configuration with plugin type inference.

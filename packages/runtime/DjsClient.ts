@@ -29,35 +29,20 @@ import type {
 	PluginsExtensionsMap,
 } from "./Plugin";
 
-declare module "discord.js" {
-	interface Client extends PluginsExtensions {}
-}
-
 export class DjsClient<
 	UserConfig = unknown,
 	// biome-ignore lint/suspicious/noExplicitAny: generic plugin array
 	Plugins extends readonly any[] = any[],
 > extends Client {
-	public eventsHandler: EventHandler = new EventHandler(this as Client);
+	public eventsHandler: EventHandler = new EventHandler(this);
+	public commandsHandler: CommandHandler = new CommandHandler(this);
+	public buttonsHandler: ButtonHandler = new ButtonHandler(this);
+	public contextMenusHandler: ContextMenuHandler = new ContextMenuHandler(this);
+	public selectMenusHandler: SelectMenuHandler = new SelectMenuHandler(this);
+  public modalsHandler: ModalHandler = new ModalHandler(this);
 	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
-	public commandsHandler: CommandHandler = new CommandHandler(this as any);
-	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
-	public buttonsHandler: ButtonHandler = new ButtonHandler(this as any);
-	public contextMenusHandler: ContextMenuHandler = new ContextMenuHandler(
-		// biome-ignore lint/suspicious/noExplicitAny: handler initialization
-		this as any,
-	);
-	public selectMenusHandler: SelectMenuHandler = new SelectMenuHandler(
-		// biome-ignore lint/suspicious/noExplicitAny: handler initialization
-		this as any,
-	);
-	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
-	public modalsHandler: ModalHandler = new ModalHandler(this as any);
-	public applicationCommandHandler: ApplicationCommandHandler =
-		// biome-ignore lint/suspicious/noExplicitAny: handler initialization
-		new ApplicationCommandHandler(this as any);
-	// biome-ignore lint/suspicious/noExplicitAny: handler initialization
-	public cronHandler: CronHandler = new CronHandler(this as any);
+	public applicationCommandHandler: ApplicationCommandHandler = new ApplicationCommandHandler(this as any);
+	public cronHandler: CronHandler = new CronHandler(this);
 	private readonly djsConfig: Config<Plugins>;
 	public readonly config?: UserConfig;
 	private pluginInitPromise: Promise<void>;
