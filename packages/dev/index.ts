@@ -52,19 +52,12 @@ async function run() {
 		}
 	} catch (_error) {}
 
-	cli.parse(process.argv, { run: false });
-
-	if (!cli.matchedCommand && process.argv.length > 2) {
-		console.error(
-			pc.red(`\nUnknown command: ${process.argv.slice(2).join(" ")}`),
-		);
-		console.log(
-			`Run ${pc.bold("djs-core --help")} to see available commands.\n`,
-		);
+	try {
+		cli.parse();
+	} catch (err) {
+		console.error(pc.red("Error:"), (err as Error).message);
 		process.exit(1);
 	}
-
-	await cli.runMatchedCommand();
 }
 
 run().catch((err) => {

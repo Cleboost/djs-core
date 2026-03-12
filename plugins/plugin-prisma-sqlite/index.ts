@@ -53,22 +53,28 @@ export const prismaPlugin = definePlugin({
 	},
 	// biome-ignore lint/suspicious/noExplicitAny: cli definition
 	cli: (cli: any) => {
-		cli.command("prisma generate", "Generate Prisma Client").action(() => {
-			spawnSync("bunx", ["prisma", "generate"], {
-				stdio: "inherit",
-				shell: true,
-			});
-			process.exit(0);
-		});
-
 		cli
-			.command("prisma push", "Sync schema with database (db push)")
-			.action(() => {
-				spawnSync("bunx", ["prisma", "db", "push"], {
-					stdio: "inherit",
-					shell: true,
-				});
-				process.exit(0);
+			.command("prisma <action>", "Prisma helper commands")
+			.action((action: string) => {
+				if (action === "generate") {
+					spawnSync("bunx", ["prisma", "generate"], {
+						stdio: "inherit",
+						shell: true,
+					});
+					process.exit(0);
+				}
+
+				if (action === "push") {
+					spawnSync("bunx", ["prisma", "db", "push"], {
+						stdio: "inherit",
+						shell: true,
+					});
+					process.exit(0);
+				}
+
+				console.error(`\nUnknown prisma action: ${action}`);
+				console.log("Available actions: generate, push\n");
+				process.exit(1);
 			});
 	},
 	postinstall: ({ root }) => {
