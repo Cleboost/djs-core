@@ -71,6 +71,7 @@ export {
 	definePlugin,
 	type DjsPlugin,
 	type PluginsConfigMap,
+	type PluginsExtensions,
 };
 
 export * from "./interaction/BaseInteraction";
