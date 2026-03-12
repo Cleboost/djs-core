@@ -34,4 +34,16 @@ export const sqlPlugin = definePlugin({
 			},
 		};
 	},
+	types: () => {
+		return `declare module "@djs-core/runtime" {
+  interface PluginsExtensions {
+    sql: {
+      execute: (query: string, params?: any[]) => any[];
+      run: (query: string, params?: any[]) => void;
+      close: () => void;
+    };
+  }
+}
+`;
+	},
 });

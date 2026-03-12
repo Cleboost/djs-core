@@ -84,6 +84,16 @@ export const prismaPlugin = definePlugin({
 				process.exit(1);
 			});
 	},
+	types: () => {
+		return `import type { PrismaClient } from "./prisma/client";
+
+declare module "@djs-core/runtime" {
+  interface PluginsExtensions {
+    prisma: PrismaClient;
+  }
+}
+`;
+	},
 	postinstall: ({ root }) => {
 		const envPath = resolve(root, ".env");
 		const dbLine = 'DATABASE_URL="file:./prisma_todos.db"';
@@ -141,20 +151,5 @@ model User {
 `,
 			);
 		}
-
-		const typesDir = resolve(root, ".djscore");
-		if (!existsSync(typesDir)) mkdirSync(typesDir, { recursive: true });
-
-		writeFileSync(
-			resolve(typesDir, "prisma.d.ts"),
-			`import type { PrismaClient } from "./prisma";
-
-declare module "@djs-core/runtime" {
-  interface PluginsExtensions {
-    prisma: PrismaClient;
-  }
-}
-`,
-		);
 	},
 });

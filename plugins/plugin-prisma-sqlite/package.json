@@ -5,23 +5,21 @@
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --external @prisma/client --minify",
+		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --external @prisma/client --external prisma --minify",
 		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check --project tsconfig.json",
 		"prepack": "bun run build && bun run types"
 	},
 	"dependencies": {
 		"@djs-core/runtime": "workspace:*",
-		"prisma-adapter-bun-sqlite": "latest"
+		"@prisma/client": "^7.5.0",
+		"prisma": "^7.5.0"
 	},
 	"devDependencies": {
-		"typescript": "^5",
 		"@types/bun": "latest",
-		"prisma": "latest",
-		"@prisma/client": "latest"
+		"prisma-adapter-bun-sqlite": "latest"
 	},
 	"peerDependencies": {
-		"discord.js": "^14.25.1",
-		"@prisma/client": ">=5.0.0"
+		"discord.js": "^14.25.1"
 	},
 	"files": [
 		"dist"
