@@ -30,7 +30,8 @@ export default {
 </ResponseField>
 
 <ResponseField name="servers" type="string[]" required>
-  Array of guild (server) IDs where commands should be registered. 
+  Array of guild (server) IDs where commands should be registered.
+
   - During development, using specific server IDs ensures near-instant command updates.
   - Use an empty array `[]` for global commands (can take up to 1 hour to propagate).
 </ResponseField>
@@ -43,12 +44,13 @@ export default {
 
 We recommend using a `.env` file to manage your secrets:
 
-```env [.env]
+```shellscript .env
 TOKEN=your_discord_bot_token_here
 ```
 
 Ensure your `.gitignore` includes:
-```gitignore
+
+```text
 .env
 node_modules/
 dist/
