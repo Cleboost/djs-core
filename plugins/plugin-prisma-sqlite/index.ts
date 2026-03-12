@@ -34,10 +34,17 @@ export const prismaPlugin = definePlugin({
 
 		const adapter = new PrismaBunSqlite({ url });
 
-		const clientPath = resolve(process.cwd(), ".djscore/prisma/index.js");
+		let clientPath = resolve(process.cwd(), ".djscore/prisma/index.js");
+		if (!existsSync(clientPath)) {
+			clientPath = resolve(process.cwd(), ".djscore/prisma/index.ts");
+		}
+		if (!existsSync(clientPath)) {
+			clientPath = resolve(process.cwd(), ".djscore/prisma/client.ts");
+		}
+
 		if (!existsSync(clientPath)) {
 			throw new Error(
-				"[PrismaPlugin] Prisma Client not found. Please run 'djs-core prisma generate' first.",
+				`[PrismaPlugin] Prisma Client not found at ${clientPath}. Please run 'djs-core prisma generate' first.`,
 			);
 		}
 
