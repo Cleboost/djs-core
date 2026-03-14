@@ -13,18 +13,18 @@ export const sqlPlugin = definePlugin({
 
 		return {
 			/**
-			 * Execute a raw SQL query.
+			 * Execute a raw SQL query using tagged templates.
 			 */
 			// biome-ignore lint/suspicious/noExplicitAny: raw SQL params
-			execute: (query: string, params: any[] = []) => {
-				return db.query(query).all(...params);
+			execute: (strings: TemplateStringsArray, ...params: any[]) => {
+				return db.query(strings.join("?")).all(...params);
 			},
 			/**
-			 * Execute a SQL statement and return no results.
+			 * Execute a SQL statement and return no results using tagged templates.
 			 */
 			// biome-ignore lint/suspicious/noExplicitAny: raw SQL params
-			run: (query: string, params: any[] = []) => {
-				return db.run(query, ...params);
+			run: (strings: TemplateStringsArray, ...params: any[]) => {
+				return db.run(strings.join("?"), ...params);
 			},
 			/**
 			 * Close the database connection.
@@ -38,8 +38,8 @@ export const sqlPlugin = definePlugin({
 		return `declare module "@djs-core/runtime" {
   interface PluginsExtensions {
     sql: {
-      execute: (query: string, params?: any[]) => any[];
-      run: (query: string, params?: any[]) => void;
+      execute: (strings: TemplateStringsArray, ...params: any[]) => any[];
+      run: (strings: TemplateStringsArray, ...params: any[]) => void;
       close: () => void;
     };
   }

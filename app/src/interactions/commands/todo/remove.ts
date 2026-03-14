@@ -7,6 +7,6 @@ export default new Command()
 	)
 	.run(async (interaction) => {
 		const id = interaction.options.getInteger("id", true);
-		interaction.client.sql.run("DELETE FROM todos WHERE id = ?", [id]);
+		interaction.client.sql.run`DELETE FROM todos WHERE id = ${id}`;
 		return interaction.reply(`🗑️ Removed task with ID: \`#${id}\``);
 	});
