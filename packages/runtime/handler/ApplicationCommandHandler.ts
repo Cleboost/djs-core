@@ -74,7 +74,10 @@ export default class ApplicationCommandHandler {
 			await Promise.all(
 				this.guilds.map(async (guildId) => {
 					try {
-						const created = await application.commands.set(allCommands, guildId);
+						const created = await application.commands.set(
+							allCommands,
+							guildId,
+						);
 						this.refreshCacheFromSetResult(created, guildId);
 					} catch (error: unknown) {
 						if (

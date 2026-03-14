@@ -1,4 +1,4 @@
-import { describe, expect, test, mock, beforeAll, afterAll } from "bun:test";
+import { afterAll, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Collection } from "discord.js";
 import ApplicationCommandHandler from "../handler/ApplicationCommandHandler";
 
