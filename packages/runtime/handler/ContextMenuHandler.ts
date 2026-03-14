@@ -24,16 +24,19 @@ export default class ContextMenuHandler {
 		this.assertReady();
 		this.contextMenus.set(contextMenu.name, contextMenu);
 
-		if (!this.client.application) {
+		const application = this.client.application;
+		if (!application) {
 			throw new Error("Client application is not available");
 		}
 
 		if (this.guilds.length > 0) {
-			for (const guildId of this.guilds) {
-				await this.client.application.commands.create(contextMenu, guildId);
-			}
+			await Promise.all(
+				this.guilds.map((guildId) =>
+					application.commands.create(contextMenu, guildId),
+				),
+			);
 		} else {
-			await this.client.application.commands.create(contextMenu);
+			await application.commands.create(contextMenu);
 		}
 	}
 
@@ -55,25 +58,28 @@ export default class ContextMenuHandler {
 
 		this.contextMenus.delete(name);
 
-		if (!this.client.application) {
+		const application = this.client.application;
+		if (!application) {
 			throw new Error("Client application is not available");
 		}
 
 		if (this.guilds.length > 0) {
-			for (const guildId of this.guilds) {
-				const commands = await this.client.application.commands.fetch({
-					guildId,
-				});
-				const command = commands.find((cmd) => cmd.name === name);
-				if (command) {
-					await this.client.application.commands.delete(command.id, guildId);
-				}
-			}
+			await Promise.all(
+				this.guilds.map(async (guildId) => {
+					const commands = await application.commands.fetch({
+						guildId,
+					});
+					const command = commands.find((cmd) => cmd.name === name);
+					if (command) {
+						await application.commands.delete(command.id, guildId);
+					}
+				}),
+			);
 		} else {
-			const commands = await this.client.application.commands.fetch();
+			const commands = await application.commands.fetch();
 			const command = commands.find((cmd) => cmd.name === name);
 			if (command) {
-				await this.client.application.commands.delete(command.id);
+				await application.commands.delete(command.id);
 			}
 		}
 	}
