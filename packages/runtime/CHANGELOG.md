@@ -1,5 +1,16 @@
 # @djs-core/runtime
 
+## 1.8.0
+
+### Minor Changes
+
+- 9bf091e: Support for dynamic plugin typing via `PluginsExtensions` augmentation and asynchronous `import()` in plugin configuration.
+
+### Patch Changes
+
+- 3c13aa6: Optimize application command registration by implementing parallel guild synchronization (via Promise.all) to improve performance and adding unit tests for command synchronization.
+- d8a5f1f: Optimize context menu registration and deletion by parallelizing guild-specific API calls and improving internal safety checks.
+
 ## 1.7.0
 
 ### Minor Changes
