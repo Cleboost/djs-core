@@ -91,11 +91,15 @@ export function registerPluginCommand(cli: CAC) {
 			"Manage bot plugins (install, postinstall)",
 		)
 		.action(async (action: string, name: string) => {
-			if (!name || !/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(name)) {
+			if (
+				!name ||
+				!/^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(
+					name,
+				)
+			) {
 				console.error(pc.red(`\n❌ Invalid plugin name: ${name}`));
 				process.exit(1);
 			}
-
 			const fullName = name.startsWith("@") ? name : `@djs-core/${name}`;
 			const projectRoot = process.cwd();
 
