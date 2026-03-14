@@ -65,29 +65,36 @@ export default class ApplicationCommandHandler {
 			...this.contextMenus,
 		];
 
+		const application = this.client.application;
+		if (!application) {
+			throw new Error("Client application is not available");
+		}
+
 		if (this.guilds.length > 0) {
-			for (const guildId of this.guilds) {
-				try {
-					const created = await this.client.application.commands.set(
-						allCommands,
-						guildId,
-					);
-					this.refreshCacheFromSetResult(created, guildId);
-				} catch (error: unknown) {
-					if (
-						error &&
-						typeof error === "object" &&
-						"code" in error &&
-						error.code === 10063
-					) {
-						continue;
+			await Promise.all(
+				this.guilds.map(async (guildId) => {
+					try {
+						const created = await application.commands.set(
+							allCommands,
+							guildId,
+						);
+						this.refreshCacheFromSetResult(created, guildId);
+					} catch (error: unknown) {
+						if (
+							error &&
+							typeof error === "object" &&
+							"code" in error &&
+							error.code === 10063
+						) {
+							return;
+						}
+						throw error;
 					}
-					throw error;
-				}
-			}
+				}),
+			);
 		} else {
 			try {
-				const created = await this.client.application.commands.set(allCommands);
+				const created = await application.commands.set(allCommands);
 				this.refreshCacheFromSetResult(created, "global");
 			} catch (error: unknown) {
 				if (
