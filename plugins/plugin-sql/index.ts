@@ -13,14 +13,14 @@ export const sqlPlugin = definePlugin({
 
 		return {
 			/**
-			 * Execute a raw SQL query.
+			 * Execute a raw SQL query using tagged templates.
 			 */
 			// biome-ignore lint/suspicious/noExplicitAny: raw SQL params
 			execute: (strings: TemplateStringsArray, ...params: any[]) => {
 				return db.query(strings.join("?")).all(...params);
 			},
 			/**
-			 * Execute a SQL statement and return no results.
+			 * Execute a SQL statement and return no results using tagged templates.
 			 */
 			// biome-ignore lint/suspicious/noExplicitAny: raw SQL params
 			run: (strings: TemplateStringsArray, ...params: any[]) => {
