@@ -65,16 +65,16 @@ export default class ApplicationCommandHandler {
 			...this.contextMenus,
 		];
 
+		const application = this.client.application;
+		if (!application) {
+			throw new Error("Client application is not available");
+		}
+
 		if (this.guilds.length > 0) {
 			await Promise.all(
 				this.guilds.map(async (guildId) => {
 					try {
-						// We already checked this.client.application above, but TS loses context inside map
-						// biome-ignore lint/style/noNonNullAssertion: safe here since application is checked above
-						const created = await this.client.application!.commands.set(
-							allCommands,
-							guildId,
-						);
+						const created = await application.commands.set(allCommands, guildId);
 						this.refreshCacheFromSetResult(created, guildId);
 					} catch (error: unknown) {
 						if (
@@ -91,7 +91,7 @@ export default class ApplicationCommandHandler {
 			);
 		} else {
 			try {
-				const created = await this.client.application.commands.set(allCommands);
+				const created = await application.commands.set(allCommands);
 				this.refreshCacheFromSetResult(created, "global");
 			} catch (error: unknown) {
 				if (
