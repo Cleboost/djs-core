@@ -1,5 +1,25 @@
 # @djs-core/dev
 
+## 5.2.0
+
+### Minor Changes
+
+- 9bf091e: New plugin management system with `djs-core plugin install` and `postinstall` commands. Supports automatic configuration updates and plugin-contributed CLI commands.
+- 32395b2: Add non-interactive build flags to the `djs-core` development CLI:
+
+  - `--bundled` to force a Bun bundled build
+  - `--external` to force a Bun build with external dependencies
+  - reuses existing `--compile` flag to build a native binary
+
+  These flags allow CI/build-runner workflows to run `djs-core build` without an interactive prompt.
+
+### Patch Changes
+
+- Updated dependencies [9bf091e]
+- Updated dependencies [3c13aa6]
+- Updated dependencies [d8a5f1f]
+  - @djs-core/runtime@1.8.0
+
 ## 5.1.0
 
 ### Minor Changes
