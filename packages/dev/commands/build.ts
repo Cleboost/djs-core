@@ -13,7 +13,9 @@ type BuildOptions = {
 	path: string;
 	outdir: string;
 	minify: boolean;
-	compile: boolean;
+	compile?: boolean;
+	bundled?: boolean;
+	external?: boolean;
 };
 
 function toPosixPath(p: string): string {
@@ -280,6 +282,8 @@ export function registerBuildCommand(cli: CAC) {
 			{ default: "dist" },
 		)
 		.option("--no-minify", "Disable minification")
+		.option("--bundled", "Bun (bundled)")
+		.option("--external", "Bun (external deps)")
 		.option("-c, --compile", "Compile to a standalone binary")
 		.action(async (options: BuildOptions) => {
 			console.log(banner);
@@ -342,7 +346,30 @@ export function registerBuildCommand(cli: CAC) {
 
 			await fs.writeFile(entryPath, code, "utf8");
 
-			let buildType = options.compile ? "compile" : null;
+			let buildType: string | null = null;
+			if (options.compile) buildType = "compile";
+			if (options.bundled) {
+				if (buildType) {
+					console.error(
+						pc.red(
+							"❌ Cannot combine build flags --bundled/--external/--compile",
+						),
+					);
+					process.exit(1);
+				}
+				buildType = "bun";
+			}
+			if (options.external) {
+				if (buildType) {
+					console.error(
+						pc.red(
+							"❌ Cannot combine build flags --bundled/--external/--compile",
+						),
+					);
+					process.exit(1);
+				}
+				buildType = "bun-external";
+			}
 
 			if (!buildType) {
 				buildType = (await select({
@@ -356,7 +383,7 @@ export function registerBuildCommand(cli: CAC) {
 				})) as string;
 			}
 
-			if (typeof buildType !== "string") {
+			if (!buildType) {
 				console.log(pc.red("❌ Build cancelled"));
 				process.exit(1);
 			}
