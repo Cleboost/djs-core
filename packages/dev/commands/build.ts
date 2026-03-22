@@ -346,39 +346,47 @@ export function registerBuildCommand(cli: CAC) {
 
 			await fs.writeFile(entryPath, code, "utf8");
 
-						let buildType: string | null = null;
-						if (options.compile) buildType = "compile";
-						if (options.bundled) {
-							if (buildType) {
-								console.error(pc.red("❌ Cannot combine build flags --bundled/--external/--compile"));
-								process.exit(1);
-							}
-							buildType = "bun";
-						}
-						if (options.external) {
-							if (buildType) {
-								console.error(pc.red("❌ Cannot combine build flags --bundled/--external/--compile"));
-								process.exit(1);
-							}
-							buildType = "bun-external";
-						}
+			let buildType: string | null = null;
+			if (options.compile) buildType = "compile";
+			if (options.bundled) {
+				if (buildType) {
+					console.error(
+						pc.red(
+							"❌ Cannot combine build flags --bundled/--external/--compile",
+						),
+					);
+					process.exit(1);
+				}
+				buildType = "bun";
+			}
+			if (options.external) {
+				if (buildType) {
+					console.error(
+						pc.red(
+							"❌ Cannot combine build flags --bundled/--external/--compile",
+						),
+					);
+					process.exit(1);
+				}
+				buildType = "bun-external";
+			}
 
-						if (!buildType) {
-							buildType = (await select({
-								message: "Select build type:",
-								options: [
-									{ value: "bun", label: "Bun (bundled)" },
-									{ value: "bun-external", label: "Bun (external deps)" },
-									{ value: "compile", label: "Compile (Native binary, ~90MB)" },
-									{ value: "docker", label: "Docker" },
-								],
-							})) as string;
-						}
+			if (!buildType) {
+				buildType = (await select({
+					message: "Select build type:",
+					options: [
+						{ value: "bun", label: "Bun (bundled)" },
+						{ value: "bun-external", label: "Bun (external deps)" },
+						{ value: "compile", label: "Compile (Native binary, ~90MB)" },
+						{ value: "docker", label: "Docker" },
+					],
+				})) as string;
+			}
 
-						if (!buildType) {
-							console.log(pc.red("❌ Build cancelled"));
-							process.exit(1);
-						}
+			if (!buildType) {
+				console.log(pc.red("❌ Build cancelled"));
+				process.exit(1);
+			}
 
 			const outdirAbs = path.resolve(botRoot, options.outdir);
 
