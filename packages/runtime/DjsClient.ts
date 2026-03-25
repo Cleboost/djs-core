@@ -77,7 +77,7 @@ export class DjsClient<
 				IntentsBitField.Flags.Guilds,
 				IntentsBitField.Flags.MessageContent,
 			],
-			partials: [
+			partials: djsConfig.partials ?? [
 				Partials.Channel,
 				Partials.User,
 				Partials.Reaction,
