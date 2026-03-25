@@ -1,4 +1,8 @@
-import type { BitFieldResolvable, GatewayIntentsString, InteractionContextType } from "discord.js";
+import type {
+	BitFieldResolvable,
+	GatewayIntentsString,
+	InteractionContextType,
+} from "discord.js";
 import type { PluginsConfigMap } from "../../runtime/Plugin";
 
 // biome-ignore lint/suspicious/noExplicitAny: generic plugin array

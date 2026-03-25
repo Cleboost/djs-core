@@ -5,10 +5,12 @@ import { registerBuildCommand } from "../commands/build";
 test("build command registers without throwing", () => {
 	const cli = cac("djs-core-test");
 	expect(() => registerBuildCommand(cli)).not.toThrow();
+	// biome-ignore lint/suspicious/noExplicitAny: access cac internals for testing
 	const anyCli = cli as any;
 	const cmds = anyCli.commands || anyCli._commands || [];
 	const hasBuild =
 		Array.isArray(cmds) &&
+		// biome-ignore lint/suspicious/noExplicitAny: access cac internals for testing
 		cmds.some((c: any) => c?.name === "build" || c?.command === "build");
 
 	expect(hasBuild).toBeTruthy();

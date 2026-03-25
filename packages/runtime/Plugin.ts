@@ -1,4 +1,9 @@
-import type { BitFieldResolvable, Client, GatewayIntentsString, InteractionContextType } from "discord.js";
+import type {
+	BitFieldResolvable,
+	Client,
+	GatewayIntentsString,
+	InteractionContextType,
+} from "discord.js";
 
 /**
  * Definition of a djs-core plugin.

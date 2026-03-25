@@ -58,7 +58,7 @@ export class DjsClient<
 			intents: djsConfig.intents ?? [
 				IntentsBitField.Flags.MessageContent,
 				IntentsBitField.Flags.GuildMembers,
-				IntentsBitField.Flags.GuildPresences
+				IntentsBitField.Flags.GuildPresences,
 			],
 		});
 		this.djsConfig = djsConfig;

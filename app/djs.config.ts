@@ -1,6 +1,6 @@
 import { demoPlugin } from "@djs-core/plugin-demo";
 import { defineConfig } from "@djs-core/runtime";
-import {IntentsBitField, InteractionContextType} from "discord.js";
+import { IntentsBitField, InteractionContextType } from "discord.js";
 
 if (!process.env.TOKEN) {
 	throw new Error("TOKEN environment variable is required");
@@ -15,7 +15,7 @@ const config = defineConfig({
 	intents: [
 		IntentsBitField.Flags.MessageContent,
 		IntentsBitField.Flags.GuildMembers,
-		IntentsBitField.Flags.GuildPresences
+		IntentsBitField.Flags.GuildPresences,
 	],
 	experimental: {
 		cron: true,
