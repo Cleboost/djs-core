@@ -1,6 +1,6 @@
 {
 	"name": "@djs-core/dev",
-	"version": "5.2.1",
+	"version": "5.2.2",
 	"description": "Development CLI tools for djs-core Discord bot framework",
 	"type": "module",
 	"types": "./dist/index.d.ts",

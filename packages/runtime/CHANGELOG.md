@@ -1,5 +1,14 @@
 # @djs-core/runtime
 
+## 1.10.0
+
+### Minor Changes
+
+- 1aab71f: feat: add support for partials in configuration and enable all intents by default in `DjsClient`.
+  - Add `partials` to the `Config` interface.
+  - Update `DjsClient` constructor to include more default intents.
+  - Added default `partials` support in `DjsClient` for partial data handling.
+
 ## 1.9.0
 
 ### Minor Changes

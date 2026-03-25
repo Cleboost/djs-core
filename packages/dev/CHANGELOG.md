@@ -1,5 +1,12 @@
 # @djs-core/dev
 
+## 5.2.2
+
+### Patch Changes
+
+- Updated dependencies [1aab71f]
+  - @djs-core/runtime@1.10.0
+
 ## 5.2.1
 
 ### Patch Changes
