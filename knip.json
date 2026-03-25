@@ -22,6 +22,6 @@
 			"ignoreDependencies": ["dotenv", "prisma"]
 		}
 	},
-	"ignoreBinaries": [],
+	"ignoreBinaries": ["tail"],
 	"ignore": ["packages/utils/**"]
 }

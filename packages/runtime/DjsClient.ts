@@ -55,11 +55,10 @@ export class DjsClient<
 		userConfig,
 	}: { djsConfig: Config<Plugins>; userConfig?: UserConfig }) {
 		super({
-			intents: [
-				IntentsBitField.Flags.Guilds,
-				IntentsBitField.Flags.GuildMessages,
-				IntentsBitField.Flags.GuildMessageReactions,
-				IntentsBitField.Flags.GuildVoiceStates,
+			intents: djsConfig.intents ?? [
+				IntentsBitField.Flags.MessageContent,
+				IntentsBitField.Flags.GuildMembers,
+				IntentsBitField.Flags.GuildPresences,
 			],
 		});
 		this.djsConfig = djsConfig;
