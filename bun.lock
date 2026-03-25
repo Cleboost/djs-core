@@ -5,7 +5,7 @@
     "": {
       "name": "djs-core",
       "devDependencies": {
-        "@biomejs/biome": "^2.4.8",
+        "@biomejs/biome": "^2.4.9",
         "@changesets/cli": "^2.30.0",
         "dts-bundle-generator": "^9.5.1",
         "knip": "^6.0.5",
