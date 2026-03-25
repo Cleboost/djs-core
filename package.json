@@ -13,7 +13,7 @@
 		"@biomejs/biome": "^2.4.8",
 		"@changesets/cli": "^2.30.0",
 		"dts-bundle-generator": "^9.5.1",
-		"knip": "^5.88.1",
+		"knip": "^6.0.5",
 		"typescript": "latest",
 		"turbo": "^2.8.20"
 	},
