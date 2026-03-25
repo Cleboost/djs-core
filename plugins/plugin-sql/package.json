@@ -10,7 +10,7 @@
 		"prepack": "bun run build && bun run types"
 	},
 	"dependencies": {
-		"@djs-core/runtime": "workspace:*"
+		"@djs-core/runtime": "workspace:^"
 	},
 	"devDependencies": {
 		"@types/bun": "latest"

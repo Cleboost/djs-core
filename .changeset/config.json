@@ -6,6 +6,7 @@
 	"linked": [],
 	"access": "restricted",
 	"baseBranch": "master",
-	"updateInternalDependencies": "patch",
+	"updateInternalDependencies": "minor",
+	"bumpVersionsWithWorkspaceProtocolOnly": true,
 	"ignore": ["app", "@djs-core/plugin-demo"]
 }
