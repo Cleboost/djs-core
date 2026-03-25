@@ -29,13 +29,6 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - run: bun i
-      - run: |
-          set -e
-          cd packages/runtime
-          PACK_FILE=$(bun pm pack --quiet | grep '\.tgz$' | tail -n 1)
-          test -n "$PACK_FILE"
-          echo "Publishing $PACK_FILE"
-          npm publish "$PACK_FILE" --access public --provenance
       - uses: changesets/action@v1
         with:
           version: bun ci:version
