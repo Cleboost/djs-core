@@ -24,6 +24,6 @@
 		"types": "turbo types --filter=./packages/* --filter=./plugins/*",
 		"changeset": "changeset",
 		"ci:version": "changeset version && bun update",
-		"ci:publish": "\"ci:publish\": \"for dir in packages/* plugins/*; do [ -d \\\"$dir\\\" ] && [ -f \\\"$dir/package.json\\\" ] && (cd \\\"$dir\\\" && PACK_FILE=$(bun pm pack | tail -n 1) && npm publish \\\"$PACK_FILE\\\" --access public --provenance || true); done && changeset tag\""
+		"ci:publish": "for dir in packages/* plugins/*; do if [ -d \"$dir\" ] && [ -f \"$dir/package.json\" ]; then (cd \"$dir\" && PACK_FILE=$(bun pm pack | tail -n 1) && npm publish \"$PACK_FILE\" --access public --provenance || true); fi; done && changeset tag"
 	}
 }
