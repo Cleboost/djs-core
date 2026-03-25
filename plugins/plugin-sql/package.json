@@ -13,7 +13,6 @@
 		"@djs-core/runtime": "workspace:*"
 	},
 	"devDependencies": {
-		"typescript": "^5",
 		"@types/bun": "latest"
 	},
 	"peerDependencies": {
