@@ -1,6 +1,6 @@
 {
 	"name": "@djs-core/runtime",
-	"version": "1.8.0",
+	"version": "1.9.0",
 	"description": "Runtime library for djs-core Discord bot framework",
 	"type": "module",
 	"main": "./dist/index.js",
