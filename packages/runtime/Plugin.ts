@@ -1,4 +1,4 @@
-import type { Client, InteractionContextType } from "discord.js";
+import type { BitFieldResolvable, Client, GatewayIntentsString, InteractionContextType } from "discord.js";
 
 /**
  * Definition of a djs-core plugin.
@@ -51,6 +51,7 @@ export function definePlugin<Name extends string, Config, Extension>(
 interface CoreConfig {
 	token: string;
 	servers: string[];
+	intents?: BitFieldResolvable<GatewayIntentsString, number>;
 	commands?: {
 		defaultContext?: InteractionContextType[];
 	};
