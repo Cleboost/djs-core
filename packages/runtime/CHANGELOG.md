@@ -1,5 +1,11 @@
 # @djs-core/runtime
 
+## 1.9.0
+
+### Minor Changes
+
+- 07c0dd9: Allow users to specify optional `intents` in `djs.config.ts`. If not provided, it defaults to `MessageContent`, `GuildMembers`, and `GuildPresences`.
+
 ## 1.8.0
 
 ### Minor Changes
