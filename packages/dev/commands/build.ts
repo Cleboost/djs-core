@@ -247,10 +247,12 @@ ${
     if (await configFile.exists()) {
       userConfigData = await configFile.json();
     } else {
-      console.warn("⚠️  config.json not found at runtime");
+      console.error("❌ config.json not found at runtime");
+      process.exit(1);
     }
   } catch (e) {
     console.error("❌ Failed to load config.json:", e);
+    process.exit(1);
   }
   const client = new DjsClient<UserConfig>({ djsConfig: config, userConfig: userConfigData as UserConfig });`
 		: "  const client = new DjsClient({ djsConfig: config });"
@@ -427,10 +429,11 @@ export function registerBuildCommand(cli: CAC) {
 				try {
 					await fs.copyFile(configJsonPath, outConfigJsonPath);
 					console.log(
-						pc.green("✓") + `  config.json copied to ${pc.bold("dist/")}`,
+						`${pc.green("✓")}  config.json copied to ${pc.bold("dist/")}`,
 					);
-				} catch (e) {
-					console.warn(pc.yellow("⚠️  Could not copy config.json to dist/"));
+				} catch (_e) {
+					console.error(pc.red("❌ Could not copy config.json to dist/"));
+					process.exit(1);
 				}
 			}
 
