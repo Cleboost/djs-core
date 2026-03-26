@@ -151,11 +151,12 @@ export async function runBot(projectPath: string) {
 			userConfig = JSON.parse(configJsonContent);
 			console.log(`${pc.green("✓")}  User config loaded`);
 		} catch (_error) {
-			console.warn(
-				pc.yellow(
-					"⚠️  userConfig is enabled but config.json not found or invalid",
+			console.error(
+				pc.red(
+					"❌ userConfig is enabled but config.json not found or invalid",
 				),
 			);
+			process.exit(1);
 		}
 	}
 
