@@ -18,6 +18,7 @@ export interface Config<P extends readonly any[] = any[]> {
 	experimental?: {
 		cron?: boolean;
 		userConfig?: boolean;
+		bundle?: boolean;
 	};
 	plugins?: P;
 	pluginsConfig?: PluginsConfigMap<P>;
