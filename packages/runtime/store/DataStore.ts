@@ -80,30 +80,28 @@ export function storeInteractionData(
 
 /**
  * Retrieves data associated with an interaction token.
- * Automatically deletes the data if it has expired.
- * @param token - The token to retrieve data for.
- * @returns The stored data, or undefined if not found or expired.
+ * Returns null if the token was never stored, or { data, expired } otherwise.
  */
-export function getInteractionData(token: string): unknown | undefined {
+export function getInteractionData(
+	token: string,
+): { data: unknown; expired: boolean } | null {
 	const db = dataStore;
 	const result = db
 		.prepare("SELECT data, expires_at FROM interaction_data WHERE token = ?")
 		.get(token) as { data: string; expires_at: number } | undefined;
 
-	if (!result) {
-		return undefined;
-	}
+	if (!result) return null;
 
 	const now = Math.floor(Date.now() / 1000);
 	if (result.expires_at > 0 && result.expires_at < now) {
 		deleteInteractionData(token);
-		return undefined;
+		return { data: undefined, expired: true };
 	}
 
 	try {
-		return JSON.parse(result.data);
+		return { data: JSON.parse(result.data), expired: false };
 	} catch {
-		return undefined;
+		return { data: undefined, expired: false };
 	}
 }
 

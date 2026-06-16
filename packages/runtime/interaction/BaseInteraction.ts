@@ -9,7 +9,7 @@ export function storeInteractionDataHelper(
 	data: unknown,
 	ttl?: number,
 ): string {
-	const tokenBytes = randomBytes(8);
+	const tokenBytes = randomBytes(16);
 	const token = tokenBytes
 		.toString("base64")
 		.replace(/\+/g, "-")
@@ -27,22 +27,27 @@ export function storeInteractionDataHelper(
 export function decodeCustomIdHelper(customId: string): {
 	baseId: string;
 	data: unknown;
+	expired: boolean;
 } {
 	const lastColonIndex = customId.lastIndexOf(":");
 	if (lastColonIndex === -1) {
-		return { baseId: customId, data: undefined };
+		return { baseId: customId, data: undefined, expired: false };
 	}
 
 	const baseId = customId.slice(0, lastColonIndex);
 	const token = customId.slice(lastColonIndex + 1);
 
 	if (!token) {
-		return { baseId: customId, data: undefined };
+		return { baseId: customId, data: undefined, expired: false };
 	}
 
-	const data = getInteractionData(token);
+	const result = getInteractionData(token);
 
-	return { baseId, data };
+	if (result === null) {
+		return { baseId, data: undefined, expired: false };
+	}
+
+	return { baseId, data: result.data, expired: result.expired };
 }
 
 /**

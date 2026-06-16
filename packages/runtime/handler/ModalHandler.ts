@@ -36,7 +36,7 @@ export default class ModalHandler {
 
 		const hasToken = decoded.baseId !== interaction.customId;
 
-		if (hasToken && decoded.data === undefined) {
+		if (hasToken && (decoded.expired || decoded.data === undefined)) {
 			await interaction.reply({
 				content: "❌ This interaction has expired or is no longer available.",
 				flags: MessageFlags.Ephemeral,

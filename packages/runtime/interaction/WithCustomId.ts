@@ -48,7 +48,7 @@ export function WithCustomId<TBase extends AnyConstructor>(Base: TBase, label: s
 			return this._baseCustomId;
 		}
 
-		static decodeData(customId: string): { baseId: string; data: unknown } {
+		static decodeData(customId: string): { baseId: string; data: unknown; expired: boolean } {
 			return decodeCustomIdHelper(customId);
 		}
 	};

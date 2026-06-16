@@ -57,7 +57,7 @@ export default class SelectMenuHandler {
 	public async onSelectMenuInteraction(
 		interaction: AnySelectMenuInteraction,
 	): Promise<void> {
-		let decoded: { baseId: string; data: unknown };
+		let decoded: { baseId: string; data: unknown; expired: boolean };
 
 		if (interaction.isStringSelectMenu()) {
 			decoded = StringSelectMenu.decodeData(interaction.customId);
@@ -78,7 +78,7 @@ export default class SelectMenuHandler {
 
 		const hasToken = decoded.baseId !== interaction.customId;
 
-		if (hasToken && decoded.data === undefined) {
+		if (hasToken && (decoded.expired || decoded.data === undefined)) {
 			await interaction.reply({
 				content: "❌ This interaction has expired or is no longer available.",
 				flags: MessageFlags.Ephemeral,
