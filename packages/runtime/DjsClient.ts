@@ -29,6 +29,7 @@ import type {
 	PluginsExtensions,
 	PluginsExtensionsMap,
 } from "./Plugin";
+import { resolvePlugin } from "./utils/plugin-resolver";
 
 export class DjsClient<
 	UserConfig = unknown,
@@ -155,21 +156,7 @@ export class DjsClient<
 
 		for (const input of pluginsInput) {
 			try {
-				let plugin: DjsPlugin | undefined;
-
-				if (
-					input instanceof Promise ||
-					(input && typeof input === "object" && "then" in input)
-				) {
-					const module = await input;
-					plugin = Object.values(module).find(
-						// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
-						(v: any) =>
-							v && typeof v === "object" && "name" in v && "setup" in v,
-					) as DjsPlugin;
-				} else {
-					plugin = input as DjsPlugin;
-				}
+				const plugin = await resolvePlugin(input);
 
 				if (!plugin) continue;
 

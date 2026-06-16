@@ -32,6 +32,12 @@ export default class ContextMenu<
 	):
 		| ContextMenu<UserContextMenuCommandInteraction>
 		| ContextMenu<MessageContextMenuCommandInteraction> {
+		return this.cloneWithType(type) as
+			| ContextMenu<UserContextMenuCommandInteraction>
+			| ContextMenu<MessageContextMenuCommandInteraction>;
+	}
+
+	private cloneWithType(type: ContextMenuCommandType): ContextMenu {
 		let data: {
 			name?: string;
 			default_member_permissions?: string | bigint | null;
@@ -44,40 +50,7 @@ export default class ContextMenu<
 				data = null;
 			}
 		}
-
-		if (type === ApplicationCommandType.User) {
-			const newMenu = new ContextMenu<UserContextMenuCommandInteraction>();
-			newMenu.setType(type);
-			if (data?.name) newMenu.setName(data.name);
-			if (data?.default_member_permissions) {
-				newMenu.setDefaultMemberPermissions(data.default_member_permissions);
-			}
-			if (data?.dm_permission !== undefined) {
-				newMenu.setDMPermission(data.dm_permission);
-			}
-			if (this._run) {
-				newMenu._run = this
-					._run as ContextMenuRunFn<UserContextMenuCommandInteraction>;
-			}
-			return newMenu;
-		}
-		if (type === ApplicationCommandType.Message) {
-			const newMenu = new ContextMenu<MessageContextMenuCommandInteraction>();
-			newMenu.setType(type);
-			if (data?.name) newMenu.setName(data.name);
-			if (data?.default_member_permissions) {
-				newMenu.setDefaultMemberPermissions(data.default_member_permissions);
-			}
-			if (data?.dm_permission !== undefined) {
-				newMenu.setDMPermission(data.dm_permission);
-			}
-			if (this._run) {
-				newMenu._run = this
-					._run as ContextMenuRunFn<MessageContextMenuCommandInteraction>;
-			}
-			return newMenu;
-		}
-		const newMenu = new ContextMenu<UserContextMenuCommandInteraction>();
+		const newMenu = new ContextMenu();
 		newMenu.setType(type);
 		if (data?.name) newMenu.setName(data.name);
 		if (data?.default_member_permissions) {
@@ -86,10 +59,8 @@ export default class ContextMenu<
 		if (data?.dm_permission !== undefined) {
 			newMenu.setDMPermission(data.dm_permission);
 		}
-		if (this._run) {
-			newMenu._run = this
-				._run as ContextMenuRunFn<UserContextMenuCommandInteraction>;
-		}
+		// biome-ignore lint/suspicious/noExplicitAny: type narrowed by overloads
+		if (this._run) newMenu._run = this._run as any;
 		return newMenu;
 	}
 
