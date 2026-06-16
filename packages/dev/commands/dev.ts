@@ -39,12 +39,13 @@ interface HandlerConfig {
 	) => Promise<void> | void;
 	unload: (route: string) => Promise<void> | void;
 	sync?: boolean;
+	unloadBeforeReload?: boolean;
 }
 
 export function registerDevCommand(cli: CAC) {
 	cli
 		.command("dev", "Start the bot in development mode")
-		.option("-p, --path", "Custom project path", { default: "." })
+		.option("-p, --path <path>", "Custom project path", { default: "." })
 		.action(async (options) => {
 			console.log(banner);
 			console.log(`${pc.cyan("ℹ")}  Starting development server...`);
@@ -162,6 +163,7 @@ export function registerDevCommand(cli: CAC) {
 						await client.commandsHandler.delete(route, true);
 					},
 					sync: true,
+					unloadBeforeReload: true,
 				},
 				{
 					label: "button",
@@ -190,6 +192,7 @@ export function registerDevCommand(cli: CAC) {
 					},
 					unload: async (route) => client.contextMenusHandler.delete(route),
 					sync: true,
+					unloadBeforeReload: true,
 				},
 				{
 					label: "select menu",
@@ -211,6 +214,7 @@ export function registerDevCommand(cli: CAC) {
 						client.selectMenusHandler.add(sm);
 					},
 					unload: async (route) => client.selectMenusHandler.delete(route),
+					unloadBeforeReload: true,
 				},
 				{
 					label: "modal",
@@ -226,6 +230,7 @@ export function registerDevCommand(cli: CAC) {
 						client.modalsHandler.add(modal);
 					},
 					unload: async (route) => client.modalsHandler.delete(route),
+					unloadBeforeReload: true,
 				},
 				{
 					label: "event",
@@ -239,6 +244,7 @@ export function registerDevCommand(cli: CAC) {
 					unload: async (id) => {
 						client.eventsHandler.remove(id);
 					},
+					unloadBeforeReload: true,
 				},
 			];
 
@@ -306,15 +312,7 @@ export function registerDevCommand(cli: CAC) {
 						`${pc.green(`✨ Reloading ${config.label}:`)} ${pc.bold(route)}`,
 					);
 
-					if (config.label === "event") {
-						await config.unload(route);
-					} else if (config.label === "context menu") {
-						await config.unload(route);
-					} else if (config.label === "select menu") {
-						await config.unload(route);
-					} else if (config.label === "route") {
-						await config.unload(route);
-					} else if (config.label === "modal") {
+					if (config.unloadBeforeReload) {
 						await config.unload(route);
 					}
 
@@ -368,9 +366,6 @@ export function registerDevCommand(cli: CAC) {
 				{
 					ignoreInitial: true,
 					ignored: /(^|[/\\])\../,
-					usePolling: true,
-					interval: 300,
-					binaryInterval: 300,
 				},
 			);
 

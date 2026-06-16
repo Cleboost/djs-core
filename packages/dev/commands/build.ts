@@ -68,6 +68,28 @@ function makeVar(
 	return `${prefix}_${safe}`;
 }
 
+type RouteEntry = { route: string; varName: string };
+
+function processFiles(
+	files: string[],
+	genDir: string,
+	prefix: "cmd" | "btn" | "ctx" | "sel" | "evt" | "cron",
+	getRoute: (f: string) => string | null,
+): { importLines: string[]; entries: RouteEntry[] } {
+	const importLines: string[] = [];
+	const entries: RouteEntry[] = [];
+	for (const f of files) {
+		const route = getRoute(f);
+		if (!route) continue;
+		const varName = makeVar(prefix, route);
+		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
+		importLines.push(`import ${varName} from "${rel}";`);
+		entries.push({ route, varName });
+	}
+	entries.sort((a, b) => a.route.localeCompare(b.route));
+	return { importLines, entries };
+}
+
 function buildGeneratedEntry(opts: {
 	genDir: string;
 	commandsDir: string;
@@ -84,103 +106,60 @@ function buildGeneratedEntry(opts: {
 	hasUserConfigEnabled: boolean;
 	hasBundleEnabled: boolean;
 }): string {
-	const {
-		genDir,
-		commandsDir,
-		buttonsDir,
-		contextsDir,
-		selectsDir,
-		commandFiles,
-		buttonFiles,
-		contextFiles,
-		selectFiles,
-		eventFiles,
-	} = opts;
+	const { genDir, commandsDir, buttonsDir, contextsDir, selectsDir } = opts;
 
-	const imports: string[] = [];
-	const commandRoutes: Array<{ route: string; varName: string }> = [];
-	const buttonRoutes: Array<{ route: string; varName: string }> = [];
-	const contextRoutes: Array<{ route: string; varName: string }> = [];
-	const selectRoutes: Array<{ route: string; varName: string }> = [];
-	const eventRoutes: Array<{ id: string; varName: string }> = [];
-	const cronRoutes: Array<{ id: string; varName: string }> = [];
-
-	for (const f of commandFiles) {
-		const route = routeFromFile(commandsDir, f);
-		if (!route) continue;
-		const varName = makeVar("cmd", route);
-		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
-		imports.push(`import ${varName} from "${rel}";`);
-		commandRoutes.push({ route, varName });
-	}
-
-	for (const f of buttonFiles) {
-		const route = routeFromFile(buttonsDir, f);
-		if (!route) continue;
-		const varName = makeVar("btn", route);
-		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
-		imports.push(`import ${varName} from "${rel}";`);
-		buttonRoutes.push({ route, varName });
-	}
-
-	for (const f of contextFiles) {
-		const route = routeFromFile(contextsDir, f);
-		if (!route) continue;
-		const varName = makeVar("ctx", route);
-		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
-		imports.push(`import ${varName} from "${rel}";`);
-		contextRoutes.push({ route, varName });
-	}
-
-	for (const f of selectFiles) {
-		const route = routeFromFile(selectsDir, f);
-		if (!route) continue;
-		const varName = makeVar("sel", route);
-		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
-		imports.push(`import ${varName} from "${rel}";`);
-		selectRoutes.push({ route, varName });
-	}
-
-	for (const f of eventFiles) {
-		const fileName = path.basename(f, ".ts");
-		const varName = makeVar("evt", fileName);
-		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
-		imports.push(`import ${varName} from "${rel}";`);
-		eventRoutes.push({ id: fileName, varName });
-	}
-
-	for (const f of opts.cronFiles) {
-		const fileName = path.basename(f, ".ts");
-		const varName = makeVar("cron", fileName);
-		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
-		imports.push(`import ${varName} from "${rel}";`);
-		cronRoutes.push({ id: fileName, varName });
-	}
-
-	const sortedCmds = commandRoutes.sort((a, b) =>
-		a.route.localeCompare(b.route),
+	const cmds = processFiles(opts.commandFiles, genDir, "cmd", (f) =>
+		routeFromFile(commandsDir, f),
 	);
-	const sortedBtns = buttonRoutes.sort((a, b) =>
-		a.route.localeCompare(b.route),
+	const btns = processFiles(opts.buttonFiles, genDir, "btn", (f) =>
+		routeFromFile(buttonsDir, f),
 	);
-	const sortedCtxs = contextRoutes.sort((a, b) =>
-		a.route.localeCompare(b.route),
+	const ctxs = processFiles(opts.contextFiles, genDir, "ctx", (f) =>
+		routeFromFile(contextsDir, f),
 	);
-	const sortedSels = selectRoutes.sort((a, b) =>
-		a.route.localeCompare(b.route),
+	const sels = processFiles(opts.selectFiles, genDir, "sel", (f) =>
+		routeFromFile(selectsDir, f),
 	);
-	const sortedEvts = eventRoutes.sort((a, b) => a.id.localeCompare(b.id));
-	const sortedCrons = cronRoutes.sort((a, b) => a.id.localeCompare(b.id));
+	const evts = processFiles(opts.eventFiles, genDir, "evt", (f) =>
+		path.basename(f, ".ts"),
+	);
+	const crons = processFiles(opts.cronFiles, genDir, "cron", (f) =>
+		path.basename(f, ".ts"),
+	);
+
+	const allImports = [
+		...cmds.importLines,
+		...btns.importLines,
+		...ctxs.importLines,
+		...sels.importLines,
+		...evts.importLines,
+		...crons.importLines,
+	];
+
+	const sortedCmds = cmds.entries;
+	const sortedBtns = btns.entries;
+	const sortedCtxs = ctxs.entries;
+	const sortedSels = sels.entries;
+	const sortedEvts = evts.entries;
+	const sortedCrons = crons.entries;
 
 	return `/* Auto-generated by djs-core. Do not edit manually. */
 import path from "node:path";
 import config from "../djs.config.ts";
 import { DjsClient, type Route } from "@djs-core/runtime";
 import { Events } from "discord.js";
-${opts.hasUserConfigEnabled ? 'import type { UserConfig } from "./config.types.ts";' : ""}
-${opts.hasUserConfigEnabled && opts.hasBundleEnabled ? 'import userConfigData from "../config.json" with { type: "json" };' : ""}
+${
+	opts.hasUserConfigEnabled
+		? 'import type { UserConfig } from "./config.types.ts";'
+		: ""
+}
+${
+	opts.hasUserConfigEnabled && opts.hasBundleEnabled
+		? 'import userConfigData from "../config.json" with { type: "json" };'
+		: ""
+}
 
-${imports.join("\n")}
+${allImports.join("\n")}
 
 function assertConfig(x: unknown): asserts x is { token: string; servers: string[] } {
   if (!x || typeof x !== "object") throw new Error("Invalid config: expected an object");
@@ -193,14 +172,20 @@ async function main() {
   assertConfig(config);
 
   const commands: Route[] = [
-${sortedCmds.map((c) => `    { route: ${JSON.stringify(c.route)}, command: ${c.varName} },`).join("\n")}
+${sortedCmds
+	.map(
+		(c) => `    { route: ${JSON.stringify(c.route)}, command: ${c.varName} },`,
+	)
+	.join("\n")}
   ];
 
   const buttons = [
 ${sortedBtns.map((b) => `    ${b.varName},`).join("\n")}
   ];
 
-${sortedBtns.map((b) => `  ${b.varName}.setCustomId(${JSON.stringify(b.route)});`).join("\n")}
+${sortedBtns
+	.map((b) => `  ${b.varName}.setCustomId(${JSON.stringify(b.route)});`)
+	.join("\n")}
 
   const contextMenus = [
 ${sortedCtxs.map((c) => `    ${c.varName},`).join("\n")}
@@ -218,16 +203,22 @@ ${sortedCtxs
 ${sortedSels.map((s) => `    ${s.varName},`).join("\n")}
   ];
 
-${sortedSels.map((s) => `  ${s.varName}.setCustomId(${JSON.stringify(s.route)});`).join("\n")}
+${sortedSels
+	.map((s) => `  ${s.varName}.setCustomId(${JSON.stringify(s.route)});`)
+	.join("\n")}
 
   const events = {
-${sortedEvts.map((e) => `    ${JSON.stringify(e.id)}: ${e.varName},`).join("\n")}
+${sortedEvts
+	.map((e) => `    ${JSON.stringify(e.route)}: ${e.varName},`)
+	.join("\n")}
   };
 
 ${
 	opts.hasCronEnabled && sortedCrons.length > 0
 		? `  const tasks = new Map([
-${sortedCrons.map((c) => `    [${JSON.stringify(c.id)}, ${c.varName}],`).join("\n")}
+${sortedCrons
+	.map((c) => `    [${JSON.stringify(c.route)}, ${c.varName}],`)
+	.join("\n")}
   ]);`
 		: ""
 }
@@ -270,7 +261,11 @@ ${
     await client.applicationCommandHandler.sync();
     client.buttonsHandler.set(buttons);
     client.selectMenusHandler.set(selectMenus);
-${opts.hasCronEnabled && sortedCrons.length > 0 ? "    if (config.experimental?.cron && tasks.size > 0) {\n      client.cronHandler.set(tasks);\n    }" : ""}
+${
+	opts.hasCronEnabled && sortedCrons.length > 0
+		? "    if (config.experimental?.cron && tasks.size > 0) {\n      client.cronHandler.set(tasks);\n    }"
+		: ""
+}
     console.log(\`✅ Bot online (\${client.user?.tag ?? "unknown"})\`);
   });
 
@@ -534,7 +529,11 @@ export function registerBuildCommand(cli: CAC) {
 
 			console.log(
 				pc.green("✓") +
-					`  Build success (${totalSourceFiles} file${totalSourceFiles === 1 ? "" : "s"} → ${outputs.length} output${outputs.length === 1 ? "" : "s"}, ${sizeDisplay})`,
+					`  Build success (${totalSourceFiles} file${
+						totalSourceFiles === 1 ? "" : "s"
+					} → ${outputs.length} output${
+						outputs.length === 1 ? "" : "s"
+					}, ${sizeDisplay})`,
 			);
 			for (const p of outputs) console.log(pc.dim(`  - ${p}`));
 

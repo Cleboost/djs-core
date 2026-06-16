@@ -157,6 +157,7 @@ async function ensureDiscordAugmentation(
 }
 
 import type { Config } from "../../utils/types/config";
+import { resolvePlugin } from "./plugin";
 
 /**
  * Collects and writes types provided by plugins.
@@ -178,20 +179,7 @@ async function generatePluginTypes(
 	const types: string[] = [];
 
 	for (const pluginInput of config.plugins) {
-		// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
-		let plugin: any;
-		if (
-			pluginInput instanceof Promise ||
-			(pluginInput && typeof pluginInput === "object" && "then" in pluginInput)
-		) {
-			const module = await pluginInput;
-			plugin = Object.values(module).find(
-				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
-				(v: any) => v && typeof v === "object" && "name" in v && "setup" in v,
-			);
-		} else {
-			plugin = pluginInput;
-		}
+		const plugin = await resolvePlugin(pluginInput);
 
 		if (plugin?.types) {
 			const pluginTypes = await plugin.types({ root: projectRoot });
