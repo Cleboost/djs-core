@@ -8,6 +8,7 @@ import { registerDevCommand } from "./commands/dev";
 import { registerGenerateConfigTypesCommand } from "./commands/generate-config-types";
 import { registerPluginCommand } from "./commands/plugin";
 import { registerStartCommand } from "./commands/start";
+import { resolvePlugin } from "./utils/plugin";
 
 export type { Config };
 
@@ -27,24 +28,7 @@ async function run() {
 
 		if (config.plugins) {
 			for (const pluginInput of config.plugins) {
-				// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
-				let plugin: any;
-				if (
-					pluginInput instanceof Promise ||
-					(pluginInput &&
-						typeof pluginInput === "object" &&
-						"then" in pluginInput)
-				) {
-					const module = await pluginInput;
-					plugin = Object.values(module).find(
-						// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
-						(v: any) =>
-							v && typeof v === "object" && "name" in v && "setup" in v,
-					);
-				} else {
-					plugin = pluginInput;
-				}
-
+				const plugin = await resolvePlugin(pluginInput);
 				if (plugin?.cli) {
 					plugin.cli(cli);
 				}
