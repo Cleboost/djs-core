@@ -1,3 +1,5 @@
+import { MessageFlags } from "discord.js";
+
 /**
  * Simple interface for repliable interactions.
  */
@@ -38,19 +40,13 @@ export async function handleInteractionError(
 	}
 
 	const content = "There was an error while executing this interaction!";
-	const ephemeral = true;
+	const flags = MessageFlags.Ephemeral;
 
 	try {
 		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({
-				content,
-				ephemeral,
-			});
+			await interaction.followUp({ content, flags });
 		} else {
-			await interaction.reply({
-				content,
-				ephemeral,
-			});
+			await interaction.reply({ content, flags });
 		}
 	} catch (e) {
 		console.error("Failed to send error reply:", e);

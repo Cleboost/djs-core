@@ -25,19 +25,13 @@ export default class ContextMenuHandler {
 		this.contextMenus.set(contextMenu.name, contextMenu);
 
 		const application = this.client.application;
-		if (!application) {
-			throw new Error("Client application is not available");
-		}
+		if (!application) throw new Error("Client application is not available");
 
-		if (this.guilds.length > 0) {
-			await Promise.all(
-				this.guilds.map((guildId) =>
-					application.commands.create(contextMenu, guildId),
-				),
-			);
-		} else {
-			await application.commands.create(contextMenu);
-		}
+		await this.forEachScope((guildId) =>
+			guildId
+				? application.commands.create(contextMenu, guildId)
+				: application.commands.create(contextMenu),
+		);
 	}
 
 	public set(contextMenus: ContextMenu[]): void {
@@ -59,29 +53,17 @@ export default class ContextMenuHandler {
 		this.contextMenus.delete(name);
 
 		const application = this.client.application;
-		if (!application) {
-			throw new Error("Client application is not available");
-		}
+		if (!application) throw new Error("Client application is not available");
 
-		if (this.guilds.length > 0) {
-			await Promise.all(
-				this.guilds.map(async (guildId) => {
-					const commands = await application.commands.fetch({
-						guildId,
-					});
-					const command = commands.find((cmd) => cmd.name === name);
-					if (command) {
-						await application.commands.delete(command.id, guildId);
-					}
-				}),
-			);
-		} else {
-			const commands = await application.commands.fetch();
+		await this.forEachScope(async (guildId) => {
+			const commands = guildId
+				? await application.commands.fetch({ guildId })
+				: await application.commands.fetch();
 			const command = commands.find((cmd) => cmd.name === name);
 			if (command) {
-				await application.commands.delete(command.id);
+				await application.commands.delete(command.id, guildId ?? undefined);
 			}
-		}
+		});
 	}
 
 	public async onContextMenuInteraction(
@@ -102,6 +84,16 @@ export default class ContextMenuHandler {
 			}
 		} catch (error) {
 			await handleInteractionError(interaction, error);
+		}
+	}
+
+	private async forEachScope(
+		fn: (guildId: string | null) => Promise<unknown>,
+	): Promise<void> {
+		if (this.guilds.length > 0) {
+			await Promise.all(this.guilds.map((id) => fn(id)));
+		} else {
+			await fn(null);
 		}
 	}
 
