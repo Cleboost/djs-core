@@ -1,10 +1,14 @@
 // biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
 type ResolvedPlugin = any;
 
-export async function resolvePlugin(pluginInput: unknown): Promise<ResolvedPlugin> {
+export async function resolvePlugin(
+	pluginInput: unknown,
+): Promise<ResolvedPlugin> {
 	if (
 		pluginInput instanceof Promise ||
-		(pluginInput && typeof pluginInput === "object" && "then" in (pluginInput as object))
+		(pluginInput &&
+			typeof pluginInput === "object" &&
+			"then" in (pluginInput as object))
 	) {
 		const mod = await (pluginInput as Promise<unknown>);
 		return Object.values(mod as object).find(

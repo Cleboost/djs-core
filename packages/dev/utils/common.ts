@@ -44,7 +44,11 @@ async function scanDir<T>(
 	dir: string,
 	prefix: string,
 	map: Map<string, string> | undefined,
-	process: (mod: { default: unknown }, route: string, fullPath: string) => T | null | undefined,
+	process: (
+		mod: { default: unknown },
+		route: string,
+		fullPath: string,
+	) => T | null | undefined,
 	recursive = true,
 ): Promise<T[]> {
 	try {
@@ -62,7 +66,11 @@ async function scanDir<T>(
 		if (recursive && entry.isDirectory()) {
 			const newPrefix = prefix ? `${prefix}.${entry.name}` : entry.name;
 			results.push(...(await scanDir(fullPath, newPrefix, map, process)));
-		} else if (entry.isFile() && entry.name.endsWith(".ts") && !entry.name.endsWith(".d.ts")) {
+		} else if (
+			entry.isFile() &&
+			entry.name.endsWith(".ts") &&
+			!entry.name.endsWith(".d.ts")
+		) {
 			const stem = entry.name.slice(0, -3);
 			let route: string;
 
@@ -95,7 +103,9 @@ export async function runBot(projectPath: string) {
 	const root = resolve(process.cwd(), projectPath);
 	let configModule: { default: unknown };
 	try {
-		configModule = await import(`${path.join(root, "djs.config.ts")}?t=${Date.now()}`);
+		configModule = await import(
+			`${path.join(root, "djs.config.ts")}?t=${Date.now()}`
+		);
 	} catch (err) {
 		throw new Error(
 			`Failed to load djs.config.ts: ${err instanceof Error ? err.message : String(err)}`,
@@ -126,14 +136,16 @@ export async function runBot(projectPath: string) {
 
 	const commands = await scanDir<Route>(
 		path.join(root, PATH_ALIASES.interactions, "commands"),
-		"", fileRouteMap,
+		"",
+		fileRouteMap,
 		(mod, route) => ({ route, command: mod.default as Command }),
 	);
 	console.log(`${pc.green("✓")}  Loaded ${pc.bold(commands.length)} commands`);
 
 	const buttons = await scanDir<Button>(
 		path.join(root, PATH_ALIASES.components, "buttons"),
-		"", buttonFileRouteMap,
+		"",
+		buttonFileRouteMap,
 		(mod, route) => {
 			const btn = mod.default as Button;
 			btn.setCustomId(route);
@@ -144,16 +156,20 @@ export async function runBot(projectPath: string) {
 
 	const eventEntries = await scanDir<[string, EventListener]>(
 		path.join(root, PATH_ALIASES.events),
-		"", eventFileIdMap,
+		"",
+		eventFileIdMap,
 		(mod, id) => [id, mod.default as EventListener],
 		false,
 	);
 	const events = Object.fromEntries(eventEntries);
-	console.log(`${pc.green("✓")}  Loaded ${pc.bold(eventEntries.length)} events`);
+	console.log(
+		`${pc.green("✓")}  Loaded ${pc.bold(eventEntries.length)} events`,
+	);
 
 	const contextMenus = await scanDir<ContextMenu>(
 		path.join(root, PATH_ALIASES.interactions, "contexts"),
-		"", contextMenuFileRouteMap,
+		"",
+		contextMenuFileRouteMap,
 		(mod, route) => {
 			const cm = mod.default as ContextMenu;
 			const leaf = getLeaf(route);
@@ -161,22 +177,28 @@ export async function runBot(projectPath: string) {
 			return cm;
 		},
 	);
-	console.log(`${pc.green("✓")}  Loaded ${pc.bold(contextMenus.length)} context menus`);
+	console.log(
+		`${pc.green("✓")}  Loaded ${pc.bold(contextMenus.length)} context menus`,
+	);
 
 	const selectMenus = await scanDir<SelectMenu>(
 		path.join(root, PATH_ALIASES.components, "selects"),
-		"", selectMenuFileRouteMap,
+		"",
+		selectMenuFileRouteMap,
 		(mod, route) => {
 			const sm = mod.default as SelectMenu;
 			if (!sm.data.custom_id) sm.setCustomId(route);
 			return sm;
 		},
 	);
-	console.log(`${pc.green("✓")}  Loaded ${pc.bold(selectMenus.length)} select menus`);
+	console.log(
+		`${pc.green("✓")}  Loaded ${pc.bold(selectMenus.length)} select menus`,
+	);
 
 	const modals = await scanDir<Modal>(
 		path.join(root, PATH_ALIASES.components, "modals"),
-		"", modalFileRouteMap,
+		"",
+		modalFileRouteMap,
 		(mod, route) => {
 			const modal = mod.default as Modal;
 			modal.setCustomId(route);
@@ -189,7 +211,8 @@ export async function runBot(projectPath: string) {
 	if (config.experimental?.cron) {
 		const cronEntries = await scanDir<[string, Task]>(
 			path.join(root, "src", "cron"),
-			"", cronFileIdMap,
+			"",
+			cronFileIdMap,
 			(mod, id) => [id, mod.default as Task],
 			false,
 		);
@@ -206,7 +229,9 @@ export async function runBot(projectPath: string) {
 			console.log(`${pc.green("✓")}  User config loaded`);
 		} catch {
 			console.warn(
-				pc.yellow("⚠️  userConfig is enabled but config.json not found or invalid"),
+				pc.yellow(
+					"⚠️  userConfig is enabled but config.json not found or invalid",
+				),
 			);
 		}
 	}
@@ -223,12 +248,16 @@ export async function runBot(projectPath: string) {
 	client.login(config.token).catch(
 		// biome-ignore lint/suspicious/noExplicitAny: error handling
 		(error: any) => {
-			console.error(`${pc.red("✗")} ${pc.bold("Failed to connect to Discord")}`);
+			console.error(
+				`${pc.red("✗")} ${pc.bold("Failed to connect to Discord")}`,
+			);
 			console.error(pc.dim("Error: ") + pc.red(error.message || String(error)));
 			if (error.message?.includes("token") || error.message?.includes("401")) {
 				console.error(
 					pc.yellow("\n💡 Tip: ") +
-						pc.dim("Vérifiez que votre token Discord est valide dans djs.config.ts"),
+						pc.dim(
+							"Vérifiez que votre token Discord est valide dans djs.config.ts",
+						),
 				);
 			}
 			process.exit(1);

@@ -10,153 +10,153 @@ import { autoGenerateConfigTypes } from "../utils/config-type-generator";
 declare const Bun: typeof import("bun");
 
 type BuildOptions = {
-  path: string;
-  outdir: string;
-  minify: boolean;
-  compile?: boolean;
-  bundled?: boolean;
-  external?: boolean;
+	path: string;
+	outdir: string;
+	minify: boolean;
+	compile?: boolean;
+	bundled?: boolean;
+	external?: boolean;
 };
 
 function toPosixPath(p: string): string {
-  return p.split(path.sep).join("/");
+	return p.split(path.sep).join("/");
 }
 
 function ensureRelImport(p: string): string {
-  return p.startsWith(".") ? p : `./${p}`;
+	return p.startsWith(".") ? p : `./${p}`;
 }
 
 function routeFromFile(baseDir: string, absFile: string): string | null {
-  const rel = path.relative(baseDir, absFile);
-  const relNoExt = rel.replace(/\.ts$/i, "");
-  const parts = relNoExt.split(path.sep).filter(Boolean);
-  if (parts.length === 0) return null;
-  if (parts[parts.length - 1] === "index") parts.pop();
-  if (parts.length === 0) return null;
-  return parts.join(".");
+	const rel = path.relative(baseDir, absFile);
+	const relNoExt = rel.replace(/\.ts$/i, "");
+	const parts = relNoExt.split(path.sep).filter(Boolean);
+	if (parts.length === 0) return null;
+	if (parts[parts.length - 1] === "index") parts.pop();
+	if (parts.length === 0) return null;
+	return parts.join(".");
 }
 
 async function listTsFilesRecursive(dir: string): Promise<string[]> {
-  try {
-    await fs.access(dir);
-  } catch {
-    return [];
-  }
+	try {
+		await fs.access(dir);
+	} catch {
+		return [];
+	}
 
-  const out: string[] = [];
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  for (const e of entries) {
-    const full = path.join(dir, e.name);
-    if (e.isDirectory()) {
-      out.push(...(await listTsFilesRecursive(full)));
-    } else if (
-      e.isFile() &&
-      e.name.endsWith(".ts") &&
-      !e.name.endsWith(".d.ts")
-    ) {
-      out.push(full);
-    }
-  }
-  return out;
+	const out: string[] = [];
+	const entries = await fs.readdir(dir, { withFileTypes: true });
+	for (const e of entries) {
+		const full = path.join(dir, e.name);
+		if (e.isDirectory()) {
+			out.push(...(await listTsFilesRecursive(full)));
+		} else if (
+			e.isFile() &&
+			e.name.endsWith(".ts") &&
+			!e.name.endsWith(".d.ts")
+		) {
+			out.push(full);
+		}
+	}
+	return out;
 }
 
 function makeVar(
-  prefix: "cmd" | "btn" | "ctx" | "sel" | "evt" | "cron",
-  route: string
+	prefix: "cmd" | "btn" | "ctx" | "sel" | "evt" | "cron",
+	route: string,
 ): string {
-  const safe = route.replace(/[^a-zA-Z0-9_]+/g, "_");
-  return `${prefix}_${safe}`;
+	const safe = route.replace(/[^a-zA-Z0-9_]+/g, "_");
+	return `${prefix}_${safe}`;
 }
 
 type RouteEntry = { route: string; varName: string };
 
 function processFiles(
-  files: string[],
-  genDir: string,
-  prefix: "cmd" | "btn" | "ctx" | "sel" | "evt" | "cron",
-  getRoute: (f: string) => string | null
+	files: string[],
+	genDir: string,
+	prefix: "cmd" | "btn" | "ctx" | "sel" | "evt" | "cron",
+	getRoute: (f: string) => string | null,
 ): { importLines: string[]; entries: RouteEntry[] } {
-  const importLines: string[] = [];
-  const entries: RouteEntry[] = [];
-  for (const f of files) {
-    const route = getRoute(f);
-    if (!route) continue;
-    const varName = makeVar(prefix, route);
-    const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
-    importLines.push(`import ${varName} from "${rel}";`);
-    entries.push({ route, varName });
-  }
-  entries.sort((a, b) => a.route.localeCompare(b.route));
-  return { importLines, entries };
+	const importLines: string[] = [];
+	const entries: RouteEntry[] = [];
+	for (const f of files) {
+		const route = getRoute(f);
+		if (!route) continue;
+		const varName = makeVar(prefix, route);
+		const rel = ensureRelImport(toPosixPath(path.relative(genDir, f)));
+		importLines.push(`import ${varName} from "${rel}";`);
+		entries.push({ route, varName });
+	}
+	entries.sort((a, b) => a.route.localeCompare(b.route));
+	return { importLines, entries };
 }
 
 function buildGeneratedEntry(opts: {
-  genDir: string;
-  commandsDir: string;
-  buttonsDir: string;
-  contextsDir: string;
-  selectsDir: string;
-  commandFiles: string[];
-  buttonFiles: string[];
-  contextFiles: string[];
-  selectFiles: string[];
-  eventFiles: string[];
-  cronFiles: string[];
-  hasCronEnabled: boolean;
-  hasUserConfigEnabled: boolean;
-  hasBundleEnabled: boolean;
+	genDir: string;
+	commandsDir: string;
+	buttonsDir: string;
+	contextsDir: string;
+	selectsDir: string;
+	commandFiles: string[];
+	buttonFiles: string[];
+	contextFiles: string[];
+	selectFiles: string[];
+	eventFiles: string[];
+	cronFiles: string[];
+	hasCronEnabled: boolean;
+	hasUserConfigEnabled: boolean;
+	hasBundleEnabled: boolean;
 }): string {
-  const { genDir, commandsDir, buttonsDir, contextsDir, selectsDir } = opts;
+	const { genDir, commandsDir, buttonsDir, contextsDir, selectsDir } = opts;
 
-  const cmds = processFiles(opts.commandFiles, genDir, "cmd", (f) =>
-    routeFromFile(commandsDir, f)
-  );
-  const btns = processFiles(opts.buttonFiles, genDir, "btn", (f) =>
-    routeFromFile(buttonsDir, f)
-  );
-  const ctxs = processFiles(opts.contextFiles, genDir, "ctx", (f) =>
-    routeFromFile(contextsDir, f)
-  );
-  const sels = processFiles(opts.selectFiles, genDir, "sel", (f) =>
-    routeFromFile(selectsDir, f)
-  );
-  const evts = processFiles(opts.eventFiles, genDir, "evt", (f) =>
-    path.basename(f, ".ts")
-  );
-  const crons = processFiles(opts.cronFiles, genDir, "cron", (f) =>
-    path.basename(f, ".ts")
-  );
+	const cmds = processFiles(opts.commandFiles, genDir, "cmd", (f) =>
+		routeFromFile(commandsDir, f),
+	);
+	const btns = processFiles(opts.buttonFiles, genDir, "btn", (f) =>
+		routeFromFile(buttonsDir, f),
+	);
+	const ctxs = processFiles(opts.contextFiles, genDir, "ctx", (f) =>
+		routeFromFile(contextsDir, f),
+	);
+	const sels = processFiles(opts.selectFiles, genDir, "sel", (f) =>
+		routeFromFile(selectsDir, f),
+	);
+	const evts = processFiles(opts.eventFiles, genDir, "evt", (f) =>
+		path.basename(f, ".ts"),
+	);
+	const crons = processFiles(opts.cronFiles, genDir, "cron", (f) =>
+		path.basename(f, ".ts"),
+	);
 
-  const allImports = [
-    ...cmds.importLines,
-    ...btns.importLines,
-    ...ctxs.importLines,
-    ...sels.importLines,
-    ...evts.importLines,
-    ...crons.importLines,
-  ];
+	const allImports = [
+		...cmds.importLines,
+		...btns.importLines,
+		...ctxs.importLines,
+		...sels.importLines,
+		...evts.importLines,
+		...crons.importLines,
+	];
 
-  const sortedCmds = cmds.entries;
-  const sortedBtns = btns.entries;
-  const sortedCtxs = ctxs.entries;
-  const sortedSels = sels.entries;
-  const sortedEvts = evts.entries;
-  const sortedCrons = crons.entries;
+	const sortedCmds = cmds.entries;
+	const sortedBtns = btns.entries;
+	const sortedCtxs = ctxs.entries;
+	const sortedSels = sels.entries;
+	const sortedEvts = evts.entries;
+	const sortedCrons = crons.entries;
 
-  return `/* Auto-generated by djs-core. Do not edit manually. */
+	return `/* Auto-generated by djs-core. Do not edit manually. */
 import path from "node:path";
 import config from "../djs.config.ts";
 import { DjsClient, type Route } from "@djs-core/runtime";
 import { Events } from "discord.js";
 ${
-  opts.hasUserConfigEnabled
-    ? 'import type { UserConfig } from "./config.types.ts";'
-    : ""
+	opts.hasUserConfigEnabled
+		? 'import type { UserConfig } from "./config.types.ts";'
+		: ""
 }
 ${
-  opts.hasUserConfigEnabled && opts.hasBundleEnabled
-    ? 'import userConfigData from "../config.json" with { type: "json" };'
-    : ""
+	opts.hasUserConfigEnabled && opts.hasBundleEnabled
+		? 'import userConfigData from "../config.json" with { type: "json" };'
+		: ""
 }
 
 ${allImports.join("\n")}
@@ -173,10 +173,10 @@ async function main() {
 
   const commands: Route[] = [
 ${sortedCmds
-  .map(
-    (c) => `    { route: ${JSON.stringify(c.route)}, command: ${c.varName} },`
-  )
-  .join("\n")}
+	.map(
+		(c) => `    { route: ${JSON.stringify(c.route)}, command: ${c.varName} },`,
+	)
+	.join("\n")}
   ];
 
   const buttons = [
@@ -184,43 +184,43 @@ ${sortedBtns.map((b) => `    ${b.varName},`).join("\n")}
   ];
 
 ${sortedBtns
-  .map((b) => `  ${b.varName}.setCustomId(${JSON.stringify(b.route)});`)
-  .join("\n")}
+	.map((b) => `  ${b.varName}.setCustomId(${JSON.stringify(b.route)});`)
+	.join("\n")}
 
   const contextMenus = [
 ${sortedCtxs.map((c) => `    ${c.varName},`).join("\n")}
   ];
 
 ${sortedCtxs
-  .map((c) => {
-    const parts = splitRoute(c.route);
-    const leaf = parts[parts.length - 1];
-    return `  ${c.varName}.setName(${JSON.stringify(leaf)});`;
-  })
-  .join("\n")}
+	.map((c) => {
+		const parts = splitRoute(c.route);
+		const leaf = parts[parts.length - 1];
+		return `  ${c.varName}.setName(${JSON.stringify(leaf)});`;
+	})
+	.join("\n")}
 
   const selectMenus = [
 ${sortedSels.map((s) => `    ${s.varName},`).join("\n")}
   ];
 
 ${sortedSels
-  .map((s) => `  ${s.varName}.setCustomId(${JSON.stringify(s.route)});`)
-  .join("\n")}
+	.map((s) => `  ${s.varName}.setCustomId(${JSON.stringify(s.route)});`)
+	.join("\n")}
 
   const events = {
 ${sortedEvts
-  .map((e) => `    ${JSON.stringify(e.route)}: ${e.varName},`)
-  .join("\n")}
+	.map((e) => `    ${JSON.stringify(e.route)}: ${e.varName},`)
+	.join("\n")}
   };
 
 ${
-  opts.hasCronEnabled && sortedCrons.length > 0
-    ? `  const tasks = new Map([
+	opts.hasCronEnabled && sortedCrons.length > 0
+		? `  const tasks = new Map([
 ${sortedCrons
-  .map((c) => `    [${JSON.stringify(c.route)}, ${c.varName}],`)
-  .join("\n")}
+	.map((c) => `    [${JSON.stringify(c.route)}, ${c.varName}],`)
+	.join("\n")}
   ]);`
-    : ""
+		: ""
 }
 
   // Load user config if enabled. The type assertion is safe because:
@@ -228,10 +228,10 @@ ${sortedCrons
   // 2. The UserConfig type is auto-generated from config.json structure
   // 3. Any runtime mismatch will be caught during bot initialization
 ${
-  opts.hasUserConfigEnabled
-    ? opts.hasBundleEnabled
-      ? "  const client = new DjsClient<UserConfig>({ djsConfig: config, userConfig: userConfigData as UserConfig });"
-      : `  let userConfigData: UserConfig | undefined;
+	opts.hasUserConfigEnabled
+		? opts.hasBundleEnabled
+			? "  const client = new DjsClient<UserConfig>({ djsConfig: config, userConfig: userConfigData as UserConfig });"
+			: `  let userConfigData: UserConfig | undefined;
   try {
     const configPath = path.join(process.cwd(), "config.json");
     const configFile = Bun.file(configPath);
@@ -244,7 +244,7 @@ ${
     console.error("❌ Failed to load config.json:", e);
   }
   const client = new DjsClient<UserConfig>({ djsConfig: config, userConfig: userConfigData as UserConfig });`
-    : "  const client = new DjsClient({ djsConfig: config });"
+		: "  const client = new DjsClient({ djsConfig: config });"
 }
 
   await client.waitForPlugins();
@@ -262,9 +262,9 @@ ${
     client.buttonsHandler.set(buttons);
     client.selectMenusHandler.set(selectMenus);
 ${
-  opts.hasCronEnabled && sortedCrons.length > 0
-    ? "    if (config.experimental?.cron && tasks.size > 0) {\n      client.cronHandler.set(tasks);\n    }"
-    : ""
+	opts.hasCronEnabled && sortedCrons.length > 0
+		? "    if (config.experimental?.cron && tasks.size > 0) {\n      client.cronHandler.set(tasks);\n    }"
+		: ""
 }
     console.log(\`✅ Bot online (\${client.user?.tag ?? "unknown"})\`);
   });
@@ -289,316 +289,317 @@ main();
 }
 
 export function registerBuildCommand(cli: CAC) {
-  cli
-    .command("build", "Build production bundle")
-    .option("-p, --path <path>", "Custom project path", { default: "." })
-    .option(
-      "-o, --outdir <outdir>",
-      "Output directory (relative to project root)",
-      { default: "dist" }
-    )
-    .option("--no-minify", "Disable minification")
-    .option("--bundled", "Bun (bundled)")
-    .option("--external", "Bun (external deps)")
-    .option("-c, --compile", "Compile to a standalone binary")
-    .action(async (options: BuildOptions) => {
-      console.log(banner);
+	cli
+		.command("build", "Build production bundle")
+		.option("-p, --path <path>", "Custom project path", { default: "." })
+		.option(
+			"-o, --outdir <outdir>",
+			"Output directory (relative to project root)",
+			{ default: "dist" },
+		)
+		.option("--no-minify", "Disable minification")
+		.option("--bundled", "Bun (bundled)")
+		.option("--external", "Bun (external deps)")
+		.option("-c, --compile", "Compile to a standalone binary")
+		.action(async (options: BuildOptions) => {
+			console.log(banner);
 
-      const botRoot = path.resolve(process.cwd(), options.path);
-      const genDir = path.join(botRoot, ".djscore");
-      const entryPath = path.join(genDir, "index.ts");
+			const botRoot = path.resolve(process.cwd(), options.path);
+			const genDir = path.join(botRoot, ".djscore");
+			const entryPath = path.join(genDir, "index.ts");
 
-      const commandsDir = path.join(
-        botRoot,
-        PATH_ALIASES.interactions,
-        "commands"
-      );
-      const buttonsDir = path.join(botRoot, PATH_ALIASES.components, "buttons");
-      const contextsDir = path.join(
-        botRoot,
-        PATH_ALIASES.interactions,
-        "contexts"
-      );
-      const selectsDir = path.join(botRoot, PATH_ALIASES.components, "selects");
-      const eventsDir = path.join(botRoot, PATH_ALIASES.events);
-      const cronDir = path.join(botRoot, "src", "cron");
+			const commandsDir = path.join(
+				botRoot,
+				PATH_ALIASES.interactions,
+				"commands",
+			);
+			const buttonsDir = path.join(botRoot, PATH_ALIASES.components, "buttons");
+			const contextsDir = path.join(
+				botRoot,
+				PATH_ALIASES.interactions,
+				"contexts",
+			);
+			const selectsDir = path.join(botRoot, PATH_ALIASES.components, "selects");
+			const eventsDir = path.join(botRoot, PATH_ALIASES.events);
+			const cronDir = path.join(botRoot, "src", "cron");
 
-      console.log(`${pc.cyan("ℹ")}  Project: ${pc.bold(botRoot)}`);
-      console.log(`${pc.cyan("ℹ")}  Generating: ${pc.bold(entryPath)}\n`);
+			console.log(`${pc.cyan("ℹ")}  Project: ${pc.bold(botRoot)}`);
+			console.log(`${pc.cyan("ℹ")}  Generating: ${pc.bold(entryPath)}\n`);
 
-      await fs.mkdir(genDir, { recursive: true });
+			await fs.mkdir(genDir, { recursive: true });
 
-      const commandFiles = await listTsFilesRecursive(commandsDir);
-      const buttonFiles = await listTsFilesRecursive(buttonsDir);
-      const contextFiles = await listTsFilesRecursive(contextsDir);
-      const selectFiles = await listTsFilesRecursive(selectsDir);
-      const eventFiles = await listTsFilesRecursive(eventsDir);
-      const cronFiles = await listTsFilesRecursive(cronDir);
+			const commandFiles = await listTsFilesRecursive(commandsDir);
+			const buttonFiles = await listTsFilesRecursive(buttonsDir);
+			const contextFiles = await listTsFilesRecursive(contextsDir);
+			const selectFiles = await listTsFilesRecursive(selectsDir);
+			const eventFiles = await listTsFilesRecursive(eventsDir);
+			const cronFiles = await listTsFilesRecursive(cronDir);
 
-      const configModule = await import(path.join(botRoot, "djs.config.ts"));
-      const config =
-        configModule.default as import("../../utils/types/config").Config;
-      const hasCronEnabled = config.experimental?.cron === true;
-      const hasUserConfigEnabled = config.experimental?.userConfig === true;
-      const hasBundleEnabled = config.experimental?.bundle === true;
+			const configModule = await import(path.join(botRoot, "djs.config.ts"));
+			const config =
+				configModule.default as import("../../utils/types/config").Config;
+			const hasCronEnabled = config.experimental?.cron === true;
+			const hasUserConfigEnabled = config.experimental?.userConfig === true;
+			const hasBundleEnabled = config.experimental?.bundle === true;
 
-      // Auto-generate config types
-      await autoGenerateConfigTypes(botRoot, config, true);
+			// Auto-generate config types
+			await autoGenerateConfigTypes(botRoot, config, true);
 
-      const code = buildGeneratedEntry({
-        genDir,
-        commandsDir,
-        buttonsDir,
-        contextsDir,
-        selectsDir,
-        commandFiles,
-        buttonFiles,
-        contextFiles,
-        selectFiles,
-        eventFiles,
-        cronFiles,
-        hasCronEnabled,
-        hasUserConfigEnabled,
-        hasBundleEnabled,
-      });
+			const code = buildGeneratedEntry({
+				genDir,
+				commandsDir,
+				buttonsDir,
+				contextsDir,
+				selectsDir,
+				commandFiles,
+				buttonFiles,
+				contextFiles,
+				selectFiles,
+				eventFiles,
+				cronFiles,
+				hasCronEnabled,
+				hasUserConfigEnabled,
+				hasBundleEnabled,
+			});
 
-      await fs.writeFile(entryPath, code, "utf8");
+			await fs.writeFile(entryPath, code, "utf8");
 
-      let buildType: string | null = null;
-      if (options.compile) buildType = "compile";
-      if (options.bundled) {
-        if (buildType) {
-          console.error(
-            pc.red(
-              "❌ Cannot combine build flags --bundled/--external/--compile"
-            )
-          );
-          process.exit(1);
-        }
-        buildType = "bun";
-      }
-      if (options.external) {
-        if (buildType) {
-          console.error(
-            pc.red(
-              "❌ Cannot combine build flags --bundled/--external/--compile"
-            )
-          );
-          process.exit(1);
-        }
-        buildType = "bun-external";
-      }
+			let buildType: string | null = null;
+			if (options.compile) buildType = "compile";
+			if (options.bundled) {
+				if (buildType) {
+					console.error(
+						pc.red(
+							"❌ Cannot combine build flags --bundled/--external/--compile",
+						),
+					);
+					process.exit(1);
+				}
+				buildType = "bun";
+			}
+			if (options.external) {
+				if (buildType) {
+					console.error(
+						pc.red(
+							"❌ Cannot combine build flags --bundled/--external/--compile",
+						),
+					);
+					process.exit(1);
+				}
+				buildType = "bun-external";
+			}
 
-      if (!buildType) {
-        buildType = (await select({
-          message: "Select build type:",
-          options: [
-            { value: "bun", label: "Bun (bundled)" },
-            { value: "bun-external", label: "Bun (external deps)" },
-            { value: "compile", label: "Compile (Native binary, ~90MB)" },
-            { value: "docker", label: "Docker" },
-          ],
-        })) as string;
-      }
+			if (!buildType) {
+				buildType = (await select({
+					message: "Select build type:",
+					options: [
+						{ value: "bun", label: "Bun (bundled)" },
+						{ value: "bun-external", label: "Bun (external deps)" },
+						{ value: "compile", label: "Compile (Native binary, ~90MB)" },
+						{ value: "docker", label: "Docker" },
+					],
+				})) as string;
+			}
 
-      if (!buildType) {
-        console.log(pc.red("❌ Build cancelled"));
-        process.exit(1);
-      }
+			if (!buildType) {
+				console.log(pc.red("❌ Build cancelled"));
+				process.exit(1);
+			}
 
-      const outdirAbs = path.resolve(botRoot, options.outdir);
+			const outdirAbs = path.resolve(botRoot, options.outdir);
 
-      try {
-        await fs.rm(outdirAbs, { recursive: true, force: true });
-      } catch {
-        // Ignore if directory doesn't exist
-      }
+			try {
+				await fs.rm(outdirAbs, { recursive: true, force: true });
+			} catch {
+				// Ignore if directory doesn't exist
+			}
 
-      await fs.mkdir(outdirAbs, { recursive: true });
+			await fs.mkdir(outdirAbs, { recursive: true });
 
-      if (hasUserConfigEnabled && !hasBundleEnabled) {
-        const configJsonPath = path.join(botRoot, "config.json");
-        const outConfigJsonPath = path.join(outdirAbs, "config.json");
-        try {
-          await fs.copyFile(configJsonPath, outConfigJsonPath);
-          console.log(
-            pc.green("✓") + `  config.json copied to ${pc.bold("dist/")}`
-          );
-        } catch (e) {
-          console.warn(pc.yellow("⚠️  Could not copy config.json to dist/"));
-        }
-      }
+			if (hasUserConfigEnabled && !hasBundleEnabled) {
+				const configJsonPath = path.join(botRoot, "config.json");
+				const outConfigJsonPath = path.join(outdirAbs, "config.json");
+				try {
+					await fs.copyFile(configJsonPath, outConfigJsonPath);
+					console.log(
+						pc.green("✓") + `  config.json copied to ${pc.bold("dist/")}`,
+					);
+				} catch (e) {
+					console.warn(pc.yellow("⚠️  Could not copy config.json to dist/"));
+				}
+			}
 
-      if (buildType === "compile") {
-        const exeName = process.platform === "win32" ? "bot.exe" : "bot";
-        const outputPath = path.join(outdirAbs, exeName);
+			if (buildType === "compile") {
+				const exeName = process.platform === "win32" ? "bot.exe" : "bot";
+				const outputPath = path.join(outdirAbs, exeName);
 
-        console.log(`${pc.cyan("ℹ")}  Compiling native binary...`);
+				console.log(`${pc.cyan("ℹ")}  Compiling native binary...`);
 
-        const buildArgs = [
-          "build",
-          entryPath,
-          "--compile",
-          "--outfile",
-          outputPath,
-        ];
+				const buildArgs = [
+					"build",
+					entryPath,
+					"--compile",
+					"--outfile",
+					outputPath,
+				];
 
-        if (options.minify !== false) {
-          buildArgs.push("--minify");
-        }
+				if (options.minify !== false) {
+					buildArgs.push("--minify");
+				}
 
-        const proc = Bun.spawn(["bun", ...buildArgs], {
-          stdout: "inherit",
-          stderr: "inherit",
-        });
+				const proc = Bun.spawn(["bun", ...buildArgs], {
+					stdout: "inherit",
+					stderr: "inherit",
+				});
 
-        const exitCode = await proc.exited;
+				const exitCode = await proc.exited;
 
-        if (exitCode !== 0) {
-          console.error(pc.red("\n❌ Compilation failed"));
-          process.exit(1);
-        }
+				if (exitCode !== 0) {
+					console.error(pc.red("\n❌ Compilation failed"));
+					process.exit(1);
+				}
 
-        const stats = await fs.stat(outputPath);
-        const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
+				const stats = await fs.stat(outputPath);
+				const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
 
-        console.log(
-          pc.green("\n✓") +
-            `  Build success: ${pc.bold(exeName)} (${sizeMB} MB)`
-        );
-        console.log(pc.dim(`  - ${outputPath}`));
-        console.log(
-          pc.dim(`\nTip: run your bot with: ./${options.outdir}/${exeName}\n`)
-        );
-        process.exit(0);
-      }
+				console.log(
+					pc.green("\n✓") +
+						`  Build success: ${pc.bold(exeName)} (${sizeMB} MB)`,
+				);
+				console.log(pc.dim(`  - ${outputPath}`));
+				console.log(
+					pc.dim(`\nTip: run your bot with: ./${options.outdir}/${exeName}\n`),
+				);
+				process.exit(0);
+			}
 
-      const botPackageJsonPath = path.join(botRoot, "package.json");
-      let externalDeps: string[] = [];
+			const botPackageJsonPath = path.join(botRoot, "package.json");
+			let externalDeps: string[] = [];
 
-      if (buildType === "bun-external") {
-        try {
-          const botPackageJson = JSON.parse(
-            await fs.readFile(botPackageJsonPath, "utf-8")
-          );
-          externalDeps = [
-            ...Object.keys(botPackageJson.dependencies || {}),
-            ...Object.keys(botPackageJson.peerDependencies || {}),
-            "discord.js",
-          ].filter((d) => d !== "@djs-core/runtime");
-        } catch (_e) {
-          console.warn(
-            pc.yellow(
-              "⚠️  Could not read package.json, using default externals"
-            )
-          );
-          externalDeps = ["discord.js"];
-        }
-      }
+			if (buildType === "bun-external") {
+				try {
+					const botPackageJson = JSON.parse(
+						await fs.readFile(botPackageJsonPath, "utf-8"),
+					);
+					externalDeps = [
+						...Object.keys(botPackageJson.dependencies || {}),
+						...Object.keys(botPackageJson.peerDependencies || {}),
+						"discord.js",
+					].filter((d) => d !== "@djs-core/runtime");
+				} catch (_e) {
+					console.warn(
+						pc.yellow(
+							"⚠️  Could not read package.json, using default externals",
+						),
+					);
+					externalDeps = ["discord.js"];
+				}
+			}
 
-      const result = await Bun.build({
-        entrypoints: [entryPath],
-        outdir: outdirAbs,
-        target: "bun",
-        minify: !!options.minify,
-        splitting: false,
-        sourcemap: "none",
-        external: buildType === "bun-external" ? externalDeps : [],
-      });
+			const result = await Bun.build({
+				entrypoints: [entryPath],
+				outdir: outdirAbs,
+				target: "bun",
+				minify: !!options.minify,
+				splitting: false,
+				sourcemap: "none",
+				external: buildType === "bun-external" ? externalDeps : [],
+			});
 
-      if (!result.success) {
-        console.error(pc.red("❌ Build failed"));
-        for (const log of result.logs) console.error(log);
-        process.exit(1);
-      }
+			if (!result.success) {
+				console.error(pc.red("❌ Build failed"));
+				for (const log of result.logs) console.error(log);
+				process.exit(1);
+			}
 
-      const outputs = result.outputs.map((o: { path: string }) => o.path);
-      const outputFile = path.join(outdirAbs, "index.js");
-      const stats = await fs.stat(outputFile);
-      const sizeKB = (stats.size / 1024).toFixed(2);
-      const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
-      const sizeDisplay =
-        stats.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+			const outputs = result.outputs.map((o: { path: string }) => o.path);
+			const outputFile = path.join(outdirAbs, "index.js");
+			const stats = await fs.stat(outputFile);
+			const sizeKB = (stats.size / 1024).toFixed(2);
+			const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
+			const sizeDisplay =
+				stats.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
 
-      const totalSourceFiles =
-        commandFiles.length +
-        buttonFiles.length +
-        contextFiles.length +
-        selectFiles.length +
-        eventFiles.length;
+			const totalSourceFiles =
+				commandFiles.length +
+				buttonFiles.length +
+				contextFiles.length +
+				selectFiles.length +
+				eventFiles.length;
 
-      console.log(
-        pc.green("✓") +
-          `  Build success (${totalSourceFiles} file${
-            totalSourceFiles === 1 ? "" : "s"
-          } → ${outputs.length} output${
-            outputs.length === 1 ? "" : "s"
-          }, ${sizeDisplay})`
-      );
-      for (const p of outputs) console.log(pc.dim(`  - ${p}`));
+			console.log(
+				pc.green("✓") +
+					`  Build success (${totalSourceFiles} file${
+						totalSourceFiles === 1 ? "" : "s"
+					} → ${outputs.length} output${
+						outputs.length === 1 ? "" : "s"
+					}, ${sizeDisplay})`,
+			);
+			for (const p of outputs) console.log(pc.dim(`  - ${p}`));
 
-      if (buildType === "docker") {
-        const dockerfileContent = `FROM oven/bun:alpine
+			if (buildType === "docker") {
+				const dockerfileContent = `FROM oven/bun:alpine
 WORKDIR /app
 COPY index.js .
 CMD ["bun", "index.js"]
 `;
-        const dockerfilePath = path.join(outdirAbs, "Dockerfile");
-        await fs.writeFile(dockerfilePath, dockerfileContent, "utf8");
-        console.log(
-          `${pc.green("✓")}  Dockerfile created: ${pc.bold("Dockerfile")}`
-        );
-        console.log(
-          pc.dim(
-            `\nTip: build with: docker build -t my-bot ${options.outdir}\n`
-          )
-        );
-      } else if (buildType === "bun-external") {
-        try {
-          const botPackageJson = JSON.parse(
-            await fs.readFile(botPackageJsonPath, "utf-8")
-          );
-          const distPackageJson = {
-            name: botPackageJson.name || "bot",
-            version: botPackageJson.version || "1.0.0",
-            type: "module",
-            scripts: {
-              start: "bun index.js",
-            },
-            dependencies: botPackageJson.dependencies || {},
-            peerDependencies: botPackageJson.peerDependencies || {},
-          };
+				const dockerfilePath = path.join(outdirAbs, "Dockerfile");
+				await fs.writeFile(dockerfilePath, dockerfileContent, "utf8");
+				console.log(
+					`${pc.green("✓")}  Dockerfile created: ${pc.bold("Dockerfile")}`,
+				);
+				console.log(
+					pc.dim(
+						`\nTip: build with: docker build -t my-bot ${options.outdir}\n`,
+					),
+				);
+			} else if (buildType === "bun-external") {
+				try {
+					const botPackageJson = JSON.parse(
+						await fs.readFile(botPackageJsonPath, "utf-8"),
+					);
+					const distPackageJson = {
+						name: botPackageJson.name || "bot",
+						version: botPackageJson.version || "1.0.0",
+						type: "module",
+						scripts: {
+							start: "bun index.js",
+						},
+						dependencies: botPackageJson.dependencies || {},
+						peerDependencies: botPackageJson.peerDependencies || {},
+					};
 
-          const distPackageJsonPath = path.join(outdirAbs, "package.json");
-          await fs.writeFile(
-            distPackageJsonPath,
-            JSON.stringify(distPackageJson, null, 2),
-            "utf8"
-          );
-          console.log(
-            pc.green("✓") + `  package.json created: ${pc.bold("package.json")}`
-          );
-          console.log(
-            pc.dim(
-              `\nTip: install deps then run: cd ${options.outdir} && bun install && bun start\n`
-            )
-          );
-        } catch (_e) {
-          console.warn(pc.yellow("⚠️  Could not generate package.json"));
-          console.log(
-            pc.dim(
-              `\nTip: run with: bun ${path.join(options.outdir, "index.js")}\n`
-            )
-          );
-        }
-      } else {
-        console.log(
-          pc.dim(
-            `\nTip: run with: bun ${path.join(options.outdir, "index.js")}\n`
-          )
-        );
-      }
+					const distPackageJsonPath = path.join(outdirAbs, "package.json");
+					await fs.writeFile(
+						distPackageJsonPath,
+						JSON.stringify(distPackageJson, null, 2),
+						"utf8",
+					);
+					console.log(
+						pc.green("✓") +
+							`  package.json created: ${pc.bold("package.json")}`,
+					);
+					console.log(
+						pc.dim(
+							`\nTip: install deps then run: cd ${options.outdir} && bun install && bun start\n`,
+						),
+					);
+				} catch (_e) {
+					console.warn(pc.yellow("⚠️  Could not generate package.json"));
+					console.log(
+						pc.dim(
+							`\nTip: run with: bun ${path.join(options.outdir, "index.js")}\n`,
+						),
+					);
+				}
+			} else {
+				console.log(
+					pc.dim(
+						`\nTip: run with: bun ${path.join(options.outdir, "index.js")}\n`,
+					),
+				);
+			}
 
-      process.exit(0);
-    });
+			process.exit(0);
+		});
 }
