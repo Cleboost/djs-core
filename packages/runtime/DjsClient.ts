@@ -104,7 +104,7 @@ export class DjsClient<
 					interaction as AutocompleteInteraction,
 				);
 			}
-			if (interaction.isCommand()) {
+			if (interaction.isChatInputCommand()) {
 				this.commandsHandler.onCommandInteraction(
 					interaction as ChatInputCommandInteraction,
 				);

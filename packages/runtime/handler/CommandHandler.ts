@@ -10,6 +10,7 @@ import { SlashCommandBuilder } from "discord.js";
 import type Command from "../interaction/Command";
 import { handleInteractionError } from "../utils/error";
 import { getRoot, splitRoute } from "../utils/route";
+import { buildCommandStructure, routesToEntries } from "../utils/compile-command";
 
 export interface Route {
 	route: string;
@@ -241,60 +242,17 @@ export default class CommandHandler {
 	}
 
 	private compileRoot(root: string): ApplicationCommandDataResolvable | null {
-		const routes = this.router
-			.filter((r) => getRoot(r.route) === root)
-			.map((r) => ({ parts: splitRoute(r.route), cmd: r.command }));
+		const entries = routesToEntries(this.router, root);
+		if (entries.length === 0) return null;
 
-		if (routes.length === 0) return null;
+		const { subcommands, groups, builder } = buildCommandStructure(
+			root,
+			entries,
+			(r) => this.getRootDescription(r),
+		);
 
-		const subcommands = new Map<string, Command>();
-		const groups = new Map<string, Map<string, Command>>();
-
-		for (const r of routes) {
-			const parts = r.parts;
-
-			if (parts.length === 1) {
-				subcommands.set("__root__", r.cmd);
-				continue;
-			}
-
-			if (parts.length === 2) {
-				const subcommandName = parts[1];
-				if (subcommandName) {
-					subcommands.set(subcommandName, r.cmd);
-				}
-				continue;
-			}
-
-			if (parts.length === 3) {
-				const g = parts[1];
-				const s = parts[2];
-				if (g && s) {
-					if (!groups.has(g)) groups.set(g, new Map());
-					const groupMap = groups.get(g);
-					if (groupMap) {
-						groupMap.set(s, r.cmd);
-					}
-				}
-				continue;
-			}
-
-			throw new Error(`Route too deep: ${parts.join(".")}`);
-		}
-
-		const builder = new SlashCommandBuilder()
-			.setName(root)
-			.setDescription(this.getRootDescription(root) ?? "No description");
-
-		if (
-			subcommands.has("__root__") &&
-			subcommands.size === 1 &&
-			groups.size === 0
-		) {
-			const cmd = subcommands.get("__root__");
-			if (!cmd) {
-				throw new Error("Root command not found in subcommands");
-			}
+		if (subcommands.has("__root__") && subcommands.size === 1 && groups.size === 0) {
+			const cmd = subcommands.get("__root__")!;
 			const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
 			builder.setDescription(cmdWithDesc.description ?? "No description");
 			return builder.toJSON();
@@ -304,9 +262,7 @@ export default class CommandHandler {
 			if (name === "__root__") continue;
 			builder.addSubcommand((sc) => {
 				sc.setName(name);
-				const cmdWithDesc = cmd as SlashCommandBuilder & {
-					description?: string;
-				};
+				const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
 				sc.setDescription(cmdWithDesc.description ?? "No description");
 				return sc;
 			});
@@ -319,9 +275,7 @@ export default class CommandHandler {
 				for (const [subName, cmd] of subs) {
 					g.addSubcommand((sc) => {
 						sc.setName(subName);
-						const cmdWithDesc = cmd as SlashCommandBuilder & {
-							description?: string;
-						};
+						const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
 						sc.setDescription(cmdWithDesc.description ?? "No description");
 						return sc;
 					});

@@ -8,7 +8,8 @@ import {
 import type { DjsClient } from "../DjsClient";
 import type Command from "../interaction/Command";
 import type ContextMenu from "../interaction/ContextMenu";
-import { getRoot, splitRoute } from "../utils/route";
+import { getRoot } from "../utils/route";
+import { buildCommandStructure, routesToEntries } from "../utils/compile-command";
 import type { Route } from "./CommandHandler";
 
 /**
@@ -123,68 +124,21 @@ export default class ApplicationCommandHandler {
 	}
 
 	private compileRoot(root: string): ApplicationCommandDataResolvable | null {
-		const routes = this.commands
-			.filter((r) => getRoot(r.route) === root)
-			.map((r) => ({ parts: splitRoute(r.route), cmd: r.command }));
+		const entries = routesToEntries(this.commands, root);
+		if (entries.length === 0) return null;
 
-		if (routes.length === 0) return null;
+		const { subcommands, groups, builder } = buildCommandStructure(
+			root,
+			entries,
+			(r) => this.getRootDescription(r),
+		);
 
-		const subcommands = new Map<string, Command>();
-		const groups = new Map<string, Map<string, Command>>();
-
-		for (const r of routes) {
-			const parts = r.parts;
-
-			if (parts.length === 1) {
-				subcommands.set("__root__", r.cmd);
-				continue;
-			}
-
-			if (parts.length === 2) {
-				const subcommandName = parts[1];
-				if (subcommandName) {
-					subcommands.set(subcommandName, r.cmd);
-				}
-				continue;
-			}
-
-			if (parts.length === 3) {
-				const g = parts[1];
-				const s = parts[2];
-				if (g && s) {
-					if (!groups.has(g)) groups.set(g, new Map());
-					const groupMap = groups.get(g);
-					if (groupMap) {
-						groupMap.set(s, r.cmd);
-					}
-				}
-				continue;
-			}
-
-			throw new Error(`Route too deep: ${parts.join(".")}`);
-		}
-
-		const builder = new SlashCommandBuilder()
-			.setName(root)
-			.setDescription(this.getRootDescription(root) ?? "No description");
-
-		if (
-			subcommands.has("__root__") &&
-			subcommands.size === 1 &&
-			groups.size === 0
-		) {
-			const cmd = subcommands.get("__root__");
-			if (!cmd) {
-				throw new Error("Root command not found in subcommands");
-			}
-			if (!cmd.name) {
-				cmd.setName(root);
-			}
-			this.applyDefaultContext(cmd, routes);
+		if (subcommands.has("__root__") && subcommands.size === 1 && groups.size === 0) {
+			const cmd = subcommands.get("__root__")!;
+			if (!cmd.name) cmd.setName(root);
+			this.applyDefaultContext(cmd, entries);
 			const json = cmd.toJSON();
-			if (json.contexts && json.contexts.length === 0) {
-				delete json.contexts;
-			}
+			if (json.contexts && json.contexts.length === 0) delete json.contexts;
 			return json;
 		}
 
@@ -192,9 +146,7 @@ export default class ApplicationCommandHandler {
 			if (name === "__root__") continue;
 			builder.addSubcommand((sc) => {
 				sc.setName(name);
-				const cmdWithDesc = cmd as SlashCommandBuilder & {
-					description?: string;
-				};
+				const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
 				sc.setDescription(cmdWithDesc.description ?? "No description");
 				this.copyOptionsToSubcommand(cmd, sc);
 				return sc;
@@ -208,9 +160,7 @@ export default class ApplicationCommandHandler {
 				for (const [subName, cmd] of subs) {
 					g.addSubcommand((sc) => {
 						sc.setName(subName);
-						const cmdWithDesc = cmd as SlashCommandBuilder & {
-							description?: string;
-						};
+						const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
 						sc.setDescription(cmdWithDesc.description ?? "No description");
 						this.copyOptionsToSubcommand(cmd, sc);
 						return sc;
@@ -220,11 +170,9 @@ export default class ApplicationCommandHandler {
 			});
 		}
 
-		this.applyDefaultContext(builder, routes);
+		this.applyDefaultContext(builder, entries);
 		const json = builder.toJSON();
-		if (json.contexts && json.contexts.length === 0) {
-			delete json.contexts;
-		}
+		if (json.contexts && json.contexts.length === 0) delete json.contexts;
 		return json;
 	}
 
