@@ -2,70 +2,24 @@ import {
 	ChannelSelectMenuBuilder,
 	type ChannelSelectMenuInteraction,
 } from "discord.js";
-import {
-	decodeCustomIdHelper,
-	storeInteractionDataHelper,
-} from "./BaseInteraction";
+import { WithCustomId } from "./WithCustomId";
 
 export type ChannelSelectMenuRunFn<T = undefined> = (
 	interaction: ChannelSelectMenuInteraction,
 	data: T,
 ) => unknown;
 
-export default class ChannelSelectMenu<
-	TData = undefined,
-> extends ChannelSelectMenuBuilder {
-	private _run?: ChannelSelectMenuRunFn<TData>;
-	private _baseCustomId?: string;
-	private _customId?: string;
-
+export default class ChannelSelectMenu<TData = undefined> extends WithCustomId(
+	ChannelSelectMenuBuilder,
+	"ChannelSelectMenu",
+) {
 	run<T = TData>(fn: ChannelSelectMenuRunFn<T>): this {
 		this._run = fn as unknown as ChannelSelectMenuRunFn<TData>;
 		return this;
 	}
 
-	override setCustomId(customId: string): this {
-		this._baseCustomId = customId;
-		this._customId = customId;
-		super.setCustomId(customId);
-		return this;
-	}
-
 	setData(data: TData extends undefined ? never : TData, ttl?: number): this {
-		if (!this._baseCustomId) {
-			throw new Error(
-				"ChannelSelectMenu customId must be set before calling setData(). Use .setCustomId(id) first.",
-			);
-		}
-
-		const token = storeInteractionDataHelper(data, ttl);
-		const newCustomId = `${this._baseCustomId}:${token}`;
-		this._customId = newCustomId;
-		super.setCustomId(newCustomId);
-
-		return this;
-	}
-
-	get customId(): string {
-		if (!this._customId) {
-			throw new Error(
-				"ChannelSelectMenu customId is not defined. Use .setCustomId(id) before registering the select menu.",
-			);
-		}
-		return this._customId;
-	}
-
-	get baseCustomId(): string {
-		if (!this._baseCustomId) {
-			throw new Error(
-				"ChannelSelectMenu baseCustomId is not defined. Use .setCustomId(id) before registering the select menu.",
-			);
-		}
-		return this._baseCustomId;
-	}
-
-	static decodeData(customId: string): { baseId: string; data: unknown } {
-		return decodeCustomIdHelper(customId);
+		return this._setData(data, ttl);
 	}
 
 	async execute(

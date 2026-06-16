@@ -3,10 +3,7 @@ import {
 	type StringSelectMenuInteraction,
 	StringSelectMenuOptionBuilder,
 } from "discord.js";
-import {
-	decodeCustomIdHelper,
-	storeInteractionDataHelper,
-} from "./BaseInteraction";
+import { WithCustomId } from "./WithCustomId";
 
 export type StringSelectMenuRunFn<T = undefined> = (
 	interaction: StringSelectMenuInteraction,
@@ -19,60 +16,17 @@ export interface StringSelectMenuOption {
 	value: string;
 }
 
-export default class StringSelectMenu<
-	TData = undefined,
-> extends StringSelectMenuBuilder {
-	private _run?: StringSelectMenuRunFn<TData>;
-	private _baseCustomId?: string;
-	private _customId?: string;
-
+export default class StringSelectMenu<TData = undefined> extends WithCustomId(
+	StringSelectMenuBuilder,
+	"StringSelectMenu",
+) {
 	run<T = TData>(fn: StringSelectMenuRunFn<T>): this {
 		this._run = fn as unknown as StringSelectMenuRunFn<TData>;
 		return this;
 	}
 
-	override setCustomId(customId: string): this {
-		this._baseCustomId = customId;
-		this._customId = customId;
-		super.setCustomId(customId);
-		return this;
-	}
-
 	setData(data: TData extends undefined ? never : TData, ttl?: number): this {
-		if (!this._baseCustomId) {
-			throw new Error(
-				"StringSelectMenu customId must be set before calling setData(). Use .setCustomId(id) first.",
-			);
-		}
-
-		const token = storeInteractionDataHelper(data, ttl);
-		const newCustomId = `${this._baseCustomId}:${token}`;
-		this._customId = newCustomId;
-		super.setCustomId(newCustomId);
-
-		return this;
-	}
-
-	get customId(): string {
-		if (!this._customId) {
-			throw new Error(
-				"StringSelectMenu customId is not defined. Use .setCustomId(id) before registering the select menu.",
-			);
-		}
-		return this._customId;
-	}
-
-	get baseCustomId(): string {
-		if (!this._baseCustomId) {
-			throw new Error(
-				"StringSelectMenu baseCustomId is not defined. Use .setCustomId(id) before registering the select menu.",
-			);
-		}
-		return this._baseCustomId;
-	}
-
-	static decodeData(customId: string): { baseId: string; data: unknown } {
-		return decodeCustomIdHelper(customId);
+		return this._setData(data, ttl);
 	}
 
 	override addOptions(options: StringSelectMenuOption[]): this {
@@ -93,44 +47,27 @@ export default class StringSelectMenu<
 
 	clone(): StringSelectMenu {
 		const cloned = new StringSelectMenu();
-		if (this._baseCustomId) {
-			cloned._baseCustomId = this._baseCustomId;
-		}
-		if (this._customId) {
-			cloned._customId = this._customId;
-		}
-		if (this.data.custom_id) {
-			cloned.setCustomId(this.data.custom_id);
-		}
-		if (this.data.placeholder) {
-			cloned.setPlaceholder(this.data.placeholder);
-		}
+		if (this._baseCustomId) cloned._baseCustomId = this._baseCustomId;
+		if (this._customId) cloned._customId = this._customId;
+		if (this.data.custom_id) cloned.setCustomId(this.data.custom_id);
+		if (this.data.placeholder) cloned.setPlaceholder(this.data.placeholder);
 		if (this.data.min_values !== null && this.data.min_values !== undefined) {
 			cloned.setMinValues(this.data.min_values);
 		}
 		if (this.data.max_values !== null && this.data.max_values !== undefined) {
 			cloned.setMaxValues(this.data.max_values);
 		}
-		if (this.data.disabled) {
-			cloned.setDisabled(this.data.disabled);
-		}
-
-		if (this._run) {
-			cloned.run(this._run);
-		}
-
+		if (this.data.disabled) cloned.setDisabled(this.data.disabled);
+		if (this._run) cloned.run(this._run);
 		if (this.data.options) {
 			for (const opt of this.data.options) {
 				const optionBuilder = new StringSelectMenuOptionBuilder()
 					.setLabel(opt.label)
 					.setValue(opt.value);
-				if (opt.emoji) {
-					optionBuilder.setEmoji(opt.emoji);
-				}
+				if (opt.emoji) optionBuilder.setEmoji(opt.emoji);
 				super.addOptions.call(cloned, optionBuilder);
 			}
 		}
-
 		return cloned;
 	}
 
