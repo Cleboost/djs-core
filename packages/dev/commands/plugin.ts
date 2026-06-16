@@ -80,7 +80,11 @@ async function runPostinstall(fullName: string, projectRoot: string) {
 				return true;
 			}
 		}
-	} catch (_error) {}
+	} catch (error) {
+		if (process.env.DEBUG) {
+			console.error(pc.dim("[DEBUG] Postinstall failed:"), error);
+		}
+	}
 	return false;
 }
 

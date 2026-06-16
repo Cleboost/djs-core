@@ -46,7 +46,10 @@ export function buildCommandStructure(
 			continue;
 		}
 
-		throw new Error(`Route too deep: ${parts.join(".")}`);
+		throw new Error(
+			`Route too deep: "${parts.join(".")}" has ${parts.length} levels (max 3: root.group.subcommand). ` +
+				`Check your folder structure in src/interactions/commands.`,
+		);
 	}
 
 	const builder = new SlashCommandBuilder()
