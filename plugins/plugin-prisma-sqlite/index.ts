@@ -64,17 +64,17 @@ export const prismaPlugin = definePlugin({
 			.command("prisma <action>", "Prisma helper commands")
 			.action((action: string) => {
 				if (action === "generate") {
-					spawnSync("bunx", ["prisma", "generate"], {
+					const result = spawnSync("bunx", ["prisma", "generate"], {
 						stdio: "inherit",
 					});
-					process.exit(0);
+					process.exit(result.status ?? 1);
 				}
 
 				if (action === "push") {
-					spawnSync("bunx", ["prisma", "db", "push"], {
+					const result = spawnSync("bunx", ["prisma", "db", "push"], {
 						stdio: "inherit",
 					});
-					process.exit(0);
+					process.exit(result.status ?? 1);
 				}
 
 				console.error(`\nUnknown prisma action: ${action}`);

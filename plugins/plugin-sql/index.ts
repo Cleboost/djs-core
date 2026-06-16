@@ -13,14 +13,28 @@ export const sqlPlugin = definePlugin({
 
 		return {
 			/**
-			 * Execute a raw SQL query using tagged templates.
+			 * Execute a raw SQL query using tagged template literals.
+			 *
+			 * MUST be called as a tagged template — interpolated values are passed
+			 * as bound parameters and never concatenated into the SQL string.
+			 *
+			 * ✅ Safe:   client.sql.execute`SELECT * FROM users WHERE id = ${id}`
+			 * ❌ Unsafe: client.sql.execute(`SELECT * FROM users WHERE id = ${id}`)
+			 *
+			 * Calling it as a regular function bypasses parameterization and
+			 * allows SQL injection.
 			 */
 			// biome-ignore lint/suspicious/noExplicitAny: raw SQL params
 			execute: (strings: TemplateStringsArray, ...params: any[]) => {
 				return db.query(strings.join("?")).all(...params);
 			},
 			/**
-			 * Execute a SQL statement and return no results using tagged templates.
+			 * Execute a SQL statement and return no results using tagged template literals.
+			 *
+			 * MUST be called as a tagged template — see `execute` for details.
+			 *
+			 * ✅ Safe:   client.sql.run`INSERT INTO logs (msg) VALUES (${msg})`
+			 * ❌ Unsafe: client.sql.run(`INSERT INTO logs (msg) VALUES (${msg})`)
 			 */
 			// biome-ignore lint/suspicious/noExplicitAny: raw SQL params
 			run: (strings: TemplateStringsArray, ...params: any[]) => {
