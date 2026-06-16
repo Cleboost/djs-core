@@ -6,9 +6,9 @@ type AnyConstructor = new (...args: any[]) => any;
 export function WithCustomId<TBase extends AnyConstructor>(Base: TBase, label: string) {
 	return class extends Base {
 		// biome-ignore lint/suspicious/noExplicitAny: typed per concrete subclass
-		protected _run?: (interaction: any, data: any) => unknown;
-		protected _baseCustomId?: string;
-		protected _customId?: string;
+		_run?: (interaction: any, data: any) => unknown;
+		_baseCustomId?: string;
+		_customId?: string;
 
 		setCustomId(customId: string): this {
 			this._baseCustomId = customId;
@@ -17,7 +17,7 @@ export function WithCustomId<TBase extends AnyConstructor>(Base: TBase, label: s
 			return this;
 		}
 
-		protected _setData(data: unknown, ttl?: number): this {
+		_setData(data: unknown, ttl?: number): this {
 			if (!this._baseCustomId) {
 				throw new Error(
 					`${label} customId must be set before calling setData(). Use .setCustomId(id) first.`,
