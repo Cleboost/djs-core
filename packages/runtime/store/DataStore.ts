@@ -20,10 +20,14 @@ function getOrInitDataStore(): Database {
 	}
 
 	const cwd = process.cwd();
-	const isBundled = Bun.main.endsWith("index.js") && dirname(Bun.main) === cwd;
+	const isBundled =
+		process.env.DJS_BUNDLED === "true" ||
+		(Bun.main.endsWith("index.js") && dirname(Bun.main) === cwd);
 
 	let dbPath: string;
-	if (process.env.NODE_ENV === "test") {
+	if (process.env.DJS_DB_PATH) {
+		dbPath = process.env.DJS_DB_PATH;
+	} else if (process.env.NODE_ENV === "test") {
 		dbPath = ":memory:";
 	} else if (isBundled) {
 		dbPath = join(cwd, "djscore.db");

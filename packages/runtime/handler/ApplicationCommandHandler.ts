@@ -10,6 +10,7 @@ import type Command from "../interaction/Command";
 import type ContextMenu from "../interaction/ContextMenu";
 import { getRoot } from "../utils/route";
 import { buildCommandStructure, routesToEntries } from "../utils/compile-command";
+import { isUnknownCommandError } from "../utils/discord-errors";
 import type { Route } from "./CommandHandler";
 
 /**
@@ -81,15 +82,7 @@ export default class ApplicationCommandHandler {
 						);
 						this.refreshCacheFromSetResult(created, guildId);
 					} catch (error: unknown) {
-						if (
-							error &&
-							typeof error === "object" &&
-							"code" in error &&
-							error.code === 10063
-						) {
-							return;
-						}
-						throw error;
+						if (!isUnknownCommandError(error)) throw error;
 					}
 				}),
 			);
@@ -98,15 +91,7 @@ export default class ApplicationCommandHandler {
 				const created = await application.commands.set(allCommands);
 				this.refreshCacheFromSetResult(created, "global");
 			} catch (error: unknown) {
-				if (
-					error &&
-					typeof error === "object" &&
-					"code" in error &&
-					error.code === 10063
-				) {
-					return;
-				}
-				throw error;
+				if (!isUnknownCommandError(error)) throw error;
 			}
 		}
 	}

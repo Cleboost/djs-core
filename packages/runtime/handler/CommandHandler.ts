@@ -4,13 +4,13 @@ import type {
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
-	Collection,
 } from "discord.js";
 import { SlashCommandBuilder } from "discord.js";
 import type Command from "../interaction/Command";
 import { handleInteractionError } from "../utils/error";
 import { getRoot, splitRoute } from "../utils/route";
 import { buildCommandStructure, routesToEntries } from "../utils/compile-command";
+import { isUnknownCommandError } from "../utils/discord-errors";
 
 export interface Route {
 	route: string;
@@ -134,15 +134,7 @@ export default class CommandHandler {
 						scope === "global" ? undefined : scope,
 					);
 				} catch (error: unknown) {
-					if (
-						error &&
-						typeof error === "object" &&
-						"code" in error &&
-						error.code === 10063
-					) {
-					} else {
-						throw error;
-					}
+					if (!isUnknownCommandError(error)) throw error;
 				}
 				cache.delete(root);
 			}
@@ -166,21 +158,13 @@ export default class CommandHandler {
 					cache.set(edited.name, edited.id);
 				}
 			} catch (error: unknown) {
-				if (
-					error &&
-					typeof error === "object" &&
-					"code" in error &&
-					error.code === 10063
-				) {
-					cache.delete(root);
-					const created = await this.client.application.commands.create(
-						compiled,
-						scope === "global" ? undefined : scope,
-					);
-					cache.set(created.name, created.id);
-				} else {
-					throw error;
-				}
+				if (!isUnknownCommandError(error)) throw error;
+				cache.delete(root);
+				const created = await this.client.application.commands.create(
+					compiled,
+					scope === "global" ? undefined : scope,
+				);
+				cache.set(created.name, created.id);
 			}
 		} else {
 			const created = await this.client.application.commands.create(
@@ -209,41 +193,9 @@ export default class CommandHandler {
 			}
 			this.rootIdCache.set(scope, map);
 		} catch (error: unknown) {
-			if (
-				error &&
-				typeof error === "object" &&
-				"code" in error &&
-				error.code === 10063
-			) {
-				const map = new Map<string, string>();
-				this.rootIdCache.set(scope, map);
-				return;
-			}
-			throw error;
+			if (!isUnknownCommandError(error)) throw error;
+			this.rootIdCache.set(scope, new Map<string, string>());
 		}
-	}
-
-	private refreshCacheFromSetResult(
-		setResult: Collection<string, ApplicationCommand>,
-		scope: string,
-	): void {
-		const map = new Map<string, string>();
-		for (const cmd of setResult.values()) {
-			map.set(cmd.name, cmd.id);
-		}
-		this.rootIdCache.set(scope, map);
-	}
-
-	private compileAllRoots(): ApplicationCommandDataResolvable[] {
-		const roots = new Set(this.router.map((r) => getRoot(r.route)));
-		const payload: ApplicationCommandDataResolvable[] = [];
-
-		for (const root of roots) {
-			const compiled = this.compileRoot(root);
-			if (compiled) payload.push(compiled);
-		}
-
-		return payload;
 	}
 
 	private compileRoot(root: string): ApplicationCommandDataResolvable | null {
