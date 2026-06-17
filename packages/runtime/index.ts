@@ -39,6 +39,7 @@ import {
 import Task from "./Task";
 
 export * from "./interaction/BaseInteraction";
+export { closeDataStore } from "./store/DataStore";
 export * from "./utils/route";
 export {
 	Button,

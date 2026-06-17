@@ -1,5 +1,5 @@
 import {
-	ApplicationCommandType,
+	type ApplicationCommandType,
 	ContextMenuCommandBuilder,
 	type ContextMenuCommandType,
 	type MessageContextMenuCommandInteraction,

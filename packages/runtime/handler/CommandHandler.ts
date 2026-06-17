@@ -1,16 +1,18 @@
 import type {
-	ApplicationCommand,
 	ApplicationCommandDataResolvable,
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
+	SlashCommandBuilder,
 } from "discord.js";
-import { SlashCommandBuilder } from "discord.js";
 import type Command from "../interaction/Command";
+import {
+	buildCommandStructure,
+	routesToEntries,
+} from "../utils/compile-command";
+import { isUnknownCommandError } from "../utils/discord-errors";
 import { handleInteractionError } from "../utils/error";
 import { getRoot, splitRoute } from "../utils/route";
-import { buildCommandStructure, routesToEntries } from "../utils/compile-command";
-import { isUnknownCommandError } from "../utils/discord-errors";
 
 export interface Route {
 	route: string;
@@ -208,7 +210,11 @@ export default class CommandHandler {
 			(r) => this.getRootDescription(r),
 		);
 
-		if (subcommands.has("__root__") && subcommands.size === 1 && groups.size === 0) {
+		if (
+			subcommands.has("__root__") &&
+			subcommands.size === 1 &&
+			groups.size === 0
+		) {
 			const cmd = subcommands.get("__root__")!;
 			const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
 			builder.setDescription(cmdWithDesc.description ?? "No description");
@@ -219,7 +225,9 @@ export default class CommandHandler {
 			if (name === "__root__") continue;
 			builder.addSubcommand((sc) => {
 				sc.setName(name);
-				const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
+				const cmdWithDesc = cmd as SlashCommandBuilder & {
+					description?: string;
+				};
 				sc.setDescription(cmdWithDesc.description ?? "No description");
 				return sc;
 			});
@@ -232,7 +240,9 @@ export default class CommandHandler {
 				for (const [subName, cmd] of subs) {
 					g.addSubcommand((sc) => {
 						sc.setName(subName);
-						const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
+						const cmdWithDesc = cmd as SlashCommandBuilder & {
+							description?: string;
+						};
 						sc.setDescription(cmdWithDesc.description ?? "No description");
 						return sc;
 					});

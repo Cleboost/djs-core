@@ -1,9 +1,15 @@
-import { decodeCustomIdHelper, storeInteractionDataHelper } from "./BaseInteraction";
+import {
+	decodeCustomIdHelper,
+	storeInteractionDataHelper,
+} from "./BaseInteraction";
 
 // biome-ignore lint/suspicious/noExplicitAny: mixin constructor constraint
 type AnyConstructor = new (...args: any[]) => any;
 
-export function WithCustomId<TBase extends AnyConstructor>(Base: TBase, label: string) {
+export function WithCustomId<TBase extends AnyConstructor>(
+	Base: TBase,
+	label: string,
+) {
 	return class extends Base {
 		// biome-ignore lint/suspicious/noExplicitAny: typed per concrete subclass
 		_run?: (interaction: any, data: any) => unknown;
@@ -48,7 +54,11 @@ export function WithCustomId<TBase extends AnyConstructor>(Base: TBase, label: s
 			return this._baseCustomId;
 		}
 
-		static decodeData(customId: string): { baseId: string; data: unknown; expired: boolean } {
+		static decodeData(customId: string): {
+			baseId: string;
+			data: unknown;
+			expired: boolean;
+		} {
 			return decodeCustomIdHelper(customId);
 		}
 	};

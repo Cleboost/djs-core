@@ -422,9 +422,9 @@ export function registerBuildCommand(cli: CAC) {
 				try {
 					await fs.copyFile(configJsonPath, outConfigJsonPath);
 					console.log(
-						pc.green("✓") + `  config.json copied to ${pc.bold("dist/")}`,
+						`${pc.green("✓")}  config.json copied to ${pc.bold("dist/")}`,
 					);
-				} catch (e) {
+				} catch (_e) {
 					console.warn(pc.yellow("⚠️  Could not copy config.json to dist/"));
 				}
 			}

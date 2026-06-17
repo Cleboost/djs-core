@@ -1,16 +1,19 @@
-import {
-	type ApplicationCommand,
-	type ApplicationCommandDataResolvable,
-	type Collection,
+import type {
+	ApplicationCommand,
+	ApplicationCommandDataResolvable,
+	Collection,
 	SlashCommandBuilder,
-	type SlashCommandSubcommandBuilder,
+	SlashCommandSubcommandBuilder,
 } from "discord.js";
 import type { DjsClient } from "../DjsClient";
 import type Command from "../interaction/Command";
 import type ContextMenu from "../interaction/ContextMenu";
-import { getRoot } from "../utils/route";
-import { buildCommandStructure, routesToEntries } from "../utils/compile-command";
+import {
+	buildCommandStructure,
+	routesToEntries,
+} from "../utils/compile-command";
 import { isUnknownCommandError } from "../utils/discord-errors";
+import { getRoot } from "../utils/route";
 import type { Route } from "./CommandHandler";
 
 /**
@@ -117,7 +120,11 @@ export default class ApplicationCommandHandler {
 			(r) => this.getRootDescription(r),
 		);
 
-		if (subcommands.has("__root__") && subcommands.size === 1 && groups.size === 0) {
+		if (
+			subcommands.has("__root__") &&
+			subcommands.size === 1 &&
+			groups.size === 0
+		) {
 			const cmd = subcommands.get("__root__")!;
 			if (!cmd.name) cmd.setName(root);
 			this.applyDefaultContext(cmd, entries);
@@ -130,7 +137,9 @@ export default class ApplicationCommandHandler {
 			if (name === "__root__") continue;
 			builder.addSubcommand((sc) => {
 				sc.setName(name);
-				const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
+				const cmdWithDesc = cmd as SlashCommandBuilder & {
+					description?: string;
+				};
 				sc.setDescription(cmdWithDesc.description ?? "No description");
 				this.copyOptionsToSubcommand(cmd, sc);
 				return sc;
@@ -144,7 +153,9 @@ export default class ApplicationCommandHandler {
 				for (const [subName, cmd] of subs) {
 					g.addSubcommand((sc) => {
 						sc.setName(subName);
-						const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
+						const cmdWithDesc = cmd as SlashCommandBuilder & {
+							description?: string;
+						};
 						sc.setDescription(cmdWithDesc.description ?? "No description");
 						this.copyOptionsToSubcommand(cmd, sc);
 						return sc;
@@ -247,7 +258,10 @@ export default class ApplicationCommandHandler {
 					sc.addStringOption((opt) => {
 						opt.setName(name).setDescription(description);
 						if (required !== undefined) opt.setRequired(required);
-						if (choices && choices.length > 0) opt.addChoices(...choices);
+						if (choices && choices.length > 0)
+							opt.addChoices(
+								...(choices as Array<{ name: string; value: string }>),
+							);
 						if (autocomplete !== undefined) opt.setAutocomplete(autocomplete);
 						return opt;
 					});
@@ -256,7 +270,10 @@ export default class ApplicationCommandHandler {
 					sc.addIntegerOption((opt) => {
 						opt.setName(name).setDescription(description);
 						if (required !== undefined) opt.setRequired(required);
-						if (choices && choices.length > 0) opt.addChoices(...choices);
+						if (choices && choices.length > 0)
+							opt.addChoices(
+								...(choices as Array<{ name: string; value: number }>),
+							);
 						if (min_value !== undefined) opt.setMinValue(min_value);
 						if (max_value !== undefined) opt.setMaxValue(max_value);
 						if (autocomplete !== undefined) opt.setAutocomplete(autocomplete);
@@ -304,7 +321,10 @@ export default class ApplicationCommandHandler {
 					sc.addNumberOption((opt) => {
 						opt.setName(name).setDescription(description);
 						if (required !== undefined) opt.setRequired(required);
-						if (choices && choices.length > 0) opt.addChoices(...choices);
+						if (choices && choices.length > 0)
+							opt.addChoices(
+								...(choices as Array<{ name: string; value: number }>),
+							);
 						if (min_value !== undefined) opt.setMinValue(min_value);
 						if (max_value !== undefined) opt.setMaxValue(max_value);
 						if (autocomplete !== undefined) opt.setAutocomplete(autocomplete);

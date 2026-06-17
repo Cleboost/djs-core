@@ -2,12 +2,12 @@ import { SlashCommandBuilder } from "discord.js";
 import type Command from "../interaction/Command";
 import { splitRoute } from "./route";
 
-export interface RouteEntry {
+interface RouteEntry {
 	parts: string[];
 	cmd: Command;
 }
 
-export interface CommandStructure {
+interface CommandStructure {
 	subcommands: Map<string, Command>;
 	groups: Map<string, Map<string, Command>>;
 	builder: SlashCommandBuilder;
@@ -41,7 +41,7 @@ export function buildCommandStructure(
 			const s = parts[2];
 			if (g && s) {
 				if (!groups.has(g)) groups.set(g, new Map());
-				groups.get(g)!.set(s, r.cmd);
+				groups.get(g)?.set(s, r.cmd);
 			}
 			continue;
 		}

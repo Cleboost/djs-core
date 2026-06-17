@@ -36,7 +36,10 @@ async function run() {
 		}
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error(pc.dim("[DEBUG] Failed to load djs.config.ts or plugin CLI commands:"), error);
+			console.error(
+				pc.dim("[DEBUG] Failed to load djs.config.ts or plugin CLI commands:"),
+				error,
+			);
 		}
 	}
 

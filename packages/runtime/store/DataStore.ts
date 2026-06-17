@@ -49,8 +49,12 @@ function getOrInitDataStore(): Database {
 			expires_at INTEGER NOT NULL
 		)
 	`);
-	db.run(`CREATE INDEX IF NOT EXISTS idx_interaction_data_created_at ON interaction_data(created_at)`);
-	db.run(`CREATE INDEX IF NOT EXISTS idx_interaction_data_expires_at ON interaction_data(expires_at)`);
+	db.run(
+		`CREATE INDEX IF NOT EXISTS idx_interaction_data_created_at ON interaction_data(created_at)`,
+	);
+	db.run(
+		`CREATE INDEX IF NOT EXISTS idx_interaction_data_expires_at ON interaction_data(expires_at)`,
+	);
 
 	globalThis.__djsCoreDataStore = db;
 	_dataStore = db;
@@ -128,7 +132,9 @@ function cleanupExpiredTokens(): number {
 	const db = getOrInitDataStore();
 	const now = Math.floor(Date.now() / 1000);
 	const result = db
-		.prepare("DELETE FROM interaction_data WHERE expires_at > 0 AND expires_at < ?")
+		.prepare(
+			"DELETE FROM interaction_data WHERE expires_at > 0 AND expires_at < ?",
+		)
 		.run(now);
 	return result.changes;
 }
