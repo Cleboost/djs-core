@@ -21,8 +21,7 @@ interface AnyOptionJson {
 	description: string;
 	type: number;
 	required?: boolean;
-	// biome-ignore lint/suspicious/noExplicitAny: discord.js option choices can be string or number
-	choices?: Array<{ name: string; value: any }>;
+	choices?: Array<{ name: string; value: string | number }>;
 	autocomplete?: boolean;
 	min_value?: number;
 	max_value?: number;

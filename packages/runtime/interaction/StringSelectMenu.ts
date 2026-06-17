@@ -30,18 +30,13 @@ export default class StringSelectMenu<TData = undefined> extends WithCustomId(
 	}
 
 	override addOptions(options: StringSelectMenuOption[]): this {
-		const cloned = this.clone();
 		for (const option of options) {
 			const optionBuilder = new StringSelectMenuOptionBuilder()
 				.setLabel(option.label)
 				.setValue(option.value);
-			if (option.emoji) {
-				optionBuilder.setEmoji(option.emoji);
-			}
-			super.addOptions.call(cloned, optionBuilder);
+			if (option.emoji) optionBuilder.setEmoji(option.emoji);
+			super.addOptions(optionBuilder);
 		}
-		Object.setPrototypeOf(cloned, Object.getPrototypeOf(this));
-		Object.assign(this, cloned);
 		return this;
 	}
 
@@ -60,13 +55,13 @@ export default class StringSelectMenu<TData = undefined> extends WithCustomId(
 		if (this.data.disabled) cloned.setDisabled(this.data.disabled);
 		if (this._run) cloned.run(this._run);
 		if (this.data.options) {
-			for (const opt of this.data.options) {
-				const optionBuilder = new StringSelectMenuOptionBuilder()
-					.setLabel(opt.label)
-					.setValue(opt.value);
-				if (opt.emoji) optionBuilder.setEmoji(opt.emoji);
-				super.addOptions.call(cloned, optionBuilder);
-			}
+			cloned.addOptions(
+				this.data.options.map((opt) => ({
+					label: opt.label,
+					value: opt.value,
+					...(opt.emoji ? { emoji: String(opt.emoji) } : {}),
+				})),
+			);
 		}
 		return cloned;
 	}
