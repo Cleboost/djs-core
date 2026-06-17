@@ -41,8 +41,8 @@ export default class ContextMenu<
 		const newMenu = new ContextMenu();
 		newMenu.setType(type);
 		if (this.name) newMenu.setName(this.name);
-		if (this.defaultMemberPermissions) {
-			newMenu.setDefaultMemberPermissions(this.defaultMemberPermissions);
+		if (this.default_member_permissions) {
+			newMenu.setDefaultMemberPermissions(this.default_member_permissions);
 		}
 		// biome-ignore lint/suspicious/noExplicitAny: type narrowed by overloads
 		if (this._run) newMenu._run = this._run as any;
