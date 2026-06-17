@@ -20,6 +20,7 @@ export interface Route {
 export default class CommandHandler {
 	private readonly client: Client;
 	private router: Route[] = [];
+	private routerMap = new Map<string, Command>();
 	private guilds: string[] = [];
 	private rootIdCache = new Map<string, Map<string, string>>();
 
@@ -37,6 +38,7 @@ export default class CommandHandler {
 		const idx = this.router.findIndex((r) => r.route === route.route);
 		if (idx >= 0) this.router[idx] = route;
 		else this.router.push(route);
+		this.routerMap.set(route.route, route.command);
 
 		this.enforceNoExecutableRootWhenHasChildren();
 
@@ -49,6 +51,8 @@ export default class CommandHandler {
 	public set(router: Route[]): void {
 		this.router = router;
 		this.enforceNoExecutableRootWhenHasChildren();
+		this.routerMap.clear();
+		for (const r of this.router) this.routerMap.set(r.route, r.command);
 	}
 
 	public getRoutes(): Route[] {
@@ -59,6 +63,7 @@ export default class CommandHandler {
 		this.assertReady();
 
 		this.router = this.router.filter((r) => r.route !== routeKey);
+		this.routerMap.delete(routeKey);
 
 		if (!skipSync) {
 			const root = getRoot(routeKey);
@@ -70,14 +75,14 @@ export default class CommandHandler {
 		interaction: ChatInputCommandInteraction,
 	): Promise<void> {
 		const key = this.buildRouteKey(interaction);
-		const route = this.router.find((r) => r.route === key);
-		if (!route) {
+		const command = this.routerMap.get(key);
+		if (!command) {
 			console.error(`Command not found for route: ${key}`);
 			return;
 		}
 
 		try {
-			await route.command.execute(interaction);
+			await command.execute(interaction);
 		} catch (error) {
 			await handleInteractionError(interaction, error);
 		}
@@ -87,11 +92,11 @@ export default class CommandHandler {
 		interaction: AutocompleteInteraction,
 	): Promise<void> {
 		const key = this.buildRouteKey(interaction);
-		const route = this.router.find((r) => r.route === key);
-		if (!route) return;
+		const command = this.routerMap.get(key);
+		if (!command) return;
 
 		try {
-			await route.command.executeAutocomplete(interaction);
+			await command.executeAutocomplete(interaction);
 		} catch (e) {
 			console.error(e);
 		}

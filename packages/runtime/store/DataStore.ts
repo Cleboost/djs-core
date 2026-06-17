@@ -8,9 +8,15 @@ declare global {
 
 const DEFAULT_TTL_MINUTES = 120;
 
-function getDatabase(): Database {
+let _dataStore: Database | null = null;
+let _cleanupInterval: ReturnType<typeof setInterval> | null = null;
+
+function getOrInitDataStore(): Database {
+	if (_dataStore) return _dataStore;
+
 	if (globalThis.__djsCoreDataStore) {
-		return globalThis.__djsCoreDataStore;
+		_dataStore = globalThis.__djsCoreDataStore;
+		return _dataStore;
 	}
 
 	const cwd = process.cwd();
@@ -24,7 +30,6 @@ function getDatabase(): Database {
 	} else {
 		const dbDir = join(cwd, ".djscore");
 		dbPath = join(dbDir, "djscore.db");
-
 		try {
 			mkdirSync(dbDir, { recursive: true });
 		} catch {}
@@ -32,7 +37,6 @@ function getDatabase(): Database {
 
 	const db = new Database(dbPath);
 
-	// Unified interaction data table
 	db.run(`
 		CREATE TABLE IF NOT EXISTS interaction_data (
 			token TEXT PRIMARY KEY,
@@ -41,35 +45,41 @@ function getDatabase(): Database {
 			expires_at INTEGER NOT NULL
 		)
 	`);
-
-	db.run(`
-		CREATE INDEX IF NOT EXISTS idx_interaction_data_created_at ON interaction_data(created_at)
-	`);
-	db.run(`
-		CREATE INDEX IF NOT EXISTS idx_interaction_data_expires_at ON interaction_data(expires_at)
-	`);
+	db.run(`CREATE INDEX IF NOT EXISTS idx_interaction_data_created_at ON interaction_data(created_at)`);
+	db.run(`CREATE INDEX IF NOT EXISTS idx_interaction_data_expires_at ON interaction_data(expires_at)`);
 
 	globalThis.__djsCoreDataStore = db;
-	return db;
+	_dataStore = db;
+
+	cleanupExpiredTokens();
+	_cleanupInterval = setInterval(() => cleanupExpiredTokens(), 60 * 1000);
+
+	return _dataStore;
 }
 
-const dataStore = getDatabase();
+export function closeDataStore(): void {
+	if (_cleanupInterval) {
+		clearInterval(_cleanupInterval);
+		_cleanupInterval = null;
+	}
+	if (_dataStore) {
+		_dataStore.close();
+		_dataStore = null;
+		globalThis.__djsCoreDataStore = undefined;
+	}
+}
 
 /**
  * Stores data associated with an interaction token.
- * @param token - The unique token for this interaction.
- * @param data - The data to store.
- * @param ttlMinutes - Time to live in minutes. Defaults to 120.
  */
 export function storeInteractionData(
 	token: string,
 	data: unknown,
 	ttlMinutes?: number,
 ): void {
-	const db = dataStore;
+	const db = getOrInitDataStore();
 	const jsonData = JSON.stringify(data);
 	const now = Math.floor(Date.now() / 1000);
-
 	const ttl = ttlMinutes ?? DEFAULT_TTL_MINUTES;
 	const expiresAt = ttl === 0 ? 0 : now + ttl * 60;
 
@@ -85,7 +95,7 @@ export function storeInteractionData(
 export function getInteractionData(
 	token: string,
 ): { data: unknown; expired: boolean } | null {
-	const db = dataStore;
+	const db = getOrInitDataStore();
 	const result = db
 		.prepare("SELECT data, expires_at FROM interaction_data WHERE token = ?")
 		.get(token) as { data: string; expires_at: number } | undefined;
@@ -105,32 +115,16 @@ export function getInteractionData(
 	}
 }
 
-/**
- * Deletes data associated with an interaction token.
- * @param token - The token to delete.
- */
 function deleteInteractionData(token: string): void {
-	const db = dataStore;
+	const db = getOrInitDataStore();
 	db.prepare("DELETE FROM interaction_data WHERE token = ?").run(token);
 }
 
-/**
- * Cleans up all expired tokens from the database.
- * @returns The number of deleted tokens.
- */
 function cleanupExpiredTokens(): number {
-	const db = dataStore;
+	const db = getOrInitDataStore();
 	const now = Math.floor(Date.now() / 1000);
 	const result = db
-		.prepare(
-			"DELETE FROM interaction_data WHERE expires_at > 0 AND expires_at < ?",
-		)
+		.prepare("DELETE FROM interaction_data WHERE expires_at > 0 AND expires_at < ?")
 		.run(now);
 	return result.changes;
 }
-
-// Cleanup expired tokens on startup and every minute
-cleanupExpiredTokens();
-setInterval(() => {
-	cleanupExpiredTokens();
-}, 60 * 1000);
