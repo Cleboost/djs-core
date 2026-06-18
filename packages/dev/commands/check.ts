@@ -6,10 +6,11 @@ import {
 	type Diagnostic,
 	noEphemeral,
 	preferTypedOptions,
+	requireDescription,
 	type Rule,
 } from "../rules/index";
 
-const ALL_RULES: Rule[] = [noEphemeral, preferTypedOptions];
+const ALL_RULES: Rule[] = [noEphemeral, preferTypedOptions, requireDescription];
 
 function formatLocation(d: Diagnostic, root: string): string {
 	const rel = path.relative(root, d.file);
