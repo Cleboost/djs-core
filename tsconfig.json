@@ -35,6 +35,9 @@
 			"@djs-core/plugin-sql": ["./plugins/plugin-sql/index.ts"],
 			"@djs-core/plugin-prisma-sqlite": [
 				"./plugins/plugin-prisma-sqlite/index.ts"
+			],
+			"@djs-core/plugin-drizzle": [
+				"./plugins/plugin-drizzle/index.ts"
 			]
 		}
 	}

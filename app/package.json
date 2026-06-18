@@ -7,12 +7,13 @@
 		"dev": "djs-core dev",
 		"build": "djs-core build",
 		"start": "djs-core start",
-		"prisma:generate": "djs-core prisma:generate",
-		"prisma:push": "djs-core prisma:push"
+		"drizzle:generate": "djs-core drizzle generate",
+		"drizzle:migrate": "djs-core drizzle migrate",
+		"db:seed": "bun src/db/seed.ts"
 	},
 	"dependencies": {
 		"@djs-core/plugin-demo": "workspace:*",
-		"@djs-core/plugin-prisma-sqlite": "workspace:*",
+		"@djs-core/plugin-drizzle": "workspace:*",
 		"@djs-core/plugin-sql": "workspace:*",
 		"@djs-core/runtime": "workspace:*",
 		"discord.js": "^14.25.1"

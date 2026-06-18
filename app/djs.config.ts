@@ -24,13 +24,16 @@ const config = defineConfig({
 	plugins: [
 		import("@djs-core/plugin-sql"),
 		demoPlugin,
-		import("@djs-core/plugin-prisma-sqlite"),
+		import("@djs-core/plugin-drizzle"),
 	],
 	pluginsConfig: {
 		demo: {
 			message: "yoyo",
 		},
-		prisma: {},
+		drizzle: {
+			dialect: "sqlite",
+			autoMigrate: true,
+		},
 		sql: {
 			path: "todos.db",
 		},

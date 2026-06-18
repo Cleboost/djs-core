@@ -1,21 +1,20 @@
 import { Command } from "@djs-core/runtime";
+import { todos } from "../../../db/schema";
 
 export default new Command()
-	.setDescription("Add a new task using Prisma")
+	.setDescription("Add a new task")
 	.addStringOption((opt) =>
 		opt.setName("task").setDescription("The task to add").setRequired(true),
 	)
 	.run(async (interaction) => {
 		const task = interaction.options.getString("task", true);
 
-		// client.prisma is automatically typed thanks to the updated runtime
-		const result = await interaction.client.prisma.prismaTodo.create({
-			data: {
-				task: task,
-			},
-		});
+		const [result] = await interaction.client.drizzle
+			.insert(todos)
+			.values({ task })
+			.returning();
 
 		return interaction.reply(
-			`✅ Added task with Prisma: **${result.task}** (ID: \`#${result.id}\`)`,
+			`✅ Added task: **${result?.task}** (ID: \`#${result?.id}\`)`,
 		);
 	});

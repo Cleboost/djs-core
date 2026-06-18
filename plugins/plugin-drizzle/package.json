@@ -1,0 +1,47 @@
+{
+	"name": "@djs-core/plugin-drizzle",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --external drizzle-orm --external drizzle-kit --external bun:sqlite --external postgres --external mysql2 --external @libsql/client --minify",
+		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check --project tsconfig.json",
+		"prepack": "bun run build && bun run types"
+	},
+	"dependencies": {
+		"@djs-core/runtime": "workspace:^",
+		"drizzle-orm": "^0.44.0"
+	},
+	"devDependencies": {
+		"@libsql/client": "latest",
+		"@types/bun": "latest",
+		"drizzle-kit": "^0.31.0",
+		"mysql2": "latest",
+		"postgres": "latest"
+	},
+	"peerDependencies": {
+		"discord.js": "^14.25.1",
+		"drizzle-orm": "^0.44.0"
+	},
+	"peerDependenciesMeta": {
+		"postgres": {
+			"optional": true
+		},
+		"mysql2": {
+			"optional": true
+		},
+		"@libsql/client": {
+			"optional": true
+		},
+		"drizzle-kit": {
+			"optional": true
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}
