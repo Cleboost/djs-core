@@ -6,6 +6,7 @@ import type { Config } from "../utils/types/config";
 import { registerBuildCommand } from "./commands/build";
 import { registerDevCommand } from "./commands/dev";
 import { registerGenerateConfigTypesCommand } from "./commands/generate-config-types";
+import { registerListCommand } from "./commands/list";
 import { registerPluginCommand } from "./commands/plugin";
 import { registerStartCommand } from "./commands/start";
 import { resolvePlugin } from "./utils/plugin";
@@ -18,6 +19,7 @@ async function run() {
 	registerStartCommand(cli);
 	registerDevCommand(cli);
 	registerBuildCommand(cli);
+	registerListCommand(cli);
 	registerGenerateConfigTypesCommand(cli);
 	registerPluginCommand(cli);
 
