@@ -19,11 +19,21 @@
 		},
 		"plugins/plugin-drizzle": {
 			"entry": "index.ts",
-			"ignoreDependencies": ["drizzle-kit", "postgres", "mysql2", "@libsql/client"]
+			"ignoreDependencies": [
+				"drizzle-kit",
+				"postgres",
+				"mysql2",
+				"@libsql/client"
+			]
 		},
 		"app": {
-			"entry": ["djs.config.ts", "prisma.config.ts", "src/**/*.ts"],
-			"ignoreDependencies": ["dotenv", "prisma"]
+			"entry": [
+				"djs.config.ts",
+				"prisma.config.ts",
+				"drizzle.config.ts",
+				"src/**/*.ts"
+			],
+			"ignoreDependencies": ["dotenv", "prisma", "drizzle-kit"]
 		}
 	},
 	"ignoreBinaries": ["tail"],

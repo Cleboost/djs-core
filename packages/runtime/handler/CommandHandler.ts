@@ -215,6 +215,7 @@ export default class CommandHandler {
 			subcommands.size === 1 &&
 			groups.size === 0
 		) {
+			// biome-ignore lint/style/noNonNullAssertion: guarded by subcommands.has("__root__") above
 			const cmd = subcommands.get("__root__")!;
 			const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
 			builder.setDescription(cmdWithDesc.description ?? "No description");

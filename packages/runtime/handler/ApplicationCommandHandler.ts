@@ -125,6 +125,7 @@ export default class ApplicationCommandHandler {
 			subcommands.size === 1 &&
 			groups.size === 0
 		) {
+			// biome-ignore lint/style/noNonNullAssertion: guarded by subcommands.has("__root__") above
 			const cmd = subcommands.get("__root__")!;
 			if (!cmd.name) cmd.setName(root);
 			this.applyDefaultContext(cmd, entries);

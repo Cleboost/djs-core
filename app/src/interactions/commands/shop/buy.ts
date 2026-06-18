@@ -24,9 +24,14 @@ export default new Command()
 			}
 
 			const list = available
-				.map((p) => `\`#${p.id}\` **${p.name}** — ${p.price} coins (${p.stock} left)`)
+				.map(
+					(p) =>
+						`\`#${p.id}\` **${p.name}** — ${p.price} coins (${p.stock} left)`,
+				)
 				.join("\n");
-			return interaction.reply(`🛒 **Shop — Available Products:**\n${list}\n\nUse \`/shop buy id:<id>\` to purchase.`);
+			return interaction.reply(
+				`🛒 **Shop — Available Products:**\n${list}\n\nUse \`/shop buy id:<id>\` to purchase.`,
+			);
 		}
 
 		const [product] = await interaction.client.drizzle
