@@ -25,6 +25,7 @@ export default class MentionableSelectMenu<
 		return this._setData(data, ttl);
 	}
 
+	/** @internal */
 	async execute(
 		interaction: MentionableSelectMenuInteraction,
 		data?: unknown,

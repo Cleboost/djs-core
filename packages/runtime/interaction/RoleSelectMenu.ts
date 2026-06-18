@@ -26,6 +26,7 @@ export default class RoleSelectMenu<TData = undefined> extends WithCustomId(
 		return this._setData(data, ttl);
 	}
 
+	/** @internal */
 	async execute(
 		interaction: RoleSelectMenuInteraction,
 		data?: unknown,

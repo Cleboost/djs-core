@@ -11,9 +11,12 @@ export function WithCustomId<TBase extends AnyConstructor>(
 	label: string,
 ) {
 	return class extends Base {
+		/** @internal */
 		// biome-ignore lint/suspicious/noExplicitAny: typed per concrete subclass
 		_run?: (interaction: any, data: any) => unknown;
+		/** @internal */
 		_baseCustomId?: string;
+		/** @internal */
 		_customId?: string;
 
 		setCustomId(customId: string): this {
@@ -23,6 +26,7 @@ export function WithCustomId<TBase extends AnyConstructor>(
 			return this;
 		}
 
+		/** @internal */
 		_setData(data: unknown, ttl?: number): this {
 			if (!this._baseCustomId) {
 				throw new Error(
@@ -45,6 +49,7 @@ export function WithCustomId<TBase extends AnyConstructor>(
 			return this._customId;
 		}
 
+		/** @internal */
 		get baseCustomId(): string {
 			if (!this._baseCustomId) {
 				throw new Error(

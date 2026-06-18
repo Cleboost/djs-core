@@ -44,6 +44,7 @@ export default class StringSelectMenu<TData = undefined> extends WithCustomId(
 		return this;
 	}
 
+	/** @internal */
 	clone(): StringSelectMenu {
 		const cloned = new StringSelectMenu();
 		if (this._baseCustomId) cloned._baseCustomId = this._baseCustomId;
@@ -70,6 +71,7 @@ export default class StringSelectMenu<TData = undefined> extends WithCustomId(
 		return cloned;
 	}
 
+	/** @internal */
 	async execute(
 		interaction: StringSelectMenuInteraction,
 		data?: unknown,

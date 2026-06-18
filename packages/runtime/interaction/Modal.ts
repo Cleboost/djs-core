@@ -23,6 +23,7 @@ export default class Modal<TData = undefined> extends WithCustomId(
 		return this._setData(data, ttl);
 	}
 
+	/** @internal */
 	async execute(
 		interaction: ModalSubmitInteraction,
 		data?: unknown,

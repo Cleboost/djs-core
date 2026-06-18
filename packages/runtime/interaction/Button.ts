@@ -23,6 +23,7 @@ export default class Button<TData = undefined> extends WithCustomId(
 		return this._setData(data, ttl);
 	}
 
+	/** @internal */
 	async execute(interaction: ButtonInteraction, data?: unknown): Promise<void> {
 		if (!this._run) {
 			throw new Error(
