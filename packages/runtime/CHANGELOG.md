@@ -1,5 +1,26 @@
 # @djs-core/runtime
 
+## 1.12.0
+
+### Minor Changes
+
+- 1313559: Add `.autocomplete(optionName, fn)` helper on `Command` for per-option autocomplete handlers. The function receives `(value, interaction)` and returns choices directly — no need to call `getFocused()` or `respond()` manually. Multiple options are supported by chaining. `.runAutocomplete()` remains available as a low-level fallback and is called when no per-option handler matches.
+- 9cbd5e7: Add automatic TypeScript inference for command options in `.run()`. Option names and required status are inferred from the builder chain — no manual typing needed.
+
+  ```ts
+  new Command()
+    .addStringOption((opt) => opt.setName("fruit").setRequired(true))
+    .addStringOption((opt) => opt.setName("color"))
+    .run(async (interaction, options) => {
+      options.fruit; // string
+      options.color; // string | null
+    });
+  ```
+
+### Patch Changes
+
+- fe6bbc7: Refactor ButtonHandler, ModalHandler, and SelectMenuHandler to extend a shared `BaseHandler` abstract class, eliminating ~90 lines of duplicated Map/dispatch logic.
+
 ## 1.11.0
 
 ### Minor Changes

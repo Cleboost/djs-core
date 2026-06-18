@@ -1,5 +1,41 @@
 # @djs-core/dev
 
+## 5.3.0
+
+### Minor Changes
+
+- 7e6922e: Add `djs-core check` command — a static linter for djs-core anti-patterns powered by ts-morph.
+
+  - `--fix` auto-applies all fixable issues
+  - `--rule <name>` runs a single rule
+  - Errors exit with code 1, warnings are informational only
+
+  Built-in rules:
+
+  - **no-ephemeral** (error, fixable): replaces deprecated `ephemeral: true` with `flags: [MessageFlags.Ephemeral]` and adds the import automatically
+  - **prefer-typed-options** (warn): suggests using the typed `options` parameter in `.run()` instead of `interaction.options.getXxx()`
+
+- ff8a9f6: Add `djs-core generate` command (alias `g`) to scaffold interaction files from templates.
+
+  Supported types: `command`, `button`, `modal`, `select`, `event`, `context`.
+
+  ```sh
+  djs-core generate command shop/search
+  djs-core g button confirm
+  djs-core g modal feedback --force
+  ```
+
+  Creates the file at the correct path with the right imports and a working skeleton. Intermediate directories are created automatically.
+
+- 778aa24: Add `djs-core list` command that scans `src/` and prints all detected commands, context menus, buttons, select menus, modals, events and cron tasks with their routes and file paths.
+
+### Patch Changes
+
+- Updated dependencies [1313559]
+- Updated dependencies [fe6bbc7]
+- Updated dependencies [9cbd5e7]
+  - @djs-core/runtime@1.12.0
+
 ## 5.2.3
 
 ### Patch Changes
