@@ -1,7 +1,7 @@
 import {
 	type APIRole,
-	type Attachment,
 	type ApplicationCommandOptionChoiceData,
+	type Attachment,
 	type AutocompleteInteraction,
 	type ChatInputCommandInteraction,
 	type GuildBasedChannel,
@@ -29,7 +29,9 @@ import {
 
 interface OptionProbe {
 	setName<N extends string>(name: N): this & { readonly __name: N };
-	setRequired<R extends boolean>(required: R): this & { readonly __required: R };
+	setRequired<R extends boolean>(
+		required: R,
+	): this & { readonly __required: R };
 }
 
 export interface StringOptionProbe extends OptionProbe {
@@ -85,10 +87,18 @@ export interface AttachmentOptionProbe extends OptionProbe {
 // Type helpers
 // ---------------------------------------------------------------------------
 
-type ExtractName<T> = T extends { readonly __name: infer N extends string } ? N : never;
-type ExtractRequired<T> = T extends { readonly __required: infer R extends boolean } ? R : false;
+type ExtractName<T> = T extends { readonly __name: infer N extends string }
+	? N
+	: never;
+type ExtractRequired<T> = T extends {
+	readonly __required: infer R extends boolean;
+}
+	? R
+	: false;
 
-type AppendOption<TOptions, TName extends string, TValue> = [TName] extends [never]
+type AppendOption<TOptions, TName extends string, TValue> = [TName] extends [
+	never,
+]
 	? TOptions
 	: TOptions & { [K in TName]: TValue };
 
@@ -118,8 +128,16 @@ function createOptionSpy(): { proxy: unknown; meta: OptionMeta } {
 	// biome-ignore lint/suspicious/noExplicitAny: Proxy must intercept arbitrary method calls
 	const proxy: any = new Proxy({} as any, {
 		get(_target, prop: string) {
-			if (prop === "setName") return (n: string) => { meta.name = n; return proxy; };
-			if (prop === "setRequired") return (r: boolean) => { meta.required = !!r; return proxy; };
+			if (prop === "setName")
+				return (n: string) => {
+					meta.name = n;
+					return proxy;
+				};
+			if (prop === "setRequired")
+				return (r: boolean) => {
+					meta.required = !!r;
+					return proxy;
+				};
 			return () => proxy;
 		},
 	});
@@ -130,10 +148,9 @@ function createOptionSpy(): { proxy: unknown; meta: OptionMeta } {
 // Public types
 // ---------------------------------------------------------------------------
 
-export type CommandRunFn<TOptions extends Record<string, unknown> = Record<never, never>> = (
-	interaction: ChatInputCommandInteraction,
-	options: TOptions,
-) => unknown;
+export type CommandRunFn<
+	TOptions extends Record<string, unknown> = Record<never, never>,
+> = (interaction: ChatInputCommandInteraction, options: TOptions) => unknown;
 
 export type CommandAutocompleteFn = (
 	interaction: AutocompleteInteraction,
@@ -142,7 +159,9 @@ export type CommandAutocompleteFn = (
 export type AutocompleteOptionFn = (
 	value: string,
 	interaction: AutocompleteInteraction,
-) => ApplicationCommandOptionChoiceData[] | Promise<ApplicationCommandOptionChoiceData[]>;
+) =>
+	| ApplicationCommandOptionChoiceData[]
+	| Promise<ApplicationCommandOptionChoiceData[]>;
 
 // ---------------------------------------------------------------------------
 // Command
@@ -152,7 +171,10 @@ export default class Command<
 	TOptions extends Record<string, unknown> = Record<never, never>,
 > extends SlashCommandBuilder {
 	// biome-ignore lint/suspicious/noExplicitAny: options generic resolved at runtime
-	private _run?: (interaction: ChatInputCommandInteraction, options: any) => unknown;
+	private _run?: (
+		interaction: ChatInputCommandInteraction,
+		options: any,
+	) => unknown;
 	private _runAutocomplete?: CommandAutocompleteFn;
 	private _autocompleteHandlers = new Map<string, AutocompleteOptionFn>();
 	private _optionsMeta: OptionMeta[] = [];
@@ -176,18 +198,20 @@ export default class Command<
 	// Option overrides
 	//
 	// Each method needs three declarations with noImplicitOverride: true:
-	//   1. Inference overload (callback → new generic) — @ts-ignore suppresses
+	//   1. Inference overload (callback → new generic) — @ts-expect-error suppresses
 	//      TS2416 because the return type intentionally diverges from the base
 	//   2. Pass-through overload (instance → this) — compatible with base
 	//   3. Implementation (any → any) — runtime body
 	// -------------------------------------------------------------------------
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addStringOption<
 		TResult extends StringOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: StringOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, string>>>;
+	>(
+		fn: (opt: StringOptionProbe) => TResult,
+	): Command<AppendOption<TOptions, TName, Resolve<TRequired, string>>>;
 	override addStringOption(opt: SlashCommandStringOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addStringOption(input: any): any {
@@ -201,12 +225,14 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addIntegerOption<
 		TResult extends IntegerOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: IntegerOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, number>>>;
+	>(
+		fn: (opt: IntegerOptionProbe) => TResult,
+	): Command<AppendOption<TOptions, TName, Resolve<TRequired, number>>>;
 	override addIntegerOption(opt: SlashCommandIntegerOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addIntegerOption(input: any): any {
@@ -220,12 +246,14 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addNumberOption<
 		TResult extends NumberOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: NumberOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, number>>>;
+	>(
+		fn: (opt: NumberOptionProbe) => TResult,
+	): Command<AppendOption<TOptions, TName, Resolve<TRequired, number>>>;
 	override addNumberOption(opt: SlashCommandNumberOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addNumberOption(input: any): any {
@@ -239,12 +267,14 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addBooleanOption<
 		TResult extends BooleanOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: BooleanOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, boolean>>>;
+	>(
+		fn: (opt: BooleanOptionProbe) => TResult,
+	): Command<AppendOption<TOptions, TName, Resolve<TRequired, boolean>>>;
 	override addBooleanOption(opt: SlashCommandBooleanOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addBooleanOption(input: any): any {
@@ -258,12 +288,14 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addUserOption<
 		TResult extends UserOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: UserOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, User>>>;
+	>(
+		fn: (opt: UserOptionProbe) => TResult,
+	): Command<AppendOption<TOptions, TName, Resolve<TRequired, User>>>;
 	override addUserOption(opt: SlashCommandUserOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addUserOption(input: any): any {
@@ -277,12 +309,16 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addChannelOption<
 		TResult extends ChannelOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: ChannelOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, GuildBasedChannel>>>;
+	>(
+		fn: (opt: ChannelOptionProbe) => TResult,
+	): Command<
+		AppendOption<TOptions, TName, Resolve<TRequired, GuildBasedChannel>>
+	>;
 	override addChannelOption(opt: SlashCommandChannelOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addChannelOption(input: any): any {
@@ -296,12 +332,14 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addRoleOption<
 		TResult extends RoleOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: RoleOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, Role | APIRole>>>;
+	>(
+		fn: (opt: RoleOptionProbe) => TResult,
+	): Command<AppendOption<TOptions, TName, Resolve<TRequired, Role | APIRole>>>;
 	override addRoleOption(opt: SlashCommandRoleOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addRoleOption(input: any): any {
@@ -315,12 +353,20 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addMentionableOption<
 		TResult extends MentionableOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: MentionableOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, User | GuildMember | Role | APIRole>>>;
+	>(
+		fn: (opt: MentionableOptionProbe) => TResult,
+	): Command<
+		AppendOption<
+			TOptions,
+			TName,
+			Resolve<TRequired, User | GuildMember | Role | APIRole>
+		>
+	>;
 	override addMentionableOption(opt: SlashCommandMentionableOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addMentionableOption(input: any): any {
@@ -334,12 +380,14 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-ignore: inference overload return type intentionally differs from base SlashCommandBuilder
+	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
 	override addAttachmentOption<
 		TResult extends AttachmentOptionProbe,
 		TName extends string = ExtractName<TResult>,
 		TRequired extends boolean = ExtractRequired<TResult>,
-	>(fn: (opt: AttachmentOptionProbe) => TResult): Command<AppendOption<TOptions, TName, Resolve<TRequired, Attachment>>>;
+	>(
+		fn: (opt: AttachmentOptionProbe) => TResult,
+	): Command<AppendOption<TOptions, TName, Resolve<TRequired, Attachment>>>;
 	override addAttachmentOption(opt: SlashCommandAttachmentOption): this;
 	// biome-ignore lint/suspicious/noExplicitAny: implementation overload
 	override addAttachmentOption(input: any): any {
@@ -356,7 +404,9 @@ export default class Command<
 	override addSubcommand(
 		input:
 			| SlashCommandSubcommandBuilder
-			| ((subcommand: SlashCommandSubcommandBuilder) => SlashCommandSubcommandBuilder),
+			| ((
+					subcommand: SlashCommandSubcommandBuilder,
+			  ) => SlashCommandSubcommandBuilder),
 	): this {
 		super.addSubcommand(input);
 		return this;
@@ -365,7 +415,9 @@ export default class Command<
 	override addSubcommandGroup(
 		input:
 			| SlashCommandSubcommandGroupBuilder
-			| ((subcommandGroup: SlashCommandSubcommandGroupBuilder) => SlashCommandSubcommandGroupBuilder),
+			| ((
+					subcommandGroup: SlashCommandSubcommandGroupBuilder,
+			  ) => SlashCommandSubcommandGroupBuilder),
 	): this {
 		super.addSubcommandGroup(input);
 		return this;
@@ -383,38 +435,67 @@ export default class Command<
 
 	async execute(interaction: ChatInputCommandInteraction): Promise<void> {
 		if (!this._run) {
-			throw new Error(`The command '${this.name}' has no .run() callback defined`);
+			throw new Error(
+				`The command '${this.name}' has no .run() callback defined`,
+			);
 		}
 
 		const options: Record<string, unknown> = {};
 		for (const meta of this._optionsMeta) {
 			switch (meta.type) {
 				case "string":
-					options[meta.name] = interaction.options.getString(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getString(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 				case "integer":
-					options[meta.name] = interaction.options.getInteger(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getInteger(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 				case "number":
-					options[meta.name] = interaction.options.getNumber(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getNumber(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 				case "boolean":
-					options[meta.name] = interaction.options.getBoolean(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getBoolean(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 				case "user":
-					options[meta.name] = interaction.options.getUser(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getUser(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 				case "channel":
-					options[meta.name] = interaction.options.getChannel(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getChannel(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 				case "role":
-					options[meta.name] = interaction.options.getRole(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getRole(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 				case "mentionable":
-					options[meta.name] = interaction.options.getMentionable(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getMentionable(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 				case "attachment":
-					options[meta.name] = interaction.options.getAttachment(meta.name, meta.required as true);
+					options[meta.name] = interaction.options.getAttachment(
+						meta.name,
+						meta.required as true,
+					);
 					break;
 			}
 		}
@@ -422,7 +503,9 @@ export default class Command<
 		await this._run(interaction, options);
 	}
 
-	async executeAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
+	async executeAutocomplete(
+		interaction: AutocompleteInteraction,
+	): Promise<void> {
 		const focused = interaction.options.getFocused(true);
 		const handler = this._autocompleteHandlers.get(focused.name);
 

@@ -1,6 +1,6 @@
 import type { SourceFile } from "ts-morph";
 
-export type Severity = "error" | "warn";
+type Severity = "error" | "warn";
 
 export type Diagnostic = {
 	file: string;

@@ -1,8 +1,11 @@
 import type { ModalSubmitInteraction } from "discord.js";
-import Modal from "../interaction/Modal";
+import type Modal from "../interaction/Modal";
 import BaseHandler from "./BaseHandler";
 
-export default class ModalHandler extends BaseHandler<Modal, ModalSubmitInteraction> {
+export default class ModalHandler extends BaseHandler<
+	Modal,
+	ModalSubmitInteraction
+> {
 	public async onModalSubmit(
 		interaction: ModalSubmitInteraction,
 	): Promise<void> {

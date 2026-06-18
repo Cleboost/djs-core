@@ -1,10 +1,11 @@
-import { Node, SyntaxKind } from "ts-morph";
 import type { SourceFile } from "ts-morph";
+import { Node, SyntaxKind } from "ts-morph";
 import type { Diagnostic, Rule } from "./types";
 
 export const noEphemeral: Rule = {
 	name: "no-ephemeral",
-	description: "Replace deprecated ephemeral: true with flags: [MessageFlags.Ephemeral]",
+	description:
+		"Replace deprecated ephemeral: true with flags: [MessageFlags.Ephemeral]",
 
 	check(sourceFile: SourceFile): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
@@ -23,7 +24,8 @@ export const noEphemeral: Rule = {
 				file: sourceFile.getFilePath(),
 				line: pos.line,
 				column: pos.column,
-				message: "ephemeral: true is deprecated — use flags: [MessageFlags.Ephemeral]",
+				message:
+					"ephemeral: true is deprecated — use flags: [MessageFlags.Ephemeral]",
 				fixable: true,
 				severity: "error",
 			});
@@ -35,12 +37,14 @@ export const noEphemeral: Rule = {
 	fix(sourceFile: SourceFile): number {
 		let count = 0;
 
-		const nodes = sourceFile.getDescendants().filter(
-			(node) =>
-				Node.isPropertyAssignment(node) &&
-				node.getName() === "ephemeral" &&
-				node.getInitializer()?.getKind() === SyntaxKind.TrueKeyword,
-		);
+		const nodes = sourceFile
+			.getDescendants()
+			.filter(
+				(node) =>
+					Node.isPropertyAssignment(node) &&
+					node.getName() === "ephemeral" &&
+					node.getInitializer()?.getKind() === SyntaxKind.TrueKeyword,
+			);
 
 		for (const node of nodes) {
 			if (!Node.isPropertyAssignment(node)) continue;

@@ -1,9 +1,9 @@
 import type { AnySelectMenuInteraction } from "discord.js";
-import ChannelSelectMenu from "../interaction/ChannelSelectMenu";
-import MentionableSelectMenu from "../interaction/MentionableSelectMenu";
-import RoleSelectMenu from "../interaction/RoleSelectMenu";
-import StringSelectMenu from "../interaction/StringSelectMenu";
-import UserSelectMenu from "../interaction/UserSelectMenu";
+import type ChannelSelectMenu from "../interaction/ChannelSelectMenu";
+import type MentionableSelectMenu from "../interaction/MentionableSelectMenu";
+import type RoleSelectMenu from "../interaction/RoleSelectMenu";
+import type StringSelectMenu from "../interaction/StringSelectMenu";
+import type UserSelectMenu from "../interaction/UserSelectMenu";
 import BaseHandler from "./BaseHandler";
 
 type SelectMenu =

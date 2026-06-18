@@ -1,5 +1,5 @@
-import { Node } from "ts-morph";
 import type { SourceFile } from "ts-morph";
+import { Node } from "ts-morph";
 import type { Diagnostic, Rule } from "./types";
 
 const OPTION_GETTERS = new Set([
@@ -16,7 +16,8 @@ const OPTION_GETTERS = new Set([
 
 export const preferTypedOptions: Rule = {
 	name: "prefer-typed-options",
-	description: "Prefer typed options parameter in .run() over interaction.options.getXxx()",
+	description:
+		"Prefer typed options parameter in .run() over interaction.options.getXxx()",
 
 	check(sourceFile: SourceFile): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];

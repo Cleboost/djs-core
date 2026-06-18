@@ -1,6 +1,6 @@
-import type { CAC } from "cac";
 import fs from "node:fs/promises";
 import path from "node:path";
+import type { CAC } from "cac";
 import pc from "picocolors";
 import { PATH_ALIASES } from "../utils/common";
 
@@ -17,9 +17,13 @@ function toPascalCase(str: string): string {
 
 type Template = (name: string) => string;
 
-const templates: Record<string, { dest: (root: string, name: string) => string; template: Template }> = {
+const templates: Record<
+	string,
+	{ dest: (root: string, name: string) => string; template: Template }
+> = {
 	command: {
-		dest: (root, name) => path.join(root, PATH_ALIASES.interactions, "commands", `${name}.ts`),
+		dest: (root, name) =>
+			path.join(root, PATH_ALIASES.interactions, "commands", `${name}.ts`),
 		template: () => `import { Command } from "@djs-core/runtime";
 
 export default new Command()
@@ -31,7 +35,8 @@ export default new Command()
 	},
 
 	button: {
-		dest: (root, name) => path.join(root, PATH_ALIASES.components, "buttons", `${name}.ts`),
+		dest: (root, name) =>
+			path.join(root, PATH_ALIASES.components, "buttons", `${name}.ts`),
 		template: (name) => `import { Button } from "@djs-core/runtime";
 import { MessageFlags } from "discord.js";
 
@@ -44,7 +49,8 @@ export default new Button()
 	},
 
 	modal: {
-		dest: (root, name) => path.join(root, PATH_ALIASES.components, "modals", `${name}.ts`),
+		dest: (root, name) =>
+			path.join(root, PATH_ALIASES.components, "modals", `${name}.ts`),
 		template: (name) => `import { Modal } from "@djs-core/runtime";
 import { TextInputBuilder, TextInputStyle, ActionRowBuilder, MessageFlags } from "discord.js";
 
@@ -66,7 +72,8 @@ export default new Modal()
 	},
 
 	select: {
-		dest: (root, name) => path.join(root, PATH_ALIASES.components, "selects", `${name}.ts`),
+		dest: (root, name) =>
+			path.join(root, PATH_ALIASES.components, "selects", `${name}.ts`),
 		template: () => `import { StringSelectMenu } from "@djs-core/runtime";
 import { MessageFlags } from "discord.js";
 
@@ -97,7 +104,8 @@ export default new EventListener()
 	},
 
 	context: {
-		dest: (root, name) => path.join(root, PATH_ALIASES.interactions, "contexts", `${name}.ts`),
+		dest: (root, name) =>
+			path.join(root, PATH_ALIASES.interactions, "contexts", `${name}.ts`),
 		template: () => `import { ContextMenu } from "@djs-core/runtime";
 import { ApplicationCommandType, MessageFlags } from "discord.js";
 
@@ -122,34 +130,40 @@ export function registerGenerateCommand(cli: CAC) {
 		.alias("g")
 		.option("-p, --path <path>", "Custom project path", { default: "." })
 		.option("--force", "Overwrite if file already exists")
-		.action(async (type: string, name: string, options: { path: string; force?: boolean }) => {
-			const tpl = templates[type];
+		.action(
+			async (
+				type: string,
+				name: string,
+				options: { path: string; force?: boolean },
+			) => {
+				const tpl = templates[type];
 
-			if (!tpl) {
-				console.error(pc.red(`\n  Unknown type: ${pc.bold(type)}`));
-				console.error(pc.dim(`  Available: ${TYPES.join(", ")}\n`));
-				process.exit(1);
-			}
-
-			const root = path.resolve(process.cwd(), options.path);
-			const dest = tpl.dest(root, name);
-			const rel = path.relative(root, dest);
-
-			// Check existence
-			try {
-				await fs.access(dest);
-				if (!options.force) {
-					console.error(pc.red(`\n  File already exists: ${pc.bold(rel)}`));
-					console.error(pc.dim("  Use --force to overwrite\n"));
+				if (!tpl) {
+					console.error(pc.red(`\n  Unknown type: ${pc.bold(type)}`));
+					console.error(pc.dim(`  Available: ${TYPES.join(", ")}\n`));
 					process.exit(1);
 				}
-			} catch {
-				// file doesn't exist — good
-			}
 
-			await fs.mkdir(path.dirname(dest), { recursive: true });
-			await fs.writeFile(dest, tpl.template(name), "utf-8");
+				const root = path.resolve(process.cwd(), options.path);
+				const dest = tpl.dest(root, name);
+				const rel = path.relative(root, dest);
 
-			console.log(`\n  ${pc.green("✓")}  Created ${pc.bold(pc.cyan(rel))}\n`);
-		});
+				// Check existence
+				try {
+					await fs.access(dest);
+					if (!options.force) {
+						console.error(pc.red(`\n  File already exists: ${pc.bold(rel)}`));
+						console.error(pc.dim("  Use --force to overwrite\n"));
+						process.exit(1);
+					}
+				} catch {
+					// file doesn't exist — good
+				}
+
+				await fs.mkdir(path.dirname(dest), { recursive: true });
+				await fs.writeFile(dest, tpl.template(name), "utf-8");
+
+				console.log(`\n  ${pc.green("✓")}  Created ${pc.bold(pc.cyan(rel))}\n`);
+			},
+		);
 }

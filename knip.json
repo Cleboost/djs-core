@@ -1,9 +1,7 @@
 {
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
-		"packages/runtime": {
-			"entry": "index.ts"
-		},
+		"packages/runtime": {},
 		"packages/dev": {
 			"entry": "index.ts"
 		},
@@ -11,20 +9,14 @@
 			"entry": "index.ts"
 		},
 		"plugins/plugin-prisma-sqlite": {
-			"entry": "index.ts",
-			"ignoreDependencies": ["prisma"]
+			"entry": "index.ts"
 		},
 		"plugins/plugin-sql": {
 			"entry": "index.ts"
 		},
 		"plugins/plugin-drizzle": {
 			"entry": "index.ts",
-			"ignoreDependencies": [
-				"drizzle-kit",
-				"postgres",
-				"mysql2",
-				"@libsql/client"
-			]
+			"ignoreDependencies": ["drizzle-kit"]
 		},
 		"app": {
 			"entry": [
