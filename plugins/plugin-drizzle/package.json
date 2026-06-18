@@ -11,7 +11,7 @@
 	},
 	"dependencies": {
 		"@djs-core/runtime": "workspace:*",
-		"drizzle-orm": "0.44.7"
+		"drizzle-orm": "0.45.2"
 	},
 	"devDependencies": {
 		"@libsql/client": "0.17.4",
@@ -22,7 +22,7 @@
 	},
 	"peerDependencies": {
 		"discord.js": "14.25.1",
-		"drizzle-orm": "0.44.7"
+		"drizzle-orm": "0.45.2"
 	},
 	"peerDependenciesMeta": {
 		"postgres": {
