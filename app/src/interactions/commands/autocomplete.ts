@@ -1,4 +1,5 @@
 import { Command } from "@djs-core/runtime";
+import { MessageFlags } from "discord.js";
 
 const FRUITS = ["apple", "banana", "cherry", "date", "elderberry"];
 const COLORS = ["red", "green", "blue", "yellow", "purple"];
@@ -28,9 +29,10 @@ export default new Command()
     }))
   )
   .run(async (interaction, options) => {
-    await interaction.reply(
-      `You picked **${options.fruit}** with color **${
+    await interaction.reply({
+      content: `You picked **${options.fruit}** with color **${
         options.color ?? "none"
-      }**`
-    );
+      }**`,
+      ephemeral: true,
+    });
   });

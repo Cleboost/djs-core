@@ -1,25 +1,26 @@
 {
-	"name": "app",
-	"version": "1.0.0",
-	"type": "module",
-	"private": true,
-	"scripts": {
-		"dev": "djs-core dev",
-		"build": "djs-core build",
-		"start": "djs-core start",
-		"drizzle:generate": "djs-core drizzle generate",
-		"drizzle:migrate": "djs-core drizzle migrate",
-		"db:seed": "bun src/db/seed.ts"
-	},
-	"dependencies": {
-		"@djs-core/plugin-demo": "workspace:*",
-		"@djs-core/plugin-drizzle": "workspace:*",
-		"@djs-core/plugin-sql": "workspace:*",
-		"@djs-core/runtime": "workspace:*",
-		"discord.js": "14.25.1"
-	},
-	"devDependencies": {
-		"@djs-core/dev": "workspace:*",
-		"@types/bun": "1.3.14"
-	}
+  "name": "app",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "djs-core dev",
+    "build": "djs-core build",
+    "start": "djs-core start",
+    "check": "djs-core check",
+    "drizzle:generate": "djs-core drizzle generate",
+    "drizzle:migrate": "djs-core drizzle migrate",
+    "db:seed": "bun src/db/seed.ts"
+  },
+  "dependencies": {
+    "@djs-core/plugin-demo": "workspace:*",
+    "@djs-core/plugin-drizzle": "workspace:*",
+    "@djs-core/plugin-sql": "workspace:*",
+    "@djs-core/runtime": "workspace:*",
+    "discord.js": "14.25.1"
+  },
+  "devDependencies": {
+    "@djs-core/dev": "workspace:*",
+    "@types/bun": "1.3.14"
+  }
 }
