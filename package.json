@@ -10,12 +10,12 @@
 		"app"
 	],
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.0",
-		"@changesets/cli": "^2.31.0",
-		"dts-bundle-generator": "^9.5.1",
-		"knip": "^6.17.1",
-		"typescript": "latest",
-		"turbo": "^2.9.18"
+		"@biomejs/biome": "2.5.0",
+		"@changesets/cli": "2.31.0",
+		"dts-bundle-generator": "9.5.1",
+		"knip": "6.17.1",
+		"typescript": "6.0.3",
+		"turbo": "2.9.18"
 	},
 	"scripts": {
 		"check": "biome check",
