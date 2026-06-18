@@ -17,7 +17,7 @@
 		"@djs-core/plugin-drizzle": "workspace:*",
 		"@djs-core/plugin-sql": "workspace:*",
 		"@djs-core/runtime": "workspace:*",
-		"discord.js": "14.25.1"
+		"discord.js": "14.26.4"
 	},
 	"devDependencies": {
 		"@djs-core/dev": "workspace:*",
