@@ -1,19 +1,10 @@
-import type { AnySelectMenuInteraction, Client } from "discord.js";
-import { MessageFlags } from "discord.js";
+import type { AnySelectMenuInteraction } from "discord.js";
 import ChannelSelectMenu from "../interaction/ChannelSelectMenu";
 import MentionableSelectMenu from "../interaction/MentionableSelectMenu";
 import RoleSelectMenu from "../interaction/RoleSelectMenu";
 import StringSelectMenu from "../interaction/StringSelectMenu";
 import UserSelectMenu from "../interaction/UserSelectMenu";
-import { handleInteractionError } from "../utils/error";
-
-/**
- * Interface representing common properties of all select menu variants.
- */
-interface BaseSelectMenu {
-	baseCustomId: string;
-	execute(interaction: AnySelectMenuInteraction, data: unknown): Promise<void>;
-}
+import BaseHandler from "./BaseHandler";
 
 type SelectMenu =
 	| StringSelectMenu
@@ -22,75 +13,22 @@ type SelectMenu =
 	| ChannelSelectMenu
 	| MentionableSelectMenu;
 
-export default class SelectMenuHandler {
-	private readonly client: Client;
-	private readonly selectMenus: Map<string, SelectMenu> = new Map();
-
-	constructor(client: Client) {
-		this.client = client;
-	}
-
-	public add(selectMenu: SelectMenu): void {
-		// Use type assertion to our common interface
-		const menu = selectMenu as unknown as BaseSelectMenu;
-		const baseCustomId = menu.baseCustomId;
-
-		if (!baseCustomId) {
+export default class SelectMenuHandler extends BaseHandler<
+	SelectMenu,
+	AnySelectMenuInteraction
+> {
+	public override add(selectMenu: SelectMenu): void {
+		if (!selectMenu.baseCustomId) {
 			throw new Error(
 				"SelectMenu customId is not defined. Use .setCustomId(id) before adding the select menu.",
 			);
 		}
-		this.selectMenus.set(baseCustomId, selectMenu);
-	}
-
-	public set(selectMenus: SelectMenu[]): void {
-		this.selectMenus.clear();
-		for (const selectMenu of selectMenus) {
-			this.add(selectMenu);
-		}
-	}
-
-	public delete(customId: string): void {
-		this.selectMenus.delete(customId);
+		super.add(selectMenu);
 	}
 
 	public async onSelectMenuInteraction(
 		interaction: AnySelectMenuInteraction,
 	): Promise<void> {
-		let decoded: { baseId: string; data: unknown; expired: boolean };
-
-		if (interaction.isStringSelectMenu()) {
-			decoded = StringSelectMenu.decodeData(interaction.customId);
-		} else if (interaction.isUserSelectMenu()) {
-			decoded = UserSelectMenu.decodeData(interaction.customId);
-		} else if (interaction.isRoleSelectMenu()) {
-			decoded = RoleSelectMenu.decodeData(interaction.customId);
-		} else if (interaction.isChannelSelectMenu()) {
-			decoded = ChannelSelectMenu.decodeData(interaction.customId);
-		} else if (interaction.isMentionableSelectMenu()) {
-			decoded = MentionableSelectMenu.decodeData(interaction.customId);
-		} else {
-			return;
-		}
-
-		const selectMenu = this.selectMenus.get(decoded.baseId);
-		if (!selectMenu) return;
-
-		const hasToken = decoded.baseId !== interaction.customId;
-
-		if (hasToken && (decoded.expired || decoded.data === undefined)) {
-			await interaction.reply({
-				content: "❌ This interaction has expired or is no longer available.",
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
-
-		try {
-			const menu = selectMenu as unknown as BaseSelectMenu;
-			await menu.execute(interaction, decoded.data);
-		} catch (error) {
-			await handleInteractionError(interaction, error);
-		}
+		await this.dispatch(interaction);
 	}
 }
