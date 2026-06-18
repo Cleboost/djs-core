@@ -12,7 +12,8 @@
 		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check --project tsconfig.json",
 		"dev": "bun build index.ts --outdir dist --target bun --watch",
 		"test": "bun test",
-		"prepack": "turbo build types"
+		"sync-docs": "bun run scripts/sync-docs.ts",
+		"prepack": "turbo build types && bun run scripts/sync-docs.ts"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.1.0",
@@ -30,7 +31,8 @@
 		"discord.js": "14.25.1"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"docs"
 	],
 	"author": "Cleboost",
 	"license": "MIT",
