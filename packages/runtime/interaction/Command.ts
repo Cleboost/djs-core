@@ -198,13 +198,14 @@ export default class Command<
 	// Option overrides
 	//
 	// Each method needs three declarations with noImplicitOverride: true:
-	//   1. Inference overload (callback → new generic) — @ts-expect-error suppresses
+	//   1. Inference overload (callback → new generic) — @ts-ignore suppresses
 	//      TS2416 because the return type intentionally diverges from the base
 	//   2. Pass-through overload (instance → this) — compatible with base
 	//   3. Implementation (any → any) — runtime body
 	// -------------------------------------------------------------------------
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addStringOption<
 		TResult extends StringOptionProbe,
 		TName extends string = ExtractName<TResult>,
@@ -225,7 +226,8 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addIntegerOption<
 		TResult extends IntegerOptionProbe,
 		TName extends string = ExtractName<TResult>,
@@ -246,7 +248,8 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addNumberOption<
 		TResult extends NumberOptionProbe,
 		TName extends string = ExtractName<TResult>,
@@ -267,7 +270,8 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addBooleanOption<
 		TResult extends BooleanOptionProbe,
 		TName extends string = ExtractName<TResult>,
@@ -288,7 +292,8 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addUserOption<
 		TResult extends UserOptionProbe,
 		TName extends string = ExtractName<TResult>,
@@ -309,7 +314,8 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addChannelOption<
 		TResult extends ChannelOptionProbe,
 		TName extends string = ExtractName<TResult>,
@@ -332,7 +338,8 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addRoleOption<
 		TResult extends RoleOptionProbe,
 		TName extends string = ExtractName<TResult>,
@@ -353,7 +360,8 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addMentionableOption<
 		TResult extends MentionableOptionProbe,
 		TName extends string = ExtractName<TResult>,
@@ -380,7 +388,8 @@ export default class Command<
 		return this;
 	}
 
-	// @ts-expect-error: inference overload return type intentionally differs from base SlashCommandBuilder
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// @ts-ignore
 	override addAttachmentOption<
 		TResult extends AttachmentOptionProbe,
 		TName extends string = ExtractName<TResult>,
