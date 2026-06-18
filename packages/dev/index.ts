@@ -5,6 +5,7 @@ import pc from "picocolors";
 import type { Config } from "../utils/types/config";
 import { registerBuildCommand } from "./commands/build";
 import { registerCheckCommand } from "./commands/check";
+import { registerGenerateCommand } from "./commands/generate";
 import { registerDevCommand } from "./commands/dev";
 import { registerGenerateConfigTypesCommand } from "./commands/generate-config-types";
 import { registerListCommand } from "./commands/list";
@@ -22,6 +23,7 @@ async function run() {
 	registerBuildCommand(cli);
 	registerListCommand(cli);
 	registerCheckCommand(cli);
+	registerGenerateCommand(cli);
 	registerGenerateConfigTypesCommand(cli);
 	registerPluginCommand(cli);
 
