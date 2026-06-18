@@ -3,8 +3,8 @@ import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
-	site: "https://cleboost.github.io",
-	base: "/djs-core",
+	site: "https://djs-core.cleboost.com",
+	base: "/",
 	integrations: [
 		starlight({
 			components: {
