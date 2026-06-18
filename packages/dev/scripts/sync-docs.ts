@@ -8,7 +8,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
-const SRC = path.join(REPO_ROOT, "docs");
+const SRC = path.join(REPO_ROOT, "website/src/content/docs");
 const DEST = path.join(import.meta.dir, "../docs");
 
 const SKIP_EXTENSIONS = new Set([
@@ -21,7 +21,7 @@ const SKIP_EXTENSIONS = new Set([
 	".ico",
 	".json",
 ]);
-const SKIP_FILES = new Set([".mintignore", "LICENSE"]);
+const SKIP_FILES = new Set([".mintignore", "LICENSE", "config.ts"]);
 
 async function copy(src: string, dest: string): Promise<number> {
 	let count = 0;
