@@ -1,0 +1,152 @@
+---
+import { nav, getPrevNext } from "@lib/nav";
+import SidebarNav from "@components/SidebarNav.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  slug: string;
+}
+
+const { title, description, slug } = Astro.props;
+const { prev, next } = getPrevNext(slug);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} — djs-core</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <!-- Mobile header -->
+    <header class="mobile-header">
+      <a href="/" class="logo-link">
+        <img src="/logo.svg" alt="djs-core" class="logo" />
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
+
+    <div class="layout">
+      <!-- Left sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-inner">
+          <a href="/" class="sidebar-logo">
+            <img src="/logo.svg" alt="djs-core" class="logo" />
+          </a>
+          <nav class="sidebar-nav">
+            <SidebarNav nav={nav} currentSlug={slug} />
+          </nav>
+          <div class="sidebar-footer">
+            <a href="https://github.com/Cleboost/djs-core" class="github-link" target="_blank" rel="noopener">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Overlay for mobile -->
+      <div class="overlay" id="overlay"></div>
+
+      <!-- Main content -->
+      <main class="main">
+        <article class="content">
+          <h1 class="page-title">{title}</h1>
+          <div class="prose" id="prose">
+            <slot />
+          </div>
+        </article>
+
+        <!-- Prev / Next navigation -->
+        {(prev || next) && (
+          <nav class="page-nav">
+            {prev ? (
+              <a href={`/${prev.slug}`} class="page-nav-link page-nav-prev">
+                <span class="page-nav-label">← Previous</span>
+                <span class="page-nav-title">{prev.label}</span>
+              </a>
+            ) : <div />}
+            {next && (
+              <a href={`/${next.slug}`} class="page-nav-link page-nav-next">
+                <span class="page-nav-label">Next →</span>
+                <span class="page-nav-title">{next.label}</span>
+              </a>
+            )}
+          </nav>
+        )}
+      </main>
+
+      <!-- Right TOC -->
+      <aside class="toc" id="toc-aside">
+        <div class="toc-inner">
+          <p class="toc-title">On this page</p>
+          <nav class="toc-nav" id="toc-nav"></nav>
+        </div>
+      </aside>
+    </div>
+
+    <script>
+      // Mobile sidebar toggle
+      const hamburger = document.getElementById("hamburger")!;
+      const sidebar = document.getElementById("sidebar")!;
+      const overlay = document.getElementById("overlay")!;
+
+      function toggleSidebar() {
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("visible");
+        document.body.classList.toggle("no-scroll");
+      }
+      hamburger.addEventListener("click", toggleSidebar);
+      overlay.addEventListener("click", toggleSidebar);
+
+      // Build TOC from headings
+      const prose = document.getElementById("prose")!;
+      const tocNav = document.getElementById("toc-nav")!;
+      const tocAside = document.getElementById("toc-aside")!;
+
+      const headings = Array.from(prose.querySelectorAll("h2, h3")) as HTMLElement[];
+
+      if (headings.length === 0) {
+        tocAside.style.display = "none";
+      } else {
+        headings.forEach((h) => {
+          // Generate id if missing
+          if (!h.id) {
+            h.id = h.textContent!.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+          }
+          const a = document.createElement("a");
+          a.href = `#${h.id}`;
+          a.textContent = h.textContent!;
+          a.className = "toc-link" + (h.tagName === "H3" ? " toc-link-h3" : "");
+          tocNav.appendChild(a);
+        });
+
+        // Highlight active heading on scroll
+        const links = Array.from(tocNav.querySelectorAll(".toc-link")) as HTMLAnchorElement[];
+
+        function setActive() {
+          let active = headings[0];
+          for (const h of headings) {
+            if (h.getBoundingClientRect().top <= 96) active = h;
+          }
+          links.forEach((l) => l.classList.remove("active"));
+          const activeLink = tocNav.querySelector(`a[href="#${active.id}"]`);
+          activeLink?.classList.add("active");
+        }
+
+        window.addEventListener("scroll", setActive, { passive: true });
+        setActive();
+      }
+    </script>
+  </body>
+</html>

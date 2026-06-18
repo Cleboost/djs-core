@@ -4,44 +4,11 @@ interface Props {
 }
 const { title } = Astro.props;
 ---
-<li class="step-item">
-  <span class="step-counter"></span>
-  <div class="step-content">
-    <strong class="step-title">{title}</strong>
-    <slot />
+<li class="step">
+  <div>
+    <p class="step-title">{title}</p>
+    <div class="step-content">
+      <slot />
+    </div>
   </div>
 </li>
-
-<style>
-.step-item {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  counter-increment: steps;
-}
-.step-counter {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: var(--sl-color-accent);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: var(--sl-text-sm);
-}
-.step-counter::before {
-  content: counter(steps);
-}
-.step-content {
-  flex: 1;
-  padding-top: 0.25rem;
-}
-.step-title {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: var(--sl-text-base);
-}
-</style>

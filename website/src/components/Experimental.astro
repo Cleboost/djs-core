@@ -1,0 +1,88 @@
+---
+---
+<div class="experimental">
+  <div class="experimental-header">
+    <span class="experimental-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Flask/beaker body -->
+        <path d="M9 3h6"/>
+        <path d="M10 3v5.172a4 4 0 0 1-1.172 2.828L5.172 14.657A4 4 0 0 0 4 17.485V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.515a4 4 0 0 0-1.172-2.828l-3.656-3.657A4 4 0 0 1 14 8.172V3"/>
+        <!-- Bubbles inside -->
+        <circle cx="10" cy="17" r="0.75" fill="currentColor" stroke="none"/>
+        <circle cx="13.5" cy="15.5" r="0.5" fill="currentColor" stroke="none"/>
+        <circle cx="11.5" cy="19" r="0.5" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>
+    <span class="experimental-badge">Experimental</span>
+  </div>
+  <div class="experimental-body">
+    <slot />
+  </div>
+</div>
+
+<style>
+.experimental {
+  position: relative;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 0.625rem;
+  padding: 1rem 1.125rem;
+  margin: 1.25rem 0;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.06) 0%, rgba(99, 102, 241, 0.04) 100%);
+  overflow: hidden;
+}
+
+.experimental::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #a855f7, #6366f1, #a855f7);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.experimental-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.experimental-icon {
+  display: flex;
+  align-items: center;
+  color: #c084fc;
+  filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.5));
+}
+
+.experimental-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #c084fc;
+}
+
+.experimental-body {
+  font-size: 0.9rem;
+  color: #b8b8d8;
+  line-height: 1.6;
+}
+
+.experimental-body :global(p:last-child) { margin-bottom: 0; }
+.experimental-body :global(code) {
+  font-size: 0.82em;
+  background: rgba(168, 85, 247, 0.12);
+  color: #d8b4fe;
+  padding: 0.1em 0.4em;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+</style>

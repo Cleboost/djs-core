@@ -1,23 +1,6 @@
 ---
 ---
-<div class="warning aside aside-caution">
-  <p class="aside-title" aria-hidden="true">Warning</p>
-  <section><slot /></section>
+<div class="callout callout-warn">
+  <svg class="callout-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+  <div class="callout-content"><slot /></div>
 </div>
-
-<style>
-.warning {
-  border-inline-start: 0.25rem solid var(--sl-color-orange);
-  background-color: var(--sl-color-orange-low);
-  padding: 1rem;
-  border-radius: 0 0.5rem 0.5rem 0;
-}
-.aside-title {
-  font-weight: 700;
-  font-size: var(--sl-text-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--sl-color-orange);
-  margin-bottom: 0.5rem;
-}
-</style>

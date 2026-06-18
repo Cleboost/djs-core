@@ -4,20 +4,6 @@ interface Props {
 }
 const { cols = 2 } = Astro.props;
 ---
-<div class="card-group" style={`--cols: ${cols}`}>
+<div class:list={["card-grid", `cols-${cols}`]}>
   <slot />
 </div>
-
-<style>
-.card-group {
-  display: grid;
-  grid-template-columns: repeat(var(--cols), 1fr);
-  gap: 1rem;
-  margin-block: 1rem;
-}
-@media (max-width: 640px) {
-  .card-group {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

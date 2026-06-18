@@ -8,40 +8,9 @@ const { name, type, required } = Astro.props;
 ---
 <div class="response-field">
   <div class="response-field-header">
-    <code class="field-name">{name}</code>
-    {type && <span class="field-type">{type}</span>}
-    {required && <span class="field-required">required</span>}
+    <span class="response-field-name">{name}</span>
+    {type && <span class="response-field-type">{type}</span>}
+    {required && <span class="response-field-required">required</span>}
   </div>
-  <div class="field-description"><slot /></div>
+  <div class="response-field-desc"><slot /></div>
 </div>
-
-<style>
-.response-field {
-  border-bottom: 1px solid var(--sl-color-gray-6);
-  padding: 0.75rem 0;
-}
-.response-field-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-.field-name {
-  font-size: var(--sl-text-sm);
-  font-weight: 600;
-}
-.field-type {
-  font-size: var(--sl-text-xs);
-  color: var(--sl-color-gray-3);
-  background: var(--sl-color-gray-6);
-  padding: 0.1rem 0.4rem;
-  border-radius: 0.25rem;
-}
-.field-required {
-  font-size: var(--sl-text-xs);
-  color: var(--sl-color-orange);
-  background: var(--sl-color-orange-low);
-  padding: 0.1rem 0.4rem;
-  border-radius: 0.25rem;
-}
-</style>

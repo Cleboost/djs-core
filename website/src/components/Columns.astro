@@ -1,13 +1,9 @@
 ---
+interface Props {
+  cols?: number;
+}
+const { cols = 2 } = Astro.props;
 ---
-<div class="columns">
+<div class:list={["card-grid", `cols-${cols}`]}>
   <slot />
 </div>
-
-<style>
-.columns {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-</style>

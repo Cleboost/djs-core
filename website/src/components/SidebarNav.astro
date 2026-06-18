@@ -1,0 +1,34 @@
+---
+import type { NavGroup } from "@lib/nav";
+import Icon from "@components/Icon.astro";
+
+interface Props {
+  nav: NavGroup[];
+  currentSlug: string;
+}
+
+const { nav, currentSlug } = Astro.props;
+---
+
+{nav.map((group) => (
+  <div class="nav-group">
+    <p class="nav-group-label">{group.label}</p>
+    <ul class="nav-list">
+      {group.items.map((item) => {
+        const isActive = item.slug === currentSlug;
+        return (
+          <li>
+            <a
+              href={`/${item.slug}`}
+              class:list={["nav-link", { active: isActive }]}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {item.icon && <Icon name={item.icon} size={14} />}
+              {item.label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+))}

@@ -1,45 +1,48 @@
 ---
-title: "Djs-Core"
-icon: "house"
-description: "The first type-safe Discord bot framework"
+title: Introduction
+description: djs-core — a file-based Discord bot framework built on discord.js.
 ---
 
-import CardGroup from '@components/CardGroup.astro';
 import Card from '@components/Card.astro';
+import CardGroup from '@components/CardGroup.astro';
 
-Welcome to **djs-core**, a fully integrated documentation solution built for developers who want to build Discord bots with speed and type safety.
+**djs-core** is a TypeScript framework for building Discord bots. It brings a file-based routing system — similar to Next.js or Nuxt — to discord.js, so you spend less time wiring things up and more time building features.
 
-## What is djs-core?
+## How it works
 
-Djs-core is a framework for creating Discord bots with TypeScript. It uses a routing system inspired by frameworks like Nuxt or Next, leveraging a file system-based router to define your bot's structure. Additionally, it automatically manages data flows that developers would otherwise need to handle manually.
+Drop a file in the right folder and it's automatically registered. No manual handler registration, no boilerplate.
+
+| Folder | What gets registered |
+|--------|----------------------|
+| `src/interactions/commands/` | Slash commands |
+| `src/interactions/contexts/` | Context menus |
+| `src/events/` | Discord event listeners |
+| `src/components/buttons/` | Button handlers |
+| `src/components/modals/` | Modal handlers |
+| `src/components/selects/` | Select menu handlers |
+| `src/cron/` | Scheduled tasks |
+
+## Key features
+
+- **File-based routing** — file path = command name (`admin/kick.ts` → `/admin kick`)
+- **Full TypeScript** — typed interactions, options, and data flows out of the box
+- **Typed component data** — pass structured data between commands and components via `.withData<T>()` / `.setData()`
+- **Auto command registration** — slash commands register on startup, no extra steps
+- **Plugin system** — extend your bot with reusable plugins
+
+## Get started
 
 <CardGroup cols={2}>
-  <Card title="@djs-core/runtime" icon="npm" href="https://npmjs.com/package/@djs-core/runtime">
-    The core runtime library for your bot.
+  <Card title="Installation" icon="download" href="/getting-started/installation">
+    Set up a new project from the quickstart template or from scratch.
   </Card>
-  <Card title="@djs-core/dev" icon="npm" href="https://npmjs.com/package/@djs-core/dev">
-    Development tools and CLI for djs-core.
+  <Card title="Project structure" icon="laptop" href="/getting-started/project-structure">
+    Understand how djs-core organizes your bot's code.
+  </Card>
+  <Card title="Commands" icon="comment" href="/interaction/commands">
+    Create slash commands with options, subcommands, and autocomplete.
+  </Card>
+  <Card title="Components" icon="open-book" href="/components/buttons">
+    Build reusable buttons, modals, and select menus with typed data.
   </Card>
 </CardGroup>
-
-## Key Features
-
-djs-core provides a comprehensive set of features designed to simplify Discord bot development:
-
-- **File-based Routing System**: Organize your bot structure using the file system, similar to modern frameworks like Nuxt or Next.js.
-- **Automatic Handler Registration**: Handlers are automatically discovered and registered based on your project structure.
-- **Full TypeScript Support**: Built with TypeScript for type-safe development and excellent IDE support.
-- **Built on Discord.js**: Leverages the power and reliability of the Discord.js library.
-- **Multiple Interaction Types**: Supports commands, events, buttons, modals, select menus, and context menus out of the box.
-- **Auto Command Registration**: Automatically registers slash commands on bot startup.
-- **Type-Safe Interactions**: Fully typed interactions with autocompletion for better developer experience.
-- **Zero-Config Approach**: Works out of the box with sensible defaults, no complex configuration required.
-- **Plugin System**: Extensible architecture allowing for custom plugins and integrations. *(Coming soon)*
-
-## Next Steps
-
-Ready to build your bot?
-
-<Card title="Get started" icon="rocket" href="/getting-started/installation" horizontal>
-  Follow our guide to get your bot up and running in minutes.
-</Card>
