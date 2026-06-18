@@ -11,7 +11,16 @@ const REPO_ROOT = path.resolve(import.meta.dir, "../../..");
 const SRC = path.join(REPO_ROOT, "docs");
 const DEST = path.join(import.meta.dir, "../docs");
 
-const SKIP_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".ico", ".json"]);
+const SKIP_EXTENSIONS = new Set([
+	".png",
+	".jpg",
+	".jpeg",
+	".gif",
+	".webp",
+	".svg",
+	".ico",
+	".json",
+]);
 const SKIP_FILES = new Set([".mintignore", "LICENSE"]);
 
 async function copy(src: string, dest: string): Promise<number> {
@@ -29,7 +38,7 @@ async function copy(src: string, dest: string): Promise<number> {
 		} else if (!SKIP_EXTENSIONS.has(ext)) {
 			// Rename .mdx → .md for plain Markdown readability
 			const destName = entry.name.endsWith(".mdx")
-				? entry.name.slice(0, -4) + ".md"
+				? `${entry.name.slice(0, -4)}.md`
 				: entry.name;
 			await fs.copyFile(srcPath, path.join(dest, destName));
 			count++;

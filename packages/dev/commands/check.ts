@@ -1,8 +1,13 @@
-import type { CAC } from "cac";
 import path from "node:path";
+import type { CAC } from "cac";
 import pc from "picocolors";
 import { Project } from "ts-morph";
-import { noEphemeral, preferTypedOptions, type Diagnostic, type Rule } from "../rules/index";
+import {
+	type Diagnostic,
+	noEphemeral,
+	preferTypedOptions,
+	type Rule,
+} from "../rules/index";
 
 const ALL_RULES: Rule[] = [noEphemeral, preferTypedOptions];
 
@@ -33,7 +38,9 @@ export function registerCheckCommand(cli: CAC) {
 
 			if (options.rule && rules.length === 0) {
 				console.error(pc.red(`Unknown rule: ${options.rule}`));
-				console.error(pc.dim(`Available: ${ALL_RULES.map((r) => r.name).join(", ")}`));
+				console.error(
+					pc.dim(`Available: ${ALL_RULES.map((r) => r.name).join(", ")}`),
+				);
 				process.exit(1);
 			}
 
@@ -70,7 +77,11 @@ export function registerCheckCommand(cli: CAC) {
 				const remaining = allDiagnostics.filter((d) => !d.fixable);
 				console.log(
 					`\n  ${pc.green("✓")}  Fixed ${pc.bold(String(totalFixed))} issue${totalFixed > 1 ? "s" : ""}` +
-						(remaining.length > 0 ? pc.dim(`  (${remaining.length} warning${remaining.length > 1 ? "s" : ""} remain)`) : "") +
+						(remaining.length > 0
+							? pc.dim(
+									`  (${remaining.length} warning${remaining.length > 1 ? "s" : ""} remain)`,
+								)
+							: "") +
 						"\n",
 				);
 				return;
@@ -82,7 +93,7 @@ export function registerCheckCommand(cli: CAC) {
 			const byFile = new Map<string, Diagnostic[]>();
 			for (const d of allDiagnostics) {
 				if (!byFile.has(d.file)) byFile.set(d.file, []);
-				byFile.get(d.file)!.push(d);
+				byFile.get(d.file)?.push(d);
 			}
 
 			for (const [, diagnostics] of byFile) {
@@ -96,8 +107,16 @@ export function registerCheckCommand(cli: CAC) {
 			const fixable = allDiagnostics.filter((d) => d.fixable).length;
 
 			const parts: string[] = [];
-			if (errors.length > 0) parts.push(pc.red(`${errors.length} error${errors.length > 1 ? "s" : ""}`));
-			if (warnings.length > 0) parts.push(pc.yellow(`${warnings.length} warning${warnings.length > 1 ? "s" : ""}`));
+			if (errors.length > 0)
+				parts.push(
+					pc.red(`${errors.length} error${errors.length > 1 ? "s" : ""}`),
+				);
+			if (warnings.length > 0)
+				parts.push(
+					pc.yellow(
+						`${warnings.length} warning${warnings.length > 1 ? "s" : ""}`,
+					),
+				);
 
 			console.log(
 				`\n  ${parts.join(pc.dim("  "))}` +
