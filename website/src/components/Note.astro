@@ -1,0 +1,23 @@
+---
+---
+<div class="note aside aside-note">
+  <p class="aside-title" aria-hidden="true">Note</p>
+  <section><slot /></section>
+</div>
+
+<style>
+.note {
+  border-inline-start: 0.25rem solid var(--sl-color-blue);
+  background-color: var(--sl-color-blue-low);
+  padding: 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+.aside-title {
+  font-weight: 700;
+  font-size: var(--sl-text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sl-color-blue);
+  margin-bottom: 0.5rem;
+}
+</style>

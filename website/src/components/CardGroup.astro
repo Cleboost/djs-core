@@ -1,0 +1,23 @@
+---
+interface Props {
+  cols?: number;
+}
+const { cols = 2 } = Astro.props;
+---
+<div class="card-group" style={`--cols: ${cols}`}>
+  <slot />
+</div>
+
+<style>
+.card-group {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 1rem;
+  margin-block: 1rem;
+}
+@media (max-width: 640px) {
+  .card-group {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

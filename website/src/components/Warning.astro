@@ -1,0 +1,23 @@
+---
+---
+<div class="warning aside aside-caution">
+  <p class="aside-title" aria-hidden="true">Warning</p>
+  <section><slot /></section>
+</div>
+
+<style>
+.warning {
+  border-inline-start: 0.25rem solid var(--sl-color-orange);
+  background-color: var(--sl-color-orange-low);
+  padding: 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+.aside-title {
+  font-weight: 700;
+  font-size: var(--sl-text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sl-color-orange);
+  margin-bottom: 0.5rem;
+}
+</style>

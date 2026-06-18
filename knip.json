@@ -29,5 +29,5 @@
 		}
 	},
 	"ignoreBinaries": ["tail"],
-	"ignore": ["packages/utils/**"]
+	"ignore": ["packages/utils/**", "website/**"]
 }
