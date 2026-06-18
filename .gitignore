@@ -9,6 +9,9 @@ dist/
 # Dev
 *.dev
 *.db
+# Generated declaration files alongside sources (tsc --declaration side-effect)
+packages/*/utils/*.d.ts
+packages/*/*.d.ts
 .djscore
 .turbo
 
