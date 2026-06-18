@@ -1,7 +1,8 @@
-// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
 type AnyPlugin = {
 	name: string;
+	// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
 	setup: (...args: any[]) => any;
+	// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin loading
 	[key: string]: any;
 };
 

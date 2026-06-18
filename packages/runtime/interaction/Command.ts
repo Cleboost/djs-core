@@ -170,9 +170,9 @@ export type AutocompleteOptionFn = (
 export default class Command<
 	TOptions extends Record<string, unknown> = Record<never, never>,
 > extends SlashCommandBuilder {
-	// biome-ignore lint/suspicious/noExplicitAny: options generic resolved at runtime
 	private _run?: (
 		interaction: ChatInputCommandInteraction,
+		// biome-ignore lint/suspicious/noExplicitAny: options generic resolved at runtime
 		options: any,
 	) => unknown;
 	private _runAutocomplete?: CommandAutocompleteFn;
