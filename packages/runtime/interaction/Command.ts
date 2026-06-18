@@ -198,13 +198,13 @@ export default class Command<
 	// Option overrides
 	//
 	// Each method needs three declarations with noImplicitOverride: true:
-	//   1. Inference overload (callback → new generic) — @ts-ignore suppresses
+	//   1. Inference overload (callback → new generic) — ts-suppress suppresses
 	//      TS2416 because the return type intentionally diverges from the base
 	//   2. Pass-through overload (instance → this) — compatible with base
 	//   3. Implementation (any → any) — runtime body
 	// -------------------------------------------------------------------------
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addStringOption<
 		TResult extends StringOptionProbe,
@@ -226,7 +226,7 @@ export default class Command<
 		return this;
 	}
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addIntegerOption<
 		TResult extends IntegerOptionProbe,
@@ -248,7 +248,7 @@ export default class Command<
 		return this;
 	}
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addNumberOption<
 		TResult extends NumberOptionProbe,
@@ -270,7 +270,7 @@ export default class Command<
 		return this;
 	}
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addBooleanOption<
 		TResult extends BooleanOptionProbe,
@@ -292,7 +292,7 @@ export default class Command<
 		return this;
 	}
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addUserOption<
 		TResult extends UserOptionProbe,
@@ -314,7 +314,7 @@ export default class Command<
 		return this;
 	}
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addChannelOption<
 		TResult extends ChannelOptionProbe,
@@ -338,7 +338,7 @@ export default class Command<
 		return this;
 	}
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addRoleOption<
 		TResult extends RoleOptionProbe,
@@ -360,7 +360,7 @@ export default class Command<
 		return this;
 	}
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addMentionableOption<
 		TResult extends MentionableOptionProbe,
@@ -388,7 +388,7 @@ export default class Command<
 		return this;
 	}
 
-	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, @ts-ignore is safer than @ts-expect-error
+	// biome-ignore lint/suspicious/noTsIgnore: TS2416 is version-dependent, ts-ignore is safer than ts-expect-error
 	// @ts-ignore
 	override addAttachmentOption<
 		TResult extends AttachmentOptionProbe,
