@@ -5,12 +5,13 @@ import { Project } from "ts-morph";
 import {
 	type Diagnostic,
 	noEphemeral,
+	noGenericConstructor,
 	preferTypedOptions,
 	requireDescription,
 	type Rule,
 } from "../rules/index";
 
-const ALL_RULES: Rule[] = [noEphemeral, preferTypedOptions, requireDescription];
+const ALL_RULES: Rule[] = [noEphemeral, noGenericConstructor, preferTypedOptions, requireDescription];
 
 function formatLocation(d: Diagnostic, root: string): string {
 	const rel = path.relative(root, d.file);

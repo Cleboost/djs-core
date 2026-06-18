@@ -12,6 +12,10 @@ export type MentionableSelectMenuRunFn<T = undefined> = (
 export default class MentionableSelectMenu<
 	TData = undefined,
 > extends WithCustomId(MentionableSelectMenuBuilder, "MentionableSelectMenu") {
+	withData<T>(): MentionableSelectMenu<T> {
+		return this as unknown as MentionableSelectMenu<T>;
+	}
+
 	run<T = TData>(fn: MentionableSelectMenuRunFn<T>): this {
 		this._run = fn as unknown as MentionableSelectMenuRunFn<TData>;
 		return this;

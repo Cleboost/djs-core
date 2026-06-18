@@ -20,6 +20,10 @@ export default class StringSelectMenu<TData = undefined> extends WithCustomId(
 	StringSelectMenuBuilder,
 	"StringSelectMenu",
 ) {
+	withData<T>(): StringSelectMenu<T> {
+		return this as unknown as StringSelectMenu<T>;
+	}
+
 	run<T = TData>(fn: StringSelectMenuRunFn<T>): this {
 		this._run = fn as unknown as StringSelectMenuRunFn<TData>;
 		return this;

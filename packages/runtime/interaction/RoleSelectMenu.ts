@@ -13,6 +13,10 @@ export default class RoleSelectMenu<TData = undefined> extends WithCustomId(
 	RoleSelectMenuBuilder,
 	"RoleSelectMenu",
 ) {
+	withData<T>(): RoleSelectMenu<T> {
+		return this as unknown as RoleSelectMenu<T>;
+	}
+
 	run<T = TData>(fn: RoleSelectMenuRunFn<T>): this {
 		this._run = fn as unknown as RoleSelectMenuRunFn<TData>;
 		return this;

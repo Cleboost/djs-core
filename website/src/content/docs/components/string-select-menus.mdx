@@ -63,7 +63,7 @@ Select menus can receive custom data using `.setData()`, just like buttons and m
 ### Component Definition
 
 ```typescript [src/components/selects/string/product.ts]
-export default new StringSelectMenu<{ category: string }>()
+export default new StringSelectMenu().withData<{ category: string }>()
         .run(async (interaction, data) => {
                 const product = interaction.values[0];
                 await interaction.reply(`Selected ${product} from category: ${data.category}`);

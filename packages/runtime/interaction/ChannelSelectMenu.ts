@@ -13,6 +13,10 @@ export default class ChannelSelectMenu<TData = undefined> extends WithCustomId(
 	ChannelSelectMenuBuilder,
 	"ChannelSelectMenu",
 ) {
+	withData<T>(): ChannelSelectMenu<T> {
+		return this as unknown as ChannelSelectMenu<T>;
+	}
+
 	run<T = TData>(fn: ChannelSelectMenuRunFn<T>): this {
 		this._run = fn as unknown as ChannelSelectMenuRunFn<TData>;
 		return this;

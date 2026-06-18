@@ -65,7 +65,7 @@ Mentionable select menus can receive custom data using `.setData()`.
 ```typescript [src/components/selects/mentionable/notify.ts]
 import { MentionableSelectMenu } from "@djs-core/runtime";
 
-export default new MentionableSelectMenu<{ action: string }>()
+export default new MentionableSelectMenu().withData<{ action: string }>()
         .setPlaceholder("Select users or roles to notify")
         .run(async (interaction, data) => {
                 const users = interaction.users.map((u) => u.username);

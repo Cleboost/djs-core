@@ -10,6 +10,10 @@ export default class Button<TData = undefined> extends WithCustomId(
 	ButtonBuilder,
 	"Button",
 ) {
+	withData<T>(): Button<T> {
+		return this as unknown as Button<T>;
+	}
+
 	run<T = TData>(fn: ButtonRunFn<T>): this {
 		this._run = fn as unknown as ButtonRunFn<TData>;
 		return this;

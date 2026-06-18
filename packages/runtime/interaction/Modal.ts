@@ -10,6 +10,10 @@ export default class Modal<TData = undefined> extends WithCustomId(
 	ModalBuilder,
 	"Modal",
 ) {
+	withData<T>(): Modal<T> {
+		return this as unknown as Modal<T>;
+	}
+
 	run<T = TData>(fn: ModalRunFn<T>): this {
 		this._run = fn as unknown as ModalRunFn<TData>;
 		return this;

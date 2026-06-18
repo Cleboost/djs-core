@@ -1,7 +1,8 @@
 import { Button } from "@djs-core/runtime";
 import { ButtonStyle, MessageFlags } from "discord.js";
 
-export default new Button<{ coucou: string }>()
+export default new Button()
+	.withData<{ coucou: string }>()
 	.setLabel("Subdemo button")
 	.setStyle(ButtonStyle.Primary)
 	.run(async (interaction, data) => {

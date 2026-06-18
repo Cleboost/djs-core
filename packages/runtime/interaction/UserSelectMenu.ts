@@ -13,6 +13,10 @@ export default class UserSelectMenu<TData = undefined> extends WithCustomId(
 	UserSelectMenuBuilder,
 	"UserSelectMenu",
 ) {
+	withData<T>(): UserSelectMenu<T> {
+		return this as unknown as UserSelectMenu<T>;
+	}
+
 	run<T = TData>(fn: UserSelectMenuRunFn<T>): this {
 		this._run = fn as unknown as UserSelectMenuRunFn<TData>;
 		return this;
