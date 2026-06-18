@@ -13,7 +13,10 @@ function chainHasSetDescription(node: import("ts-morph").Node): boolean {
 		) {
 			return true;
 		}
-		if (Node.isCallExpression(current) || Node.isPropertyAccessExpression(current)) {
+		if (
+			Node.isCallExpression(current) ||
+			Node.isPropertyAccessExpression(current)
+		) {
 			current = current.getParent();
 		} else {
 			break;
@@ -22,7 +25,9 @@ function chainHasSetDescription(node: import("ts-morph").Node): boolean {
 	return false;
 }
 
-function isCommandNew(node: import("ts-morph").Node): node is import("ts-morph").NewExpression {
+function isCommandNew(
+	node: import("ts-morph").Node,
+): node is import("ts-morph").NewExpression {
 	if (!Node.isNewExpression(node)) return false;
 	const expr = node.getExpression();
 	return Node.isIdentifier(expr) && expr.getText() === "Command";

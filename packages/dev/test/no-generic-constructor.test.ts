@@ -1,5 +1,5 @@
-import { Project } from "ts-morph";
 import { describe, expect, it } from "bun:test";
+import { Project } from "ts-morph";
 import { noGenericConstructor } from "../rules/no-generic-constructor";
 
 function makeFile(project: Project, content: string) {
