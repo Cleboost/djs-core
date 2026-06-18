@@ -1,4 +1,5 @@
 import {
+	type ApplicationCommandOptionChoiceData,
 	type AutocompleteInteraction,
 	type ChatInputCommandInteraction,
 	type SlashCommandAttachmentOption,
@@ -23,12 +24,23 @@ export type CommandAutocompleteFn = (
 	interaction: AutocompleteInteraction,
 ) => unknown;
 
+export type AutocompleteOptionFn = (
+	value: string,
+	interaction: AutocompleteInteraction,
+) => ApplicationCommandOptionChoiceData[] | Promise<ApplicationCommandOptionChoiceData[]>;
+
 export default class Command extends SlashCommandBuilder {
 	private _run?: CommandRunFn;
 	private _runAutocomplete?: CommandAutocompleteFn;
+	private _autocompleteHandlers = new Map<string, AutocompleteOptionFn>();
 
 	run(fn: CommandRunFn): this {
 		this._run = fn;
+		return this;
+	}
+
+	autocomplete(optionName: string, fn: AutocompleteOptionFn): this {
+		this._autocompleteHandlers.set(optionName, fn);
 		return this;
 	}
 
@@ -167,9 +179,17 @@ export default class Command extends SlashCommandBuilder {
 	async executeAutocomplete(
 		interaction: AutocompleteInteraction,
 	): Promise<void> {
-		if (!this._runAutocomplete) {
+		const focused = interaction.options.getFocused(true);
+		const handler = this._autocompleteHandlers.get(focused.name);
+
+		if (handler) {
+			const choices = await handler(focused.value, interaction);
+			await interaction.respond(choices);
 			return;
 		}
-		await this._runAutocomplete(interaction);
+
+		if (this._runAutocomplete) {
+			await this._runAutocomplete(interaction);
+		}
 	}
 }

@@ -9,6 +9,7 @@ import ChannelSelectMenu, {
 	type ChannelSelectMenuRunFn,
 } from "./interaction/ChannelSelectMenu";
 import Command, {
+	type AutocompleteOptionFn,
 	type CommandAutocompleteFn,
 	type CommandRunFn,
 } from "./interaction/Command";
@@ -46,6 +47,7 @@ export {
 	type ButtonRunFn,
 	ChannelSelectMenu,
 	type ChannelSelectMenuRunFn,
+	type AutocompleteOptionFn,
 	Command,
 	type CommandAutocompleteFn,
 	CommandHandler,

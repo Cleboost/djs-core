@@ -77,34 +77,89 @@ Commands can provide autocomplete suggestions for string, integer, and number op
 Autocomplete is especially useful for commands with many possible values, like searching for items, selecting from a list, or choosing from predefined options.
 </Tip>
 
+Use `.autocomplete(optionName, fn)` to declare a handler per option. The function receives the current input value and the interaction — no need to call `getFocused()` or `respond()` manually:
+
 ```typescript
 import { Command } from "@djs-core/runtime";
 
+const FRUITS = ["apple", "banana", "cherry", "date", "elderberry"];
+
 export default new Command()
-        .setDescription("Search for something")
+        .setDescription("Pick a fruit")
         .addStringOption((option) =>
                 option
-                        .setName("query")
-                        .setDescription("Search query")
+                        .setName("fruit")
+                        .setDescription("The fruit to pick")
                         .setRequired(true)
-                        .setAutocomplete(true)
+                        .setAutocomplete(true),
+        )
+        .autocomplete("fruit", (value) =>
+                FRUITS
+                        .filter((f) => f.startsWith(value))
+                        .map((f) => ({ name: f, value: f })),
         )
         .run(async (interaction) => {
-                const query = interaction.options.getString("query");
-                await interaction.reply(`You searched for: ${query}`);
-        })
-    .runAutocomplete(async (interaction) => {
-                const focusedValue = interaction.options.getFocused();
-
-                // Filter suggestions based on user input
-                const choices = ["apple", "banana", "cherry"].filter((choice) =>
-                        choice.startsWith(focusedValue),
-                );
-
-                await interaction.respond(
-                        choices.map((choice) => ({ name: choice, value: choice })),
-                );
+                const fruit = interaction.options.getString("fruit", true);
+                await interaction.reply(`You picked: ${fruit}`);
         });
+```
+
+### Multiple autocomplete options
+
+Each option gets its own `.autocomplete()` handler — they are matched by option name automatically:
+
+```typescript
+import { Command } from "@djs-core/runtime";
+
+const FRUITS = ["apple", "banana", "cherry"];
+const COLORS = ["red", "green", "blue"];
+
+export default new Command()
+        .setDescription("Pick a fruit and a color")
+        .addStringOption((option) =>
+                option.setName("fruit").setDescription("A fruit").setAutocomplete(true),
+        )
+        .addStringOption((option) =>
+                option.setName("color").setDescription("A color").setAutocomplete(true),
+        )
+        .autocomplete("fruit", (value) =>
+                FRUITS.filter((f) => f.startsWith(value)).map((f) => ({ name: f, value: f })),
+        )
+        .autocomplete("color", (value) =>
+                COLORS.filter((c) => c.startsWith(value)).map((c) => ({ name: c, value: c })),
+        )
+        .run(async (interaction) => {
+                const fruit = interaction.options.getString("fruit", true);
+                const color = interaction.options.getString("color", true);
+                await interaction.reply(`${fruit} in ${color}`);
+        });
+```
+
+### Accessing the interaction
+
+The handler also receives the full `interaction` as a second argument, useful when you need the client (e.g. to query a database):
+
+```typescript
+.autocomplete("query", async (value, interaction) => {
+        const results = await interaction.client.drizzle
+                .select()
+                .from(products)
+                .where(like(products.name, `${value}%`));
+
+        return results.map((r) => ({ name: r.name, value: String(r.id) }));
+})
+```
+
+### Low-level fallback
+
+For complex cases where you need full control, `.runAutocomplete()` gives you the raw interaction and lets you call `getFocused()` and `respond()` yourself. Note that `.autocomplete()` handlers take priority — `.runAutocomplete()` is only called when no per-option handler matches:
+
+```typescript
+.runAutocomplete(async (interaction) => {
+        const focused = interaction.options.getFocused(true);
+        // custom logic across multiple fields...
+        await interaction.respond([{ name: "custom", value: "result" }]);
+})
 ```
 
 ## Permissions
