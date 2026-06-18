@@ -4,6 +4,8 @@ icon: "calendar-check"
 description: "How to run scheduled tasks in djs-core."
 ---
 
+import Info from '@components/Info.astro';
+
 `djs-core` provides structured ways and background tasks, keeping your bot logic modular and easy to manage.
 
 Cron tasks allow you to run code at specific intervals. This is useful for cleanup, daily messages, or background processing.

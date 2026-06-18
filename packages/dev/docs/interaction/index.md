@@ -4,6 +4,9 @@ icon: "message"
 description: Learn how to create and manage Discord interactions with djs-core.
 ---
 
+import AccordionGroup from '@components/AccordionGroup.astro';
+import Accordion from '@components/Accordion.astro';
+
 Interactions in djs-core refer to **Application Commands** - the primary way users invoke your bot's functionality directly from Discord's interface.
 
 ## What are Interactions?

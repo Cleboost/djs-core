@@ -4,6 +4,8 @@ icon: "folder-tree"
 description: "How djs-core organizes your bot's code."
 ---
 
+import Tip from '@components/Tip.astro';
+
 This is the minimal directory structure for a djs-core Discord bot project:
 
 ```text

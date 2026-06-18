@@ -4,6 +4,15 @@ icon: "download"
 description: "Get started with djs-core."
 ---
 
+import Note from '@components/Note.astro';
+import Warning from '@components/Warning.astro';
+import Tip from '@components/Tip.astro';
+import Steps from '@components/Steps.astro';
+import Step from '@components/Step.astro';
+import CardGroup from '@components/CardGroup.astro';
+import Card from '@components/Card.astro';
+import ResponseField from '@components/ResponseField.astro';
+
 ## From quickstart
 
 <Steps>

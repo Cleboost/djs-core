@@ -3,6 +3,8 @@ title: "Event Listeners"
 icon: "clock-eleven-thirty"
 ---
 
+import Tip from '@components/Tip.astro';
+
 Event listeners are defined in the `src/events/` directory. Each file should export a default `EventListener` instance.
 
 ```typescript [src/events/ready.ts]

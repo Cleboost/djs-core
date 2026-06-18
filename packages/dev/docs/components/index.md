@@ -4,6 +4,9 @@ icon: "puzzle-piece"
 description: Learn how to create and manage reusable interaction components with djs-core.
 ---
 
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+
 Components in djs-core are reusable interaction elements that can be used within command or context menu responses. Unlike interactions (commands and context menus), components are not standalone - they enhance interactions by providing interactive UI elements.
 
 ## What are Components?

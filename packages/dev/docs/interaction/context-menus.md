@@ -4,6 +4,8 @@ icon: "mouse-pointer"
 description: "User and Message commands available from the Discord right-click menu."
 ---
 
+import Tip from '@components/Tip.astro';
+
 Context menus allow users to interact with Discord elements (users or messages) by right-clicking on them. They provide quick access to bot functionality directly from the context.
 
 ## Creating a Context Menu

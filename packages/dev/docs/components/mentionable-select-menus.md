@@ -4,6 +4,8 @@ icon: "at"
 description: Learn how to create and use mentionable select menu components with djs-core.
 ---
 
+import Note from '@components/Note.astro';
+
 Mentionable select menus allow users to select one or more Discord users or roles from the server. They combine the functionality of user and role select menus into a single component.
 
 <Note>

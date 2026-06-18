@@ -4,6 +4,8 @@ icon: "user-circle"
 description: Learn how to create and use role select menu components with djs-core.
 ---
 
+import Note from '@components/Note.astro';
+
 Role select menus allow users to select one or more Discord roles from the server. They're commonly used for role assignment, permissions management, or role-based features.
 
 <Note>

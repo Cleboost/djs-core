@@ -3,6 +3,9 @@ title: 'Introduction'
 description: 'Example section for showcasing API endpoints'
 ---
 
+import Note from '@components/Note.astro';
+import Card from '@components/Card.astro';
+
 <Note>
   If you're not looking to build API reference documentation, you can delete
   this section by removing the api-reference folder.

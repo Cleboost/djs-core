@@ -4,6 +4,10 @@ icon: "terminal"
 description: Learn how to create slash commands with djs-core.
 ---
 
+import Note from '@components/Note.astro';
+import Warning from '@components/Warning.astro';
+import Tip from '@components/Tip.astro';
+
 Slash commands are the primary way users interact with your Discord bot. They appear in Discord's command menu and can accept various types of options.
 
 <Note>

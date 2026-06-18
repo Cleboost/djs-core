@@ -4,6 +4,10 @@ icon: "users"
 description: Learn how to create and use user select menu components with djs-core.
 ---
 
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+import ResponseField from '@components/ResponseField.astro';
+
 User select menus allow users to select one or more Discord users from the server. They're useful for tagging users, assigning roles, or creating user-based interactions.
 
 <Note>

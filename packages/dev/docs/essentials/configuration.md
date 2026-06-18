@@ -4,6 +4,9 @@ icon: "gear"
 description: "Everything you need to know about configuring your djs-core bot."
 ---
 
+import Warning from '@components/Warning.astro';
+import ResponseField from '@components/ResponseField.astro';
+
 The `djs.config.ts` file is the heart of your `djs-core` project. It defines essential settings like your Discord bot token and server IDs.
 
 ## `djs.config.ts`

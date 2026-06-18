@@ -4,6 +4,8 @@ icon: "list"
 description: Learn how to create and use string select menu components with djs-core.
 ---
 
+import Note from '@components/Note.astro';
+
 String select menus (also called dropdowns) allow users to select one or more options from a predefined list of text choices.
 
 <Note>

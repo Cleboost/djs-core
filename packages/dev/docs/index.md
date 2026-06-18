@@ -4,6 +4,9 @@ icon: "house"
 description: "The first type-safe Discord bot framework"
 ---
 
+import CardGroup from '@components/CardGroup.astro';
+import Card from '@components/Card.astro';
+
 Welcome to **djs-core**, a fully integrated documentation solution built for developers who want to build Discord bots with speed and type safety.
 
 ## What is djs-core?

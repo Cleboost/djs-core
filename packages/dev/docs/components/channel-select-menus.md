@@ -4,6 +4,8 @@ icon: "hashtag"
 description: Learn how to create and use channel select menu components with djs-core.
 ---
 
+import Note from '@components/Note.astro';
+
 Channel select menus allow users to select one or more Discord channels from the server. They're useful for channel configuration, announcements, or channel-based features.
 
 <Note>

@@ -4,6 +4,8 @@ icon: "square"
 description: "Creating and handling button interactions with djs-core."
 ---
 
+import Tip from '@components/Tip.astro';
+
 Buttons are interactive components that users can click to trigger actions in your Discord bot.
 
 <Tip>
