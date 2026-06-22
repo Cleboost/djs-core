@@ -16,7 +16,7 @@
 		"prepack": "turbo build types && bun run scripts/sync-docs.ts"
 	},
 	"dependencies": {
-		"@clack/prompts": "1.5.1",
+		"@clack/prompts": "1.6.0",
 		"@djs-core/runtime": "workspace:*",
 		"cac": "7.0.0",
 		"chokidar": "5.0.0",
