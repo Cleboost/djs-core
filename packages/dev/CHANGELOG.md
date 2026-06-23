@@ -1,5 +1,24 @@
 # @djs-core/dev
 
+## 5.4.0
+
+### Minor Changes
+
+- ee21ee9: Add `require-description` lint rule to `djs-core check`.
+
+  Warns when a `Command` is missing `.setDescription()` — Discord requires a description for all slash commands. The rule is fixable: `--fix` inserts `.setDescription("TODO: add a description")` automatically.
+
+- 387494a: Add `.withData<T>()` method to Button, Modal, and all SelectMenu components
+
+  - `Button`, `Modal`, `StringSelectMenu`, `UserSelectMenu`, `RoleSelectMenu`, `ChannelSelectMenu`, and `MentionableSelectMenu` now expose `.withData<T>()` to declare the expected data type
+  - The old generic constructor syntax (`new Button<T>()`) is deprecated in favor of `new Button().withData<T>()`
+  - New `no-generic-constructor` lint rule in `djs-core check` detects and autofixes the deprecated pattern
+
+### Patch Changes
+
+- Updated dependencies [387494a]
+  - @djs-core/runtime@1.13.0
+
 ## 5.3.0
 
 ### Minor Changes
