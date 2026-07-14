@@ -1,5 +1,13 @@
 # @djs-core/plugin-sql
 
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies [b4d86c3]
+- Updated dependencies [ea05cf9]
+  - @djs-core/runtime@1.13.1
+
 ## 2.0.2
 
 ### Patch Changes

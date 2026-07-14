@@ -1,5 +1,14 @@
 # @djs-core/plugin-drizzle
 
+## 1.0.3
+
+### Patch Changes
+
+- 9155a2d: Bump `mysql2` dev dependency from 3.22.5 to 3.22.6.
+- Updated dependencies [b4d86c3]
+- Updated dependencies [ea05cf9]
+  - @djs-core/runtime@1.13.1
+
 ## 1.0.2
 
 ### Patch Changes

@@ -30,7 +30,7 @@
     },
     "packages/dev": {
       "name": "@djs-core/dev",
-      "version": "5.4.0",
+      "version": "5.4.1",
       "bin": {
         "djs-core": "dist/index.js",
       },
@@ -52,7 +52,7 @@
     },
     "packages/runtime": {
       "name": "@djs-core/runtime",
-      "version": "1.13.0",
+      "version": "1.13.1",
       "dependencies": {
         "cron": "4.4.0",
       },
@@ -79,7 +79,7 @@
     },
     "plugins/plugin-drizzle": {
       "name": "@djs-core/plugin-drizzle",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "dependencies": {
         "@djs-core/runtime": "workspace:*",
         "drizzle-orm": "0.45.2",
@@ -98,7 +98,7 @@
     },
     "plugins/plugin-prisma-sqlite": {
       "name": "@djs-core/plugin-prisma-sqlite",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "dependencies": {
         "@djs-core/runtime": "workspace:*",
         "@prisma/client": "7.8.0",
@@ -114,7 +114,7 @@
     },
     "plugins/plugin-sql": {
       "name": "@djs-core/plugin-sql",
-      "version": "2.0.2",
+      "version": "2.0.3",
       "dependencies": {
         "@djs-core/runtime": "workspace:*",
       },

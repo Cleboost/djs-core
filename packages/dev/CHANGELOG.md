@@ -1,5 +1,13 @@
 # @djs-core/dev
 
+## 5.4.1
+
+### Patch Changes
+
+- Updated dependencies [b4d86c3]
+- Updated dependencies [ea05cf9]
+  - @djs-core/runtime@1.13.1
+
 ## 5.4.0
 
 ### Minor Changes
