@@ -7,6 +7,7 @@ import type {
 } from "discord.js";
 import type Command from "../interaction/Command";
 import {
+	applyDefaultMemberPermissions,
 	buildCommandStructure,
 	routesToEntries,
 } from "../utils/compile-command";
@@ -217,9 +218,8 @@ export default class CommandHandler {
 		) {
 			// biome-ignore lint/style/noNonNullAssertion: guarded by subcommands.has("__root__") above
 			const cmd = subcommands.get("__root__")!;
-			const cmdWithDesc = cmd as SlashCommandBuilder & { description?: string };
-			builder.setDescription(cmdWithDesc.description ?? "No description");
-			return builder.toJSON();
+			if (!cmd.name) cmd.setName(root);
+			return cmd.toJSON();
 		}
 
 		for (const [name, cmd] of subcommands) {
@@ -252,6 +252,7 @@ export default class CommandHandler {
 			});
 		}
 
+		applyDefaultMemberPermissions(builder, entries);
 		return builder.toJSON();
 	}
 

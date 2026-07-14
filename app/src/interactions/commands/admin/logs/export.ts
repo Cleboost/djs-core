@@ -1,6 +1,8 @@
 import { Command } from "@djs-core/runtime";
+import { PermissionFlagsBits } from "discord.js";
 export default new Command()
 	.setDescription("Ping the bot")
+	.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 	.addStringOption((option) =>
 		option
 			.setName("type")
