@@ -15,7 +15,7 @@
 		"dts-bundle-generator": "9.5.1",
 		"knip": "6.26.0",
 		"typescript": "7.0.2",
-		"turbo": "2.10.4"
+		"turbo": "2.10.5"
 	},
 	"scripts": {
 		"check": "biome check",
