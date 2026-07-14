@@ -9,6 +9,7 @@ import type { DjsClient } from "../DjsClient";
 import type Command from "../interaction/Command";
 import type ContextMenu from "../interaction/ContextMenu";
 import {
+	applyDefaultMemberPermissions,
 	buildCommandStructure,
 	routesToEntries,
 } from "../utils/compile-command";
@@ -167,6 +168,7 @@ export default class ApplicationCommandHandler {
 		}
 
 		this.applyDefaultContext(builder, entries);
+		applyDefaultMemberPermissions(builder, entries);
 		const json = builder.toJSON();
 		if (json.contexts && json.contexts.length === 0) delete json.contexts;
 		return json;
