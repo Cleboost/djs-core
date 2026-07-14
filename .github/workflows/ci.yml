@@ -52,9 +52,14 @@ jobs:
       group: check-${{ github.ref }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
 
       - run: bun i
-      - run: bun check
+      - run: bun check --write
+      - uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "chore: apply biome fixes"
