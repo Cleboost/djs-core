@@ -1,5 +1,14 @@
 # @djs-core/runtime
 
+## 1.13.1
+
+### Patch Changes
+
+- b4d86c3: Bump `discord.js` peer dependency from 14.26.4 to 14.26.5.
+- ea05cf9: Fix `default_member_permissions` not being applied when commands are nested under subcommand groups (e.g. `admin.logs.export`). Permissions from leaf commands are now merged onto the root slash command during sync.
+
+  Add a console warning when subcommands under the same root command define different `default_member_permissions`, since Discord only supports one permission set per root command.
+
 ## 1.13.0
 
 ### Minor Changes
