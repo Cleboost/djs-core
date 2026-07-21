@@ -11,7 +11,7 @@
 	],
 	"devDependencies": {
 		"@biomejs/biome": "2.5.3",
-		"@changesets/cli": "2.31.0",
+		"@changesets/cli": "2.31.1",
 		"dts-bundle-generator": "9.5.1",
 		"knip": "6.26.0",
 		"typescript": "7.0.2",
