@@ -33,7 +33,15 @@ function initThemeToggle(): void {
 	};
 }
 
-let tocScrollHandler: (() => void) | null = null;
+let tocCleanup: (() => void) | null = null;
+
+const TOC_ACTIVATION_OFFSET = 112;
+const TOC_TOP_THRESHOLD = 64;
+const TOC_BOTTOM_THRESHOLD = 48;
+
+function getHeadingTop(heading: HTMLElement): number {
+	return heading.getBoundingClientRect().top + window.scrollY;
+}
 
 function initToc(): void {
 	const prose = document.getElementById("prose");
@@ -41,7 +49,9 @@ function initToc(): void {
 	const tocAside = document.getElementById("toc-aside");
 	if (!prose || !tocNav || !tocAside) return;
 
+	tocCleanup?.();
 	tocNav.innerHTML = "";
+
 	const headings = Array.from(prose.querySelectorAll("h2, h3")) as HTMLElement[];
 
 	if (headings.length === 0) {
@@ -69,21 +79,82 @@ function initToc(): void {
 		tocNav.querySelectorAll(".toc-link"),
 	) as HTMLAnchorElement[];
 
-	const setActive = () => {
-		let active = headings[0];
-		for (const heading of headings) {
-			if (heading.getBoundingClientRect().top <= 120) active = heading;
-		}
-		links.forEach((link) => link.classList.remove("active"));
-		tocNav.querySelector(`a[href="#${active.id}"]`)?.classList.add("active");
+	const indicator = document.createElement("div");
+	indicator.className = "toc-indicator";
+	indicator.setAttribute("aria-hidden", "true");
+	tocNav.prepend(indicator);
+
+	let activeId: string | null = null;
+
+	const moveIndicator = (link: HTMLAnchorElement) => {
+		indicator.style.height = `${link.offsetHeight}px`;
+		indicator.style.transform = `translateY(${link.offsetTop}px)`;
 	};
 
-	if (tocScrollHandler) {
-		window.removeEventListener("scroll", tocScrollHandler);
-	}
-	tocScrollHandler = setActive;
-	window.addEventListener("scroll", tocScrollHandler, { passive: true });
-	setActive();
+	const setActive = (heading: HTMLElement) => {
+		if (activeId !== heading.id) {
+			activeId = heading.id;
+			links.forEach((link) => {
+				link.classList.toggle("active", link.hash === `#${heading.id}`);
+			});
+		}
+
+		const activeLink = tocNav.querySelector(
+			`a[href="#${heading.id}"]`,
+		) as HTMLAnchorElement | null;
+		if (activeLink) moveIndicator(activeLink);
+	};
+
+	const resolveActiveHeading = (): HTMLElement => {
+		const scrollY = window.scrollY;
+		const viewportBottom = scrollY + window.innerHeight;
+		const maxScroll =
+			document.documentElement.scrollHeight - window.innerHeight;
+
+		if (scrollY <= TOC_TOP_THRESHOLD) {
+			return headings[0];
+		}
+
+		if (maxScroll - scrollY <= TOC_BOTTOM_THRESHOLD) {
+			return headings[headings.length - 1];
+		}
+
+		const activationLine = scrollY + TOC_ACTIVATION_OFFSET;
+		let active = headings[0];
+
+		for (const heading of headings) {
+			if (getHeadingTop(heading) <= activationLine) {
+				active = heading;
+				continue;
+			}
+			break;
+		}
+
+		return active;
+	};
+
+	const updateActive = () => {
+		setActive(resolveActiveHeading());
+	};
+
+	let ticking = false;
+	const onScrollOrResize = () => {
+		if (ticking) return;
+		ticking = true;
+		requestAnimationFrame(() => {
+			updateActive();
+			ticking = false;
+		});
+	};
+
+	window.addEventListener("scroll", onScrollOrResize, { passive: true });
+	window.addEventListener("resize", onScrollOrResize, { passive: true });
+	tocCleanup = () => {
+		window.removeEventListener("scroll", onScrollOrResize);
+		window.removeEventListener("resize", onScrollOrResize);
+	};
+
+	updateActive();
 }
 
 function initDocsLayout(): void {

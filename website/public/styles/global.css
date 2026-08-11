@@ -847,20 +847,38 @@ body {
   color: var(--text-muted);
   margin-bottom: 0.75rem;
 }
-.toc-nav { display: flex; flex-direction: column; gap: 0.125rem; }
+.toc-nav {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.toc-indicator {
+  position: absolute;
+  left: -1.0625rem;
+  top: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--primary);
+  pointer-events: none;
+  transform: translateY(0);
+  transition:
+    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, height;
+}
 .toc-link {
   display: block;
   font-size: 0.8125rem;
   color: var(--text-muted);
   text-decoration: none;
   padding: 0.25rem 0 0.25rem 0.75rem;
-  border-left: 2px solid transparent;
   margin-left: -1.0625rem;
   line-height: 1.4;
-  transition: color 0.15s;
+  transition: color 0.2s ease;
 }
 .toc-link:hover { color: var(--text-heading); }
-.toc-link.active { color: var(--primary); border-left-color: var(--primary); }
+.toc-link.active { color: var(--primary); }
 .toc-link-h3 { padding-left: 1.25rem; font-size: 0.75rem; }
 
 /* ─── Responsive ───────────────────────────────────────────────────── */
