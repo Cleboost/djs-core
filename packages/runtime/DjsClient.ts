@@ -25,6 +25,7 @@ import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import type { PluginsExtensions, PluginsExtensionsMap } from "./Plugin";
+import { pluginLog, runtimeLog } from "./utils/logger";
 import { resolvePlugin } from "./utils/plugin-resolver";
 
 export class DjsClient<
@@ -168,12 +169,12 @@ export class DjsClient<
 							// biome-ignore lint/suspicious/noExplicitAny: dynamic plugin injection
 							await plugin.onReady?.(this as any, config, extension);
 						} catch (error) {
-							console.error(`[Plugin:${plugin.name}] Error in onReady:`, error);
+							pluginLog(plugin.name).error("Error in onReady", error);
 						}
 					});
 				}
 			} catch (error) {
-				console.error("[Plugin] Error in setup:", error);
+				runtimeLog.error("Plugin setup failed", error);
 			}
 		}
 	}

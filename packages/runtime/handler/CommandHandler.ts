@@ -13,6 +13,7 @@ import {
 } from "../utils/compile-command";
 import { isUnknownCommandError } from "../utils/discord-errors";
 import { handleInteractionError } from "../utils/error";
+import { runtimeLog } from "../utils/logger";
 import { getRoot, splitRoute } from "../utils/route";
 
 export interface Route {
@@ -80,7 +81,7 @@ export default class CommandHandler {
 		const key = this.buildRouteKey(interaction);
 		const command = this.routerMap.get(key);
 		if (!command) {
-			console.error(`Command not found for route: ${key}`);
+			runtimeLog.error(`Command not found for route: ${key}`);
 			return;
 		}
 
@@ -101,7 +102,7 @@ export default class CommandHandler {
 		try {
 			await command.executeAutocomplete(interaction);
 		} catch (e) {
-			console.error(e);
+			runtimeLog.error("Autocomplete handler failed", e);
 		}
 	}
 

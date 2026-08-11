@@ -14,6 +14,7 @@ import {
 	routesToEntries,
 } from "../utils/compile-command";
 import { isUnknownCommandError } from "../utils/discord-errors";
+import { runtimeLog } from "../utils/logger";
 import { getRoot } from "../utils/route";
 import type { Route } from "./CommandHandler";
 
@@ -184,8 +185,8 @@ export default class ApplicationCommandHandler {
 		}
 		if (!Array.isArray(defaultContext) || defaultContext.length === 0) {
 			if (!this.hasWarnedEmptyContext) {
-				console.warn(
-					"⚠️  config.commands.defaultContext is defined but empty. Default context will not be applied.",
+				runtimeLog.warn(
+					"config.commands.defaultContext is defined but empty — default context will not be applied",
 				);
 				this.hasWarnedEmptyContext = true;
 			}

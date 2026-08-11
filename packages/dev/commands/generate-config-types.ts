@@ -1,8 +1,7 @@
 import type { CAC } from "cac";
 import fs from "fs/promises";
 import path from "path";
-import pc from "picocolors";
-import type { Config } from "../../utils/types/config";
+import { devLog, type Config } from "@djs-core/runtime";
 import { banner } from "../utils/common";
 import { autoGenerateConfigTypes } from "../utils/config-type-generator";
 
@@ -14,8 +13,8 @@ export function registerGenerateConfigTypesCommand(cli: CAC) {
 		)
 		.option("-p, --path <path>", "Custom project path", { default: "." })
 		.action(async (options: { path: string }) => {
-			console.log(banner);
-			console.log(`${pc.cyan("ℹ")}  Generating config types...`);
+			devLog.raw(banner);
+			devLog.info("Generating config types...");
 
 			const projectRoot = path.resolve(process.cwd(), options.path);
 			const configJsonPath = path.join(projectRoot, "config.json");
@@ -29,10 +28,7 @@ export function registerGenerateConfigTypesCommand(cli: CAC) {
 				);
 				config = configModule.default as Config;
 			} catch (error) {
-				console.error(
-					pc.red(`❌ djs.config.ts not found at ${projectRoot}`),
-					error,
-				);
+				devLog.error(`djs.config.ts not found at ${projectRoot}`, error);
 				process.exit(1);
 			}
 
@@ -42,17 +38,15 @@ export function registerGenerateConfigTypesCommand(cli: CAC) {
 			} catch {
 				// config.json not found, but we still want plugin types
 				await autoGenerateConfigTypes(projectRoot, config, false);
-				console.log(pc.green("✓  Plugin types generated"));
+				devLog.success("Plugin types generated");
 				return;
 			}
 
 			try {
 				await autoGenerateConfigTypes(projectRoot, config, false);
-				console.log(
-					pc.green(`✓  Types generated successfully at ${outputPath}`),
-				);
+				devLog.success(`Types generated successfully at ${outputPath}`);
 			} catch (error: unknown) {
-				console.error(pc.red("❌ Error generating types:"), error);
+				devLog.error("Error generating types", error);
 				process.exit(1);
 			}
 		});

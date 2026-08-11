@@ -52,6 +52,15 @@ export * from "./interaction/BaseInteraction";
 export { closeDataStore } from "./store/DataStore";
 export * from "./utils/route";
 export {
+	createLogger,
+	devLog,
+	type Logger,
+	type LogLevel,
+	type LogScope,
+	pluginLog,
+	runtimeLog,
+} from "./utils/logger";
+export {
 	type AttachmentOptionProbe,
 	type AutocompleteOptionFn,
 	type BooleanOptionProbe,

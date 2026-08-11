@@ -13,7 +13,8 @@
 		"prepack": "bun turbo build types"
 	},
 	"dependencies": {
-		"cron": "4.4.0"
+		"cron": "4.4.0",
+		"picocolors": "1.1.1"
 	},
 	"peerDependencies": {
 		"discord.js": "14.26.5"

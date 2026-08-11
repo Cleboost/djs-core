@@ -1,5 +1,5 @@
 import type { CAC } from "cac";
-import pc from "picocolors";
+import { devLog } from "@djs-core/runtime";
 import { banner, runBot } from "../utils/common";
 
 export function registerStartCommand(cli: CAC) {
@@ -7,11 +7,11 @@ export function registerStartCommand(cli: CAC) {
 		.command("start", "Start the bot")
 		.option("-p, --path <path>", "Custom project path", { default: "." })
 		.action(async (options) => {
-			console.log(banner);
+			devLog.raw(banner);
 			const { client } = await runBot(options.path);
 
 			const shutdown = async () => {
-				console.log(pc.dim("\nShutting down..."));
+				devLog.info("Shutting down...");
 				await client.destroy();
 				process.exit(0);
 			};

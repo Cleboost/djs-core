@@ -1,7 +1,10 @@
 import { existsSync } from "node:fs";
 import fs from "fs/promises";
 import path from "path";
+import { devLog } from "@djs-core/runtime";
 import pc from "picocolors";
+import type { Config } from "@djs-core/runtime";
+import { resolvePlugin } from "./plugin";
 
 function inferType(value: unknown): string {
 	if (value === null) return "null";
@@ -121,9 +124,8 @@ async function ensureDiscordAugmentation(
 		);
 	} catch (error: unknown) {
 		if (!silent) {
-			console.warn(
-				pc.yellow("⚠️  Could not write .djscore/discord.d.ts"),
-				error instanceof Error ? error.message : error,
+			devLog.warn(
+				`Could not write .djscore/discord.d.ts — ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
 		return;
@@ -147,17 +149,12 @@ async function ensureDiscordAugmentation(
 			"utf-8",
 		);
 		if (!silent) {
-			console.log(
-				pc.green("✓  tsconfig.json include updated for .djscore types"),
-			);
+			devLog.success("tsconfig.json include updated for .djscore types");
 		}
 	} catch {
 		// tsconfig not found or invalid: skip, no need to warn every time
 	}
 }
-
-import type { Config } from "../../utils/types/config";
-import { resolvePlugin } from "./plugin";
 
 /**
  * Collects and writes types provided by plugins.
@@ -179,7 +176,7 @@ async function generatePluginTypes(
 	const types: string[] = [];
 
 	for (const pluginInput of config.plugins) {
-		const plugin = await resolvePlugin(pluginInput);
+		const plugin = await resolvePlugin(pluginInput, projectRoot);
 
 		if (plugin?.types) {
 			const pluginTypes = await plugin.types({ root: projectRoot });
@@ -237,19 +234,17 @@ export async function autoGenerateConfigTypes(
 		await generateTypesFromJson(configJsonPath, outputPath);
 		await ensureDiscordAugmentation(projectRoot, silent);
 		if (!silent) {
-			console.log(pc.green("✓  Config types auto-generated"));
+			devLog.success("Config types auto-generated");
 		}
 		return true;
 	} catch (error: unknown) {
 		if (!silent) {
-			console.warn(
-				pc.yellow(`⚠️  Error generating config types from ${configJsonPath}`),
-			);
-			console.warn(
-				pc.dim("   Possible causes: invalid JSON syntax, file permissions"),
+			devLog.warn(`Error generating config types from ${configJsonPath}`);
+			devLog.warn(
+				pc.dim("Possible causes: invalid JSON syntax, file permissions"),
 			);
 			if (error instanceof Error) {
-				console.warn(pc.dim(`   ${error.message}`));
+				devLog.warn(pc.dim(error.message));
 			}
 		}
 		return false;

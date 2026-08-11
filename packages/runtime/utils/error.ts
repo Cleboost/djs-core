@@ -1,4 +1,5 @@
 import { MessageFlags } from "discord.js";
+import { runtimeLog } from "./logger";
 
 /**
  * Simple interface for repliable interactions.
@@ -33,7 +34,7 @@ export async function handleInteractionError(
 	interaction: unknown,
 	error: unknown,
 ): Promise<void> {
-	console.error(error);
+	runtimeLog.error("Interaction handler failed", error);
 
 	if (!isRepliable(interaction)) {
 		return;
@@ -49,6 +50,6 @@ export async function handleInteractionError(
 			await interaction.reply({ content, flags });
 		}
 	} catch (e) {
-		console.error("Failed to send error reply:", e);
+		runtimeLog.error("Failed to send error reply", e);
 	}
 }

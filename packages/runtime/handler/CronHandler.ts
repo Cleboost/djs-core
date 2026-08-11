@@ -1,6 +1,7 @@
 import { CronJob } from "cron";
 import type { Client } from "discord.js";
 import type Task from "../Task";
+import { runtimeLog } from "../utils/logger";
 
 export default class CronHandler {
 	private readonly client: Client;
@@ -36,7 +37,7 @@ export default class CronHandler {
 					try {
 						await runFn(this.client);
 					} catch (error) {
-						console.error(`Error executing cron task '${id}':`, error);
+						runtimeLog.error(`Cron task '${id}' failed`, error);
 					}
 				}, // onTick
 				null, // onComplete

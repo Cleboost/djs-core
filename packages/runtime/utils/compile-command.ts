@@ -1,5 +1,6 @@
-import { SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import type Command from "../interaction/Command";
+import { runtimeLog } from "./logger";
 import { splitRoute } from "./route";
 
 interface RouteEntry {
@@ -78,7 +79,20 @@ function permissionKey(perms: MemberPermissions): string {
 }
 
 function formatPermissionLabel(key: string): string {
-	return key === "__none__" ? "none (everyone)" : key;
+	if (key === "__none__") {
+		return "everyone (no restriction)";
+	}
+
+	const value = BigInt(key);
+	const names = Object.entries(PermissionFlagsBits)
+		.filter(([, bit]) => typeof bit === "bigint" && (value & bit) === bit)
+		.map(([name]) => name.replace(/([a-z])([A-Z])/g, "$1 $2"));
+
+	if (names.length === 0) {
+		return `custom (${key})`;
+	}
+
+	return `${names.join(" | ")} (${key})`;
 }
 
 function warnPermissionMismatch(
@@ -102,18 +116,21 @@ function warnPermissionMismatch(
 		return;
 	}
 
-	const details = [...byPermission.entries()]
-		.map(
-			([key, routeLabels]) =>
-				`  - ${routeLabels.join(", ")}: ${formatPermissionLabel(key)}`,
-		)
-		.join("\n");
-
-	console.warn(
-		`⚠️  Command '/${root}' has subcommands with different default_member_permissions. ` +
-			"Discord only supports one permission set on the root command; merged permissions were applied.\n" +
-			details,
+	const rows = [...byPermission.entries()].flatMap(([key, routeLabels]) =>
+		routeLabels.map((label) => ({
+			label,
+			value: formatPermissionLabel(key),
+		})),
 	);
+
+	runtimeLog.warnBlock({
+		title: `Permission mismatch on /${root}`,
+		body: [
+			"Discord only supports one permission set per root command.",
+			"Merged permissions were applied (bitwise OR).",
+		],
+		rows,
+	});
 }
 
 /**

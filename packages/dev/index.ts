@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 import { resolve } from "node:path";
 import { cac } from "cac";
-import pc from "picocolors";
-import type { Config } from "../utils/types/config";
+import { devLog, type Config } from "@djs-core/runtime";
 import { registerBuildCommand } from "./commands/build";
 import { registerCheckCommand } from "./commands/check";
 import { registerDevCommand } from "./commands/dev";
@@ -42,9 +41,8 @@ async function run() {
 		}
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error(
-				pc.dim("[DEBUG] Failed to load djs.config.ts or plugin CLI commands:"),
-				error,
+			devLog.debug(
+				`Failed to load djs.config.ts or plugin CLI commands: ${String(error)}`,
 			);
 		}
 	}
@@ -52,12 +50,12 @@ async function run() {
 	try {
 		cli.parse();
 	} catch (err) {
-		console.error(pc.red("Error:"), (err as Error).message);
+		devLog.error(`Error: ${(err as Error).message}`);
 		process.exit(1);
 	}
 }
 
 run().catch((err) => {
-	console.error(pc.red("Fatal error:"), err);
+	devLog.error("Fatal error", err);
 	process.exit(1);
 });

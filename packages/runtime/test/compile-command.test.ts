@@ -77,13 +77,15 @@ describe("applyDefaultMemberPermissions", () => {
 
 			applyDefaultMemberPermissions(builder, entries);
 
-			expect(warnSpy).toHaveBeenCalledTimes(1);
-			expect(String(warnSpy.mock.calls[0]?.[0])).toContain(
-				"subcommands with different default_member_permissions",
-			);
+			expect(
+				warnSpy.mock.calls.some((call) =>
+					String(call[0]).includes("Permission mismatch on /admin"),
+				),
+			).toBe(true);
 
+			const firstWarnCount = warnSpy.mock.calls.length;
 			applyDefaultMemberPermissions(builder, entries);
-			expect(warnSpy).toHaveBeenCalledTimes(2);
+			expect(warnSpy.mock.calls.length).toBeGreaterThan(firstWarnCount);
 		} finally {
 			console.warn = originalWarn;
 		}

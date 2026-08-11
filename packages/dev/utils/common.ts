@@ -3,6 +3,7 @@ import {
 	type ChannelSelectMenu,
 	type Command,
 	type ContextMenu,
+	devLog,
 	DjsClient,
 	type DjsClientInstance,
 	type EventListener,
@@ -27,7 +28,7 @@ import { Events } from "discord.js";
 import fs from "fs/promises";
 import path, { resolve } from "path";
 import pc from "picocolors";
-import type { Config } from "../../utils/types/config";
+import type { Config } from "@djs-core/runtime";
 import { autoGenerateConfigTypes } from "./config-type-generator";
 
 export const banner = `
@@ -123,7 +124,7 @@ export async function runBot(projectPath: string) {
 		);
 	}
 
-	console.log(`${pc.green("✓")}  Config loaded`);
+	devLog.success("Config loaded");
 	await autoGenerateConfigTypes(root, config);
 
 	const fileRouteMap = new Map<string, string>();
@@ -140,7 +141,7 @@ export async function runBot(projectPath: string) {
 		fileRouteMap,
 		(mod, route) => ({ route, command: mod.default as Command }),
 	);
-	console.log(`${pc.green("✓")}  Loaded ${pc.bold(commands.length)} commands`);
+	devLog.success(`Loaded ${pc.bold(String(commands.length))} commands`);
 
 	const buttons = await scanDir<Button>(
 		path.join(root, PATH_ALIASES.components, "buttons"),
@@ -152,7 +153,7 @@ export async function runBot(projectPath: string) {
 			return btn;
 		},
 	);
-	console.log(`${pc.green("✓")}  Loaded ${pc.bold(buttons.length)} buttons`);
+	devLog.success(`Loaded ${pc.bold(String(buttons.length))} buttons`);
 
 	const eventEntries = await scanDir<[string, EventListener]>(
 		path.join(root, PATH_ALIASES.events),
@@ -162,9 +163,7 @@ export async function runBot(projectPath: string) {
 		false,
 	);
 	const events = Object.fromEntries(eventEntries);
-	console.log(
-		`${pc.green("✓")}  Loaded ${pc.bold(eventEntries.length)} events`,
-	);
+	devLog.success(`Loaded ${pc.bold(String(eventEntries.length))} events`);
 
 	const contextMenus = await scanDir<ContextMenu>(
 		path.join(root, PATH_ALIASES.interactions, "contexts"),
@@ -177,8 +176,8 @@ export async function runBot(projectPath: string) {
 			return cm;
 		},
 	);
-	console.log(
-		`${pc.green("✓")}  Loaded ${pc.bold(contextMenus.length)} context menus`,
+	devLog.success(
+		`Loaded ${pc.bold(String(contextMenus.length))} context menus`,
 	);
 
 	const selectMenus = await scanDir<SelectMenu>(
@@ -191,8 +190,8 @@ export async function runBot(projectPath: string) {
 			return sm;
 		},
 	);
-	console.log(
-		`${pc.green("✓")}  Loaded ${pc.bold(selectMenus.length)} select menus`,
+	devLog.success(
+		`Loaded ${pc.bold(String(selectMenus.length))} select menus`,
 	);
 
 	const modals = await scanDir<Modal>(
@@ -205,7 +204,7 @@ export async function runBot(projectPath: string) {
 			return modal;
 		},
 	);
-	console.log(`${pc.green("✓")}  Loaded ${pc.bold(modals.length)} modals`);
+	devLog.success(`Loaded ${pc.bold(String(modals.length))} modals`);
 
 	const tasks = new Map<string, Task>();
 	if (config.experimental?.cron) {
@@ -217,7 +216,7 @@ export async function runBot(projectPath: string) {
 			false,
 		);
 		for (const [id, task] of cronEntries) tasks.set(id, task);
-		console.log(`${pc.green("✓")}  Loaded ${pc.bold(tasks.size)} cron tasks`);
+		devLog.success(`Loaded ${pc.bold(String(tasks.size))} cron tasks`);
 	}
 
 	let userConfig: unknown;
@@ -226,13 +225,9 @@ export async function runBot(projectPath: string) {
 			const configJsonPath = path.join(root, "config.json");
 			const configJsonContent = await fs.readFile(configJsonPath, "utf-8");
 			userConfig = JSON.parse(configJsonContent);
-			console.log(`${pc.green("✓")}  User config loaded`);
+			devLog.success("User config loaded");
 		} catch {
-			console.warn(
-				pc.yellow(
-					"⚠️  userConfig is enabled but config.json not found or invalid",
-				),
-			);
+			devLog.warn("userConfig is enabled but config.json not found or invalid");
 		}
 	}
 
@@ -244,20 +239,17 @@ export async function runBot(projectPath: string) {
 
 	client.eventsHandler.set(events);
 
-	console.log(pc.dim("Connecting to Discord..."));
+	devLog.info(pc.dim("Connecting to Discord..."));
 	client.login(config.token).catch(
 		// biome-ignore lint/suspicious/noExplicitAny: error handling
 		(error: any) => {
-			console.error(
-				`${pc.red("✗")} ${pc.bold("Failed to connect to Discord")}`,
+			devLog.error("Failed to connect to Discord");
+			devLog.error(
+				pc.dim("Error: ") + pc.red(error.message || String(error)),
 			);
-			console.error(pc.dim("Error: ") + pc.red(error.message || String(error)));
 			if (error.message?.includes("token") || error.message?.includes("401")) {
-				console.error(
-					pc.yellow("\n💡 Tip: ") +
-						pc.dim(
-							"Vérifiez que votre token Discord est valide dans djs.config.ts",
-						),
+				devLog.warn(
+					`${pc.yellow("Tip:")} ${pc.dim("Vérifiez que votre token Discord est valide dans djs.config.ts")}`,
 				);
 			}
 			process.exit(1);
@@ -278,9 +270,8 @@ export async function runBot(projectPath: string) {
 		if (config.experimental?.cron && tasks.size > 0) {
 			client.cronHandler.set(tasks);
 		}
-		console.log(
-			pc.green("🚀 Bot is ready! ") +
-				pc.dim(`Logged in as ${client.user?.tag}`),
+		devLog.success(
+			`Bot is ready — ${pc.dim(`logged in as ${client.user?.tag}`)}`,
 		);
 	});
 

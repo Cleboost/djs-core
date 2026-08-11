@@ -7,6 +7,7 @@ import type {
 } from "@djs-core/runtime";
 import {
 	ChannelSelectMenu,
+	devLog,
 	getLeaf,
 	MentionableSelectMenu,
 	RoleSelectMenu,
@@ -47,8 +48,8 @@ export function registerDevCommand(cli: CAC) {
 		.command("dev", "Start the bot in development mode")
 		.option("-p, --path <path>", "Custom project path", { default: "." })
 		.action(async (options) => {
-			console.log(banner);
-			console.log(`${pc.cyan("ℹ")}  Starting development server...`);
+			devLog.raw(banner);
+			devLog.info("Starting development server...");
 
 			const {
 				client,
@@ -73,13 +74,11 @@ export function registerDevCommand(cli: CAC) {
 				cron: config.experimental?.cron ? path.join(root, "src", "cron") : null,
 			};
 
-			console.log(
-				pc.dim(
-					`\nWatching for changes in:\n${Object.values(dirs)
-						.filter((d) => d !== null)
-						.map((d) => ` - ${d}`)
-						.join("\n")}\n`,
-				),
+			devLog.debug(
+				`\nWatching for changes in:\n${Object.values(dirs)
+					.filter((d) => d !== null)
+					.map((d) => ` - ${d}`)
+					.join("\n")}\n`,
 			);
 
 			const sleep = (ms: number) =>
@@ -133,7 +132,7 @@ export function registerDevCommand(cli: CAC) {
 						"code" in error &&
 						(error as { code: number }).code !== 10063
 					) {
-						console.error(pc.red(`❌ Error syncing commands:`), error);
+						devLog.error("Error syncing commands", error);
 					}
 				} finally {
 					syncState.isSyncing = false;
@@ -308,9 +307,7 @@ export function registerDevCommand(cli: CAC) {
 						await config.unload(existingRoute);
 					}
 
-					console.log(
-						`${pc.green(`✨ Reloading ${config.label}:`)} ${pc.bold(route)}`,
-					);
+					devLog.success(`Reloading ${config.label}: ${pc.bold(route)}`);
 
 					if (config.unloadBeforeReload) {
 						await config.unload(route);
@@ -333,8 +330,8 @@ export function registerDevCommand(cli: CAC) {
 						!("code" in error) ||
 						(error as { code: number }).code !== 10063
 					) {
-						console.error(
-							pc.red(`❌ Error reloading ${config.label} ${absPath}:`),
+						devLog.error(
+							`Error reloading ${config.label} ${absPath}`,
 							error,
 						);
 					}
@@ -349,9 +346,7 @@ export function registerDevCommand(cli: CAC) {
 					config.map.get(absPath) ?? config.getRoute(absPath, config.dir);
 				if (!route) return;
 
-				console.log(
-					`${pc.red(`🗑️  Deleting ${config.label}:`)} ${pc.bold(route)}`,
-				);
+				devLog.warn(`Deleting ${config.label}: ${pc.bold(route)}`);
 				await config.unload(route);
 				config.map.delete(absPath);
 
@@ -397,22 +392,18 @@ export function registerDevCommand(cli: CAC) {
 				});
 
 				configWatcher.on("change", async () => {
-					console.log(
-						`${pc.cyan("ℹ")}  config.json changed, regenerating types...`,
-					);
+					devLog.info("config.json changed, regenerating types...");
 					await autoGenerateConfigTypes(root, config);
 				});
 
 				configWatcher.on("add", async () => {
-					console.log(
-						`${pc.green("✓")}  config.json created, generating types...`,
-					);
+					devLog.success("config.json created, generating types...");
 					await autoGenerateConfigTypes(root, config);
 				});
 			}
 
 			process.on("SIGINT", async () => {
-				console.log(pc.dim("\nShutting down..."));
+				devLog.info("Shutting down...");
 				await watcher.close();
 				if (configWatcher) {
 					await configWatcher.close();

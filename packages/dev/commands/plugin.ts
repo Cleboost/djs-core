@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import { resolve } from "node:path";
 import type { CAC } from "cac";
+import { devLog } from "@djs-core/runtime";
 import pc from "picocolors";
 import { banner } from "../utils/common";
 
@@ -72,17 +73,15 @@ async function runPostinstall(fullName: string, projectRoot: string) {
 			) as any;
 
 			if (pluginObj?.postinstall) {
-				console.log(
-					`${pc.cyan("ℹ")} Running postinstall for ${pc.bold(fullName)}...`,
-				);
+				devLog.info(`Running postinstall for ${pc.bold(fullName)}...`);
 				await pluginObj.postinstall({ root: projectRoot });
-				console.log(pc.green("✓ Postinstall completed!"));
+				devLog.success("Postinstall completed!");
 				return true;
 			}
 		}
 	} catch (error) {
 		if (process.env.DEBUG) {
-			console.error(pc.dim("[DEBUG] Postinstall failed:"), error);
+			devLog.debug(`Postinstall failed: ${String(error)}`);
 		}
 	}
 	return false;
@@ -99,39 +98,33 @@ export function registerPluginCommand(cli: CAC) {
 			const projectRoot = process.cwd();
 
 			if (action === "postinstall") {
-				console.log(banner);
+				devLog.raw(banner);
 				const success = await runPostinstall(fullName, projectRoot);
 				if (!success) {
-					console.log(
-						pc.yellow(`⚠️  No postinstall hook found or failed for ${fullName}`),
-					);
+					devLog.warn(`No postinstall hook found or failed for ${fullName}`);
 				}
 				process.exit(0);
 			}
 
 			if (action !== "install") {
-				console.error(pc.red(`\nUnknown plugin action: ${action}`));
-				console.log(`Available actions: ${pc.bold("install, postinstall")}\n`);
+				devLog.error(`Unknown plugin action: ${action}`);
+				devLog.info(`Available actions: ${pc.bold("install, postinstall")}`);
 				process.exit(1);
 			}
 
-			console.log(banner);
-			console.log(
-				`${pc.cyan("ℹ")} Installing plugin: ${pc.bold(fullName)}...\n`,
-			);
+			devLog.raw(banner);
+			devLog.info(`Installing plugin: ${pc.bold(fullName)}...`);
 
 			const result = spawnSync("bun", ["add", fullName], {
 				stdio: "inherit",
 			});
 
 			if (result.status !== 0) {
-				console.error(pc.red(`\n❌ Failed to install plugin: ${fullName}`));
+				devLog.error(`Failed to install plugin: ${fullName}`);
 				process.exit(1);
 			}
 
-			console.log(
-				pc.green(`\n✓ Plugin ${pc.bold(fullName)} installed successfully!`),
-			);
+			devLog.success(`Plugin ${pc.bold(fullName)} installed successfully!`);
 
 			const configPath = resolve(projectRoot, "djs.config.ts");
 
@@ -140,8 +133,8 @@ export function registerPluginCommand(cli: CAC) {
 					let configContent = await fs.readFile(configPath, "utf-8");
 
 					if (!configContent.includes(fullName)) {
-						console.log(
-							`${pc.cyan("ℹ")} Adding ${pc.bold(fullName)} to ${pc.white("djs.config.ts")}...`,
+						devLog.info(
+							`Adding ${pc.bold(fullName)} to ${pc.white("djs.config.ts")}...`,
 						);
 
 						const importSnippet = `import("${fullName}")`;
@@ -175,23 +168,21 @@ export function registerPluginCommand(cli: CAC) {
 						}
 
 						await fs.writeFile(configPath, configContent, "utf-8");
-						console.log(pc.green("✓ Config updated!\n"));
+						devLog.success("Config updated!");
 					}
 				}
 			} catch (error) {
-				console.warn(
-					pc.yellow(
-						`⚠️  Could not update djs.config.ts: ${(error as Error).message}`,
-					),
+				devLog.warn(
+					`Could not update djs.config.ts: ${(error as Error).message}`,
 				);
 			}
 
 			await runPostinstall(fullName, projectRoot);
 
-			console.log(pc.dim("\nNext steps:"));
-			console.log(
+			devLog.info("Next steps:");
+			devLog.info(
 				pc.dim(
-					`1. Configure the plugin in ${pc.white("pluginsConfig")} if needed (in djs.config.ts)\n`,
+					`Configure the plugin in ${pc.white("pluginsConfig")} if needed (in djs.config.ts)`,
 				),
 			);
 
