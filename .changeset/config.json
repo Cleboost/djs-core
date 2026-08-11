@@ -8,5 +8,11 @@
 	"baseBranch": "master",
 	"updateInternalDependencies": "minor",
 	"bumpVersionsWithWorkspaceProtocolOnly": true,
-	"ignore": ["app", "@djs-core/plugin-demo"]
+	"ignore": [
+		"app",
+		"@djs-core/plugin-demo",
+		"@djs-core/plugin-drizzle",
+		"@djs-core/plugin-sql",
+		"@djs-core/plugin-prisma-sqlite"
+	]
 }
