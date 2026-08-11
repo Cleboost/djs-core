@@ -1,0 +1,33 @@
+---
+import { iconSvg } from "@lib/icons";
+
+const searchIcon = iconSvg("search", 18);
+---
+<dialog id="search-dialog" class="search-dialog" aria-label="Search documentation">
+  <div class="search-panel" role="search">
+    <div class="search-input-wrap">
+      <span class="search-input-icon" set:html={searchIcon} />
+      <input
+        id="search-input"
+        class="search-input"
+        type="search"
+        placeholder="Search documentation..."
+        autocomplete="off"
+        spellcheck="false"
+        aria-controls="search-results"
+        aria-autocomplete="list"
+      />
+      <kbd class="search-kbd">Esc</kbd>
+    </div>
+    <p id="search-empty" class="search-empty" hidden></p>
+    <p id="search-results-label" class="search-results-label" hidden>Suggested</p>
+    <ul id="search-results" class="search-results" role="listbox"></ul>
+    <div class="search-footer">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</dialog>
+
+<script src="../scripts/search-dialog.ts"></script>
