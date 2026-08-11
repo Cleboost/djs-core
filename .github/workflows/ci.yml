@@ -48,6 +48,7 @@ jobs:
       - run: bun i
       - run: bun knip
   biome:
+    if: ${{ !startsWith(github.ref_name, 'dependabot/') }}
     concurrency:
       group: check-${{ github.ref }}
       cancel-in-progress: true
