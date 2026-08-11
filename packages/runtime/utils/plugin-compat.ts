@@ -55,7 +55,7 @@ function resolvePluginPackageJsonPath(
 	}
 }
 
-export function readPluginPackageJson(
+function readPluginPackageJson(
 	packageName: string,
 	projectRoot = process.cwd(),
 ): PluginPackageJson | undefined {
