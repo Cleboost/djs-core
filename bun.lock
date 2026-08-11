@@ -93,19 +93,9 @@
       },
       "peerDependencies": {
         "@djs-core/runtime": ">=1.13.1",
-        "@libsql/client": "*",
         "discord.js": "14.25.1",
-        "drizzle-kit": "*",
         "drizzle-orm": "0.45.2",
-        "mysql2": "*",
-        "postgres": "*",
       },
-      "optionalPeers": [
-        "@libsql/client",
-        "drizzle-kit",
-        "mysql2",
-        "postgres",
-      ],
     },
     "plugins/plugin-prisma-sqlite": {
       "name": "@djs-core/plugin-prisma-sqlite",
