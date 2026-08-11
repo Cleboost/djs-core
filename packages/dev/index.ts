@@ -4,6 +4,7 @@ import { type Config, devLog } from "@djs-core/runtime";
 import { cac } from "cac";
 import { registerBuildCommand } from "./commands/build";
 import { registerCheckCommand } from "./commands/check";
+import { registerDbCommand } from "./commands/db";
 import { registerDevCommand } from "./commands/dev";
 import { registerGenerateCommand } from "./commands/generate";
 import { registerGenerateConfigTypesCommand } from "./commands/generate-config-types";
@@ -25,6 +26,7 @@ async function run() {
 	registerGenerateCommand(cli);
 	registerGenerateConfigTypesCommand(cli);
 	registerPluginCommand(cli);
+	registerDbCommand(cli);
 
 	try {
 		const configPath = resolve(process.cwd(), "djs.config.ts");

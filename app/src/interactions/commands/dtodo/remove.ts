@@ -1,6 +1,5 @@
 import { Command } from "@djs-core/runtime";
-import { eq } from "drizzle-orm";
-import { todos } from "../../../db/schema";
+import { eq, schema } from "@djs-core/db";
 
 export default new Command()
 	.setDescription("Remove a task from your todo list")
@@ -10,9 +9,9 @@ export default new Command()
 	.run(async (interaction) => {
 		const id = interaction.options.getInteger("id", true);
 
-		const [deleted] = await interaction.client.drizzle
-			.delete(todos)
-			.where(eq(todos.id, id))
+		const [deleted] = await interaction.client.db
+			.delete(schema.todos)
+			.where(eq(schema.todos.id, id))
 			.returning();
 
 		if (!deleted) {

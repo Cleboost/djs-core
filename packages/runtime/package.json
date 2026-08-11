@@ -5,14 +5,27 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"bun": "./index.ts",
+			"default": "./dist/index.js"
+		},
+		"./prepareDb": {
+			"types": "./dist/prepareDb.d.ts",
+			"bun": "./prepareDb.ts",
+			"default": "./dist/prepareDb.js"
+		}
+	},
 	"scripts": {
-		"dev": "bun build index.ts --outdir dist --target bun --external discord.js --watch",
-		"build": "bun build index.ts --outdir dist --target bun --external discord.js --minify",
+		"build": "bun build index.ts prepareDb.ts --outdir dist --target bun --external discord.js --external @djs-core/db --external @djs-core/db/runtime --minify",
+		"dev": "bun build index.ts prepareDb.ts --outdir dist --target bun --external discord.js --external @djs-core/db --external @djs-core/db/runtime --watch",
 		"types": "tsc --project tsconfig.json",
 		"test": "bun test",
 		"prepack": "bun turbo build types"
 	},
 	"dependencies": {
+		"@djs-core/db": "workspace:*",
 		"cron": "4.4.0",
 		"picocolors": "1.1.1",
 		"semver": "7.8.5"
@@ -26,6 +39,16 @@
 	},
 	"files": [
 		"dist",
+		"index.ts",
+		"DjsClient.ts",
+		"prepareDb.ts",
+		"Plugin.ts",
+		"Task.ts",
+		"handler",
+		"interaction",
+		"store",
+		"types",
+		"utils",
 		"PLUGIN_API_CHANGELOG.md"
 	],
 	"author": "Cleboost",

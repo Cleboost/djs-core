@@ -237,7 +237,13 @@ export async function runBot(projectPath: string) {
 		djsConfig: config,
 		userConfig,
 	}) as unknown as DjsClientInstance;
-	await client.waitForPlugins();
+
+	if (config.db) {
+		const { prepareClientDb } = await import("@djs-core/runtime/prepareDb");
+		client.registerDbInit(prepareClientDb(client, config.db));
+	}
+
+	await client.waitForReady();
 
 	client.eventsHandler.set(events);
 

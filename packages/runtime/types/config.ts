@@ -4,6 +4,7 @@ import type {
 	InteractionContextType,
 	Partials,
 } from "discord.js";
+import type { DbConfig } from "@djs-core/db";
 import type { PluginsConfigMap } from "../Plugin";
 
 // biome-ignore lint/suspicious/noExplicitAny: generic plugin array
@@ -20,6 +21,7 @@ export interface Config<P extends readonly any[] = any[]> {
 		userConfig?: boolean;
 		bundle?: boolean;
 	};
+	db?: DbConfig;
 	plugins?: P;
 	pluginsConfig?: PluginsConfigMap<P>;
 }

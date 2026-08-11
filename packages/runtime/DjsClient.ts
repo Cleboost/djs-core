@@ -45,9 +45,12 @@ export class DjsClient<
 			this as any,
 		);
 	public cronHandler: CronHandler = new CronHandler(this);
+	// biome-ignore lint/suspicious/noExplicitAny: typed via .djscore/db.d.ts when db config is set
+	public db?: any;
 	private readonly djsConfig: Config<Plugins>;
 	public readonly config?: UserConfig;
 	private pluginInitPromise: Promise<void>;
+	private dbInitPromise: Promise<void> = Promise.resolve();
 
 	constructor({
 		djsConfig,
@@ -141,8 +144,17 @@ export class DjsClient<
 		return this.djsConfig;
 	}
 
-	public async waitForPlugins(): Promise<void> {
+	public registerDbInit(promise: Promise<void>): void {
+		this.dbInitPromise = promise;
+	}
+
+	public async waitForReady(): Promise<void> {
 		await this.pluginInitPromise;
+		await this.dbInitPromise;
+	}
+
+	public async waitForPlugins(): Promise<void> {
+		await this.waitForReady();
 	}
 
 	private async initPlugins() {

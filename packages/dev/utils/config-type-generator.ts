@@ -1,5 +1,6 @@
+import { writeDrizzleKitConfig } from "@djs-core/db";
 import { existsSync } from "node:fs";
-import type { Config } from "@djs-core/runtime";
+import type { Config, DbDialect } from "@djs-core/runtime";
 import { devLog } from "@djs-core/runtime";
 import fs from "fs/promises";
 import path from "path";
@@ -103,6 +104,88 @@ declare module "discord.js" {
 `;
 
 const TSCONFIG_INCLUDE_ENTRY = ".djscore/**/*.d.ts";
+const TSCONFIG_INCLUDE_ROOT_DTS = ".djscore/*.d.ts";
+const TSCONFIG_DB_ENTRY = "./.djscore/db.ts";
+const DB_PATH_ALIAS = "@djs-core/db";
+const DB_PATH_TARGET = "./.djscore/db.ts";
+
+const DB_ENTRY_TS_CONTENT = `// Auto-generated. Do not edit manually.
+
+export * as schema from "../db/schema";
+export {
+	and,
+	asc,
+	avg,
+	between,
+	count,
+	desc,
+	eq,
+	gt,
+	gte,
+	ilike,
+	inArray,
+	isNotNull,
+	isNull,
+	like,
+	lt,
+	lte,
+	max,
+	min,
+	ne,
+	not,
+	notInArray,
+	or,
+	sql,
+	sum,
+} from "drizzle-orm";
+`;
+
+async function ensureDbTsconfigPaths(
+	projectRoot: string,
+	enabled: boolean,
+	silent = false,
+): Promise<void> {
+	const tsconfigPath = path.join(projectRoot, "tsconfig.json");
+
+	try {
+		const raw = await fs.readFile(tsconfigPath, "utf-8");
+		const tsconfig = JSON.parse(raw) as {
+			include?: string[];
+			compilerOptions?: { paths?: Record<string, string[]> };
+		};
+
+		if (!tsconfig.compilerOptions) {
+			tsconfig.compilerOptions = {};
+		}
+		const paths = tsconfig.compilerOptions.paths ?? {};
+		const include = Array.isArray(tsconfig.include) ? tsconfig.include : [];
+
+		if (enabled) {
+			paths[DB_PATH_ALIAS] = [DB_PATH_TARGET];
+			if (!include.includes(TSCONFIG_DB_ENTRY)) {
+				include.push(TSCONFIG_DB_ENTRY);
+			}
+		} else {
+			delete paths[DB_PATH_ALIAS];
+			const dbEntryIndex = include.indexOf(TSCONFIG_DB_ENTRY);
+			if (dbEntryIndex !== -1) {
+				include.splice(dbEntryIndex, 1);
+			}
+		}
+
+		tsconfig.compilerOptions.paths = paths;
+		if (tsconfig.include || include.length > 0) {
+			tsconfig.include = include;
+		}
+
+		await fs.writeFile(tsconfigPath, JSON.stringify(tsconfig, null, 2), "utf-8");
+		if (!silent && enabled) {
+			devLog.success("tsconfig.json paths updated for @djs-core/db");
+		}
+	} catch {
+		// tsconfig not found or invalid: skip
+	}
+}
 
 /**
  * Creates .djscore/discord.d.ts and ensures tsconfig.json include contains the .djscore types entry.
@@ -142,6 +225,9 @@ async function ensureDiscordAugmentation(
 			return;
 		}
 		include.push(TSCONFIG_INCLUDE_ENTRY);
+		if (!include.includes(TSCONFIG_INCLUDE_ROOT_DTS)) {
+			include.push(TSCONFIG_INCLUDE_ROOT_DTS);
+		}
 		tsconfig.include = include;
 		await fs.writeFile(
 			tsconfigPath,
@@ -154,6 +240,109 @@ async function ensureDiscordAugmentation(
 	} catch {
 		// tsconfig not found or invalid: skip, no need to warn every time
 	}
+}
+
+/**
+ * Generates .djscore/db.d.ts for native client.db typing.
+ */
+async function generateDbTypes(
+	projectRoot: string,
+	config: Config,
+	silent = false,
+): Promise<void> {
+	const djscoreDir = path.join(projectRoot, ".djscore");
+	const dbClientDtsPath = path.join(djscoreDir, "db.client.d.ts");
+	const dbEntryPath = path.join(djscoreDir, "db.ts");
+
+	if (!config.db) {
+		if (existsSync(dbClientDtsPath)) {
+			await fs.unlink(dbClientDtsPath).catch(() => {});
+		}
+		if (existsSync(dbEntryPath)) {
+			await fs.unlink(dbEntryPath).catch(() => {});
+		}
+		await ensureDbTsconfigPaths(projectRoot, false, silent);
+		return;
+	}
+
+	const dialect = config.db.dialect ?? "sqlite";
+
+	const dialectTypeMap: Record<DbDialect, string> = {
+		sqlite: `import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import type * as schema from "../db/schema";
+import type {} from "@djs-core/runtime";
+
+declare module "discord.js" {
+  interface Client {
+    db: BunSQLiteDatabase<typeof schema>;
+  }
+}
+
+declare module "@djs-core/runtime" {
+  interface DjsClient {
+    db: BunSQLiteDatabase<typeof schema>;
+  }
+}
+`,
+		postgresql: `import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type * as schema from "../db/schema";
+import type {} from "@djs-core/runtime";
+
+declare module "discord.js" {
+  interface Client {
+    db: NodePgDatabase<typeof schema>;
+  }
+}
+
+declare module "@djs-core/runtime" {
+  interface DjsClient {
+    db: NodePgDatabase<typeof schema>;
+  }
+}
+`,
+		mysql: `import type { MySql2Database } from "drizzle-orm/mysql2";
+import type * as schema from "../db/schema";
+import type {} from "@djs-core/runtime";
+
+declare module "discord.js" {
+  interface Client {
+    db: MySql2Database<typeof schema>;
+  }
+}
+
+declare module "@djs-core/runtime" {
+  interface DjsClient {
+    db: MySql2Database<typeof schema>;
+  }
+}
+`,
+		turso: `import type { LibSQLDatabase } from "drizzle-orm/libsql";
+import type * as schema from "../db/schema";
+import type {} from "@djs-core/runtime";
+
+declare module "discord.js" {
+  interface Client {
+    db: LibSQLDatabase<typeof schema>;
+  }
+}
+
+declare module "@djs-core/runtime" {
+  interface DjsClient {
+    db: LibSQLDatabase<typeof schema>;
+  }
+}
+`,
+	};
+
+	await fs.mkdir(djscoreDir, { recursive: true });
+	await fs.writeFile(
+		dbClientDtsPath,
+		`// Auto-generated. Do not edit manually.\n\n${dialectTypeMap[dialect]}`,
+		"utf-8",
+	);
+	await fs.writeFile(dbEntryPath, DB_ENTRY_TS_CONTENT, "utf-8");
+	writeDrizzleKitConfig(projectRoot, config.db);
+	await ensureDbTsconfigPaths(projectRoot, true, silent);
 }
 
 /**
@@ -188,7 +377,7 @@ async function generatePluginTypes(
 		await fs.mkdir(djscoreDir, { recursive: true });
 		await fs.writeFile(
 			pluginsDtsPath,
-			`// Auto-generated. Do not edit manually.\n\n${types.join("\n\n")}\n`,
+			`// Auto-generated. Do not edit manually.\n\nimport type {} from "@djs-core/runtime";\n\n${types.join("\n\n")}\n`,
 			"utf-8",
 		);
 	} else if (existsSync(pluginsDtsPath)) {
@@ -208,8 +397,9 @@ export async function autoGenerateConfigTypes(
 	const configJsonPath = path.join(projectRoot, "config.json");
 	const outputPath = path.join(projectRoot, ".djscore", "config.types.ts");
 
-	// Always generate plugin types
+	// Always generate plugin types and native db types
 	await generatePluginTypes(projectRoot, config);
+	await generateDbTypes(projectRoot, config);
 
 	try {
 		await fs.access(configJsonPath);

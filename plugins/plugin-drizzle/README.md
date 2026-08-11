@@ -1,5 +1,9 @@
 # @djs-core/plugin-drizzle
 
+> **Deprecated** — Drizzle is now built into `@djs-core/runtime` as native `client.db`.
+> Use `db:` in `djs.config.ts`, folder `db/schema.ts`, and `djs-core db` CLI instead.
+> See migration: `client.drizzle` → `client.db`, `src/db/` → `db/`.
+
 Drizzle ORM integration for djs-core. Supports SQLite, PostgreSQL, MySQL, and Turso with full type safety on `client.drizzle`.
 
 ## Installation

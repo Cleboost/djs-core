@@ -1,6 +1,5 @@
 import { Command } from "@djs-core/runtime";
-import { eq } from "drizzle-orm";
-import { products } from "../../../db/schema";
+import { eq, schema } from "@djs-core/db";
 
 export default new Command()
 	.setDescription("Sell a product back to the shop")
@@ -13,10 +12,10 @@ export default new Command()
 	.run(async (interaction) => {
 		const id = interaction.options.getInteger("id", true);
 
-		const [product] = await interaction.client.drizzle
+		const [product] = await interaction.client.db
 			.select()
-			.from(products)
-			.where(eq(products.id, id));
+			.from(schema.products)
+			.where(eq(schema.products.id, id));
 
 		if (!product) {
 			return interaction.reply(`❌ Product \`#${id}\` not found.`);
@@ -24,10 +23,10 @@ export default new Command()
 
 		const sellPrice = Math.floor(product.price * 0.6);
 
-		await interaction.client.drizzle
-			.update(products)
+		await interaction.client.db
+			.update(schema.products)
 			.set({ stock: product.stock + 1 })
-			.where(eq(products.id, id));
+			.where(eq(schema.products.id, id));
 
 		return interaction.reply(
 			`💰 You sold **${product.name}** for **${sellPrice} coins** (60% of ${product.price}).`,

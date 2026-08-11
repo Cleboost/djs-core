@@ -6,6 +6,7 @@ import path from "path";
 import pc from "picocolors";
 import { banner, PATH_ALIASES } from "../utils/common";
 import { autoGenerateConfigTypes } from "../utils/config-type-generator";
+import { projectNeedsDb, usesDbInSource } from "../utils/db-usage";
 
 declare const Bun: typeof import("bun");
 
@@ -105,6 +106,7 @@ function buildGeneratedEntry(opts: {
 	hasCronEnabled: boolean;
 	hasUserConfigEnabled: boolean;
 	hasBundleEnabled: boolean;
+	hasDbEnabled: boolean;
 }): string {
 	const { genDir, commandsDir, buttonsDir, contextsDir, selectsDir } = opts;
 
@@ -148,6 +150,11 @@ import path from "node:path";
 import config from "../djs.config.ts";
 import { DjsClient, type Route } from "@djs-core/runtime";
 import { Events } from "discord.js";
+${
+	opts.hasDbEnabled
+		? 'import { prepareClientDb } from "@djs-core/runtime/prepareDb";'
+		: ""
+}
 ${
 	opts.hasUserConfigEnabled
 		? 'import type { UserConfig } from "./config.types.ts";'
@@ -247,7 +254,13 @@ ${
 		: "  const client = new DjsClient({ djsConfig: config });"
 }
 
-  await client.waitForPlugins();
+${
+	opts.hasDbEnabled
+		? "  if (config.db) {\n    client.registerDbInit(prepareClientDb(client, config.db));\n  }\n"
+		: ""
+}
+
+  await client.waitForReady();
 
   client.eventsHandler.set(events);
 
@@ -286,6 +299,47 @@ ${
 
 main();
 `;
+}
+
+async function copyDirRecursive(src: string, dest: string): Promise<void> {
+	await fs.mkdir(dest, { recursive: true });
+	const entries = await fs.readdir(src, { withFileTypes: true });
+	for (const entry of entries) {
+		const srcPath = path.join(src, entry.name);
+		const destPath = path.join(dest, entry.name);
+		if (entry.isDirectory()) {
+			await copyDirRecursive(srcPath, destPath);
+		} else if (entry.isFile()) {
+			await fs.copyFile(srcPath, destPath);
+		}
+	}
+}
+
+async function copyDbMigrationsToDist(
+	botRoot: string,
+	outdirAbs: string,
+	config: import("@djs-core/runtime").Config,
+): Promise<void> {
+	if (!config.db) return;
+
+	const migrationsSrc = path.join(botRoot, "db", "migrations");
+	const migrationsDest = path.join(outdirAbs, "db", "migrations");
+
+	try {
+		await fs.access(migrationsSrc);
+		await copyDirRecursive(migrationsSrc, migrationsDest);
+		console.log(
+			`${pc.green("✓")}  db/migrations copied to ${pc.bold("dist/db/migrations/")}`,
+		);
+	} catch {
+		if (config.db.autoMigrate) {
+			console.warn(
+				pc.yellow(
+					"⚠️  autoMigrate enabled but db/migrations not found — run djs-core db generate",
+				),
+			);
+		}
+	}
 }
 
 export function registerBuildCommand(cli: CAC) {
@@ -341,6 +395,17 @@ export function registerBuildCommand(cli: CAC) {
 			const hasUserConfigEnabled = config.experimental?.userConfig === true;
 			const hasBundleEnabled = config.experimental?.bundle === true;
 
+			const hasDbEnabled = Boolean(config.db);
+			const needsDb = projectNeedsDb(botRoot, hasDbEnabled);
+
+			if (!hasDbEnabled && usesDbInSource(botRoot)) {
+				console.warn(
+					pc.yellow(
+						"⚠️  src/ uses client.db or @djs-core/db but djs.config.ts has no db: block",
+					),
+				);
+			}
+
 			// Auto-generate config types
 			await autoGenerateConfigTypes(botRoot, config, true);
 
@@ -359,6 +424,7 @@ export function registerBuildCommand(cli: CAC) {
 				hasCronEnabled,
 				hasUserConfigEnabled,
 				hasBundleEnabled,
+				hasDbEnabled,
 			});
 
 			await fs.writeFile(entryPath, code, "utf8");
@@ -426,6 +492,10 @@ export function registerBuildCommand(cli: CAC) {
 				} catch (_e) {
 					console.warn(pc.yellow("⚠️  Could not copy config.json to dist/"));
 				}
+			}
+
+			if (needsDb) {
+				await copyDbMigrationsToDist(botRoot, outdirAbs, config);
 			}
 
 			if (buildType === "compile") {

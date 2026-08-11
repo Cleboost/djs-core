@@ -1,14 +1,13 @@
 import { Command } from "@djs-core/runtime";
-import { desc } from "drizzle-orm";
-import { todos } from "../../../db/schema";
+import { desc, schema } from "@djs-core/db";
 
 export default new Command()
 	.setDescription("List all your tasks")
 	.run(async (interaction) => {
-		const items = await interaction.client.drizzle
+		const items = await interaction.client.db
 			.select()
-			.from(todos)
-			.orderBy(desc(todos.createdAt));
+			.from(schema.todos)
+			.orderBy(desc(schema.todos.createdAt));
 
 		if (items.length === 0) {
 			return interaction.reply("📭 Your todo list is empty!");
@@ -17,7 +16,7 @@ export default new Command()
 		const list = items
 			.map(
 				(t) =>
-					`\`#${t.id}\` - **${t.task}** (${new Date(t.createdAt * 1000).toLocaleString()})`,
+					`\`#${t.id}\` - **${t.task}** (${t.createdAt.toLocaleString()})`,
 			)
 			.join("\n");
 		return interaction.reply(`📝 **Your Todo List:**\n${list}`);

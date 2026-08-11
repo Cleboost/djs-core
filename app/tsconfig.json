@@ -1,11 +1,34 @@
 {
-	"compilerOptions": {
-		"lib": ["ESNext"],
-		"paths": {
-			"@components/*": ["./src/components/*"],
-			"@interactions/*": ["./src/interactions/*"],
-			"@events/*": ["./src/events/*"]
-		}
-	},
-	"include": ["src/**/*", ".djscore/**/*.d.ts", "djs.config.ts"]
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
+    "paths": {
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@interactions/*": [
+        "./src/interactions/*"
+      ],
+      "@events/*": [
+        "./src/events/*"
+      ],
+      "@djs-core/db": [
+        "./.djscore/db.ts"
+      ]
+    },
+    "types": [
+      "bun"
+    ]
+  },
+  "include": [
+    "src/**/*",
+    ".djscore/**/*.d.ts",
+    ".djscore/*.d.ts",
+    "djs.config.ts",
+    "db/schema.ts",
+    "./.djscore/db.ts"
+  ]
 }

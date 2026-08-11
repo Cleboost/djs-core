@@ -1,10 +1,2 @@
-import { defineConfig } from "drizzle-kit";
-
-export default defineConfig({
-	schema: "./src/db/schema.ts",
-	out: "./drizzle",
-	dialect: "sqlite",
-	dbCredentials: {
-		url: ".djscore/drizzle.db",
-	},
-});
+// Synced from djs.config.ts via djs-core dev/build.
+export { default } from "./.djscore/drizzle.kit.ts";

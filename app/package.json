@@ -9,13 +9,12 @@
 		"build": "djs-core build",
 		"start": "djs-core start",
 		"check": "djs-core check",
-		"drizzle:generate": "djs-core drizzle generate",
-		"drizzle:migrate": "djs-core drizzle migrate",
+		"db:generate": "djs-core db generate",
+		"db:migrate": "djs-core db migrate",
 		"db:seed": "bun src/db/seed.ts"
 	},
 	"dependencies": {
 		"@djs-core/plugin-demo": "workspace:*",
-		"@djs-core/plugin-drizzle": "workspace:*",
 		"@djs-core/plugin-sql": "workspace:*",
 		"@djs-core/runtime": "workspace:*",
 		"discord.js": "14.27.0"

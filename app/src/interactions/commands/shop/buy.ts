@@ -1,6 +1,5 @@
 import { Command } from "@djs-core/runtime";
-import { eq, gt } from "drizzle-orm";
-import { products } from "../../../db/schema";
+import { eq, gt, schema } from "@djs-core/db";
 
 export default new Command()
 	.setDescription("Buy a product from the shop")
@@ -14,10 +13,10 @@ export default new Command()
 		const id = interaction.options.getInteger("id");
 
 		if (!id) {
-			const available = await interaction.client.drizzle
+			const available = await interaction.client.db
 				.select()
-				.from(products)
-				.where(gt(products.stock, 0));
+				.from(schema.products)
+				.where(gt(schema.products.stock, 0));
 
 			if (available.length === 0) {
 				return interaction.reply("🏪 The shop is currently out of stock.");
@@ -34,10 +33,10 @@ export default new Command()
 			);
 		}
 
-		const [product] = await interaction.client.drizzle
+		const [product] = await interaction.client.db
 			.select()
-			.from(products)
-			.where(eq(products.id, id));
+			.from(schema.products)
+			.where(eq(schema.products.id, id));
 
 		if (!product) {
 			return interaction.reply(`❌ Product \`#${id}\` not found.`);
@@ -46,10 +45,10 @@ export default new Command()
 			return interaction.reply(`❌ **${product.name}** is out of stock.`);
 		}
 
-		await interaction.client.drizzle
-			.update(products)
+		await interaction.client.db
+			.update(schema.products)
 			.set({ stock: product.stock - 1 })
-			.where(eq(products.id, id));
+			.where(eq(schema.products.id, id));
 
 		return interaction.reply(
 			`✅ You bought **${product.name}** for **${product.price} coins**! (${product.stock - 1} left in stock)`,

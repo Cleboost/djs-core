@@ -145,7 +145,7 @@ The handler also receives the full `interaction` as a second argument, useful wh
 
 ```typescript
 .autocomplete("query", async (value, interaction) => {
-        const results = await interaction.client.drizzle
+        const results = await interaction.client.db
                 .select()
                 .from(products)
                 .where(like(products.name, `${value}%`));

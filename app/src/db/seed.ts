@@ -1,10 +1,10 @@
 import Database from "bun:sqlite";
 import { drizzle } from "drizzle-orm/bun-sqlite";
-import { products } from "./schema";
+import { schema } from "@djs-core/db";
 
-const db = drizzle(new Database(".djscore/drizzle.db"));
+const db = drizzle(new Database(".djscore/db.sqlite"));
 
-await db.insert(products).values([
+await db.insert(schema.products).values([
 	{ name: "Health Potion", price: 50, stock: 20 },
 	{ name: "Iron Sword", price: 150, stock: 5 },
 	{ name: "Magic Staff", price: 300, stock: 3 },

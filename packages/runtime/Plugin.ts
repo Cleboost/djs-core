@@ -5,6 +5,7 @@ import type {
 	InteractionContextType,
 	Partials,
 } from "discord.js";
+import type { DbConfig } from "@djs-core/db";
 
 /**
  * Definition of a djs-core plugin.
@@ -72,6 +73,7 @@ interface CoreConfig {
 		userConfig?: boolean;
 		bundle?: boolean;
 	};
+	db?: DbConfig;
 }
 
 type ExtractPluginConfig<P> =
