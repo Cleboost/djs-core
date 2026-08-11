@@ -6,7 +6,7 @@
 	"linked": [],
 	"access": "restricted",
 	"baseBranch": "master",
-	"updateInternalDependencies": false,
+	"updateInternalDependencies": "minor",
 	"bumpVersionsWithWorkspaceProtocolOnly": true,
 	"ignore": [
 		"app",
