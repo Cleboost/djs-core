@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import { nav, tabs, getPrevNext, getActiveTab, showGuidesSidebar } from "@lib/nav";
 import SidebarNav from "@components/SidebarNav.astro";
 import SearchDialog from "@components/SearchDialog.astro";
@@ -28,6 +29,7 @@ const guidesSidebar = showGuidesSidebar(slug);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles/global.css" />
+    <ClientRouter />
     <script is:inline>
       (function () {
         try {
@@ -142,63 +144,6 @@ const guidesSidebar = showGuidesSidebar(slug);
 
     <SearchDialog />
 
-    <script>
-      const hamburger = document.getElementById("hamburger")!;
-      const sidebar = document.getElementById("sidebar");
-      const overlay = document.getElementById("overlay")!;
-      const themeToggle = document.getElementById("theme-toggle")!;
-
-      function toggleSidebar() {
-        sidebar?.classList.toggle("open");
-        overlay.classList.toggle("visible");
-        document.body.classList.toggle("no-scroll");
-      }
-      hamburger?.addEventListener("click", toggleSidebar);
-      overlay.addEventListener("click", toggleSidebar);
-
-      themeToggle.addEventListener("click", () => {
-        const html = document.documentElement;
-        const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
-        html.setAttribute("data-theme", next);
-        try { localStorage.setItem("theme", next); } catch (_) {}
-      });
-
-      const prose = document.getElementById("prose");
-      const tocNav = document.getElementById("toc-nav");
-      const tocAside = document.getElementById("toc-aside");
-
-      if (prose && tocNav && tocAside) {
-        const headings = Array.from(prose.querySelectorAll("h2, h3")) as HTMLElement[];
-
-        if (headings.length === 0) {
-          tocAside.style.display = "none";
-        } else {
-          headings.forEach((h) => {
-            if (!h.id) {
-              h.id = h.textContent!.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
-            }
-            const a = document.createElement("a");
-            a.href = `#${h.id}`;
-            a.textContent = h.textContent!;
-            a.className = "toc-link" + (h.tagName === "H3" ? " toc-link-h3" : "");
-            tocNav.appendChild(a);
-          });
-
-          const links = Array.from(tocNav.querySelectorAll(".toc-link")) as HTMLAnchorElement[];
-
-          function setActive() {
-            let active = headings[0];
-            for (const h of headings) {
-              if (h.getBoundingClientRect().top <= 120) active = h;
-            }
-            links.forEach((l) => l.classList.remove("active"));
-            tocNav.querySelector(`a[href="#${active.id}"]`)?.classList.add("active");
-          }
-
-          window.addEventListener("scroll", setActive, { passive: true });
-          setActive();
-        }
-      }
-    </script>
+    <script src="../scripts/docs-layout.ts"></script>
   </body>
 </html>

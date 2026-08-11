@@ -3,7 +3,7 @@ import { iconSvg } from "@lib/icons";
 
 const searchIcon = iconSvg("search", 18);
 ---
-<dialog id="search-dialog" class="search-dialog" aria-label="Search documentation">
+<dialog id="search-dialog" class="search-dialog" aria-label="Search documentation" transition:persist="search-dialog">
   <div class="search-panel" role="search">
     <div class="search-input-wrap">
       <span class="search-input-icon" set:html={searchIcon} />

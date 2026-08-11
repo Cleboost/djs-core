@@ -1,12 +1,13 @@
+import { navigate } from "astro:transitions/client";
 import { docHref, searchDocuments, type SearchDocument } from "@lib/search";
 import { iconSvg } from "@lib/icons";
+import { saveSidebarScroll } from "./sidebar-scroll";
 
 const dialog = document.getElementById("search-dialog") as HTMLDialogElement | null;
 const input = document.getElementById("search-input") as HTMLInputElement | null;
 const results = document.getElementById("search-results");
 const empty = document.getElementById("search-empty");
 const label = document.getElementById("search-results-label");
-const triggers = document.querySelectorAll<HTMLElement>("[data-search-open]");
 
 let index: SearchDocument[] | null = null;
 let activeIndex = -1;
@@ -134,7 +135,8 @@ function renderResults(query: string) {
 
 function navigateTo(slug: string) {
 	closeDialog();
-	window.location.href = docHref(slug);
+	saveSidebarScroll();
+	navigate(docHref(slug));
 }
 
 function setActive(index: number) {
@@ -149,16 +151,16 @@ function setActive(index: number) {
 function init() {
 	if (!dialog || !input || !results || !empty) return;
 
-	triggers.forEach((trigger) => {
-		trigger.addEventListener("click", () => {
-			loadIndex()
-				.then(() => openDialog())
-				.catch(() => {
-					empty.hidden = false;
-					empty.textContent = "Search is unavailable right now.";
-					openDialog();
-				});
-		});
+	document.addEventListener("click", (event) => {
+		const trigger = (event.target as Element).closest("[data-search-open]");
+		if (!trigger) return;
+		loadIndex()
+			.then(() => openDialog())
+			.catch(() => {
+				empty.hidden = false;
+				empty.textContent = "Search is unavailable right now.";
+				openDialog();
+			});
 	});
 
 	dialog.addEventListener("close", () => {
