@@ -13,7 +13,7 @@
 		"dev": "bun build index.ts --outdir dist --target bun --watch",
 		"test": "bun test",
 		"sync-docs": "bun run scripts/sync-docs.ts",
-		"prepack": "turbo build types && bun run scripts/sync-docs.ts"
+		"prepack": "bun turbo build types && bun run scripts/sync-docs.ts"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.7.0",
