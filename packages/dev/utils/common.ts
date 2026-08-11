@@ -141,7 +141,6 @@ export async function runBot(projectPath: string) {
 		fileRouteMap,
 		(mod, route) => ({ route, command: mod.default as Command }),
 	);
-	devLog.success(`Loaded ${pc.bold(String(commands.length))} commands`);
 
 	const buttons = await scanDir<Button>(
 		path.join(root, PATH_ALIASES.components, "buttons"),
@@ -153,8 +152,6 @@ export async function runBot(projectPath: string) {
 			return btn;
 		},
 	);
-	devLog.success(`Loaded ${pc.bold(String(buttons.length))} buttons`);
-
 	const eventEntries = await scanDir<[string, EventListener]>(
 		path.join(root, PATH_ALIASES.events),
 		"",
@@ -163,7 +160,6 @@ export async function runBot(projectPath: string) {
 		false,
 	);
 	const events = Object.fromEntries(eventEntries);
-	devLog.success(`Loaded ${pc.bold(String(eventEntries.length))} events`);
 
 	const contextMenus = await scanDir<ContextMenu>(
 		path.join(root, PATH_ALIASES.interactions, "contexts"),
@@ -176,9 +172,6 @@ export async function runBot(projectPath: string) {
 			return cm;
 		},
 	);
-	devLog.success(
-		`Loaded ${pc.bold(String(contextMenus.length))} context menus`,
-	);
 
 	const selectMenus = await scanDir<SelectMenu>(
 		path.join(root, PATH_ALIASES.components, "selects"),
@@ -189,9 +182,6 @@ export async function runBot(projectPath: string) {
 			if (!sm.data.custom_id) sm.setCustomId(route);
 			return sm;
 		},
-	);
-	devLog.success(
-		`Loaded ${pc.bold(String(selectMenus.length))} select menus`,
 	);
 
 	const modals = await scanDir<Modal>(
@@ -204,7 +194,6 @@ export async function runBot(projectPath: string) {
 			return modal;
 		},
 	);
-	devLog.success(`Loaded ${pc.bold(String(modals.length))} modals`);
 
 	const tasks = new Map<string, Task>();
 	if (config.experimental?.cron) {
@@ -216,8 +205,21 @@ export async function runBot(projectPath: string) {
 			false,
 		);
 		for (const [id, task] of cronEntries) tasks.set(id, task);
-		devLog.success(`Loaded ${pc.bold(String(tasks.size))} cron tasks`);
 	}
+
+	const loadStats = [
+		{ label: "commands", count: commands.length },
+		{ label: "buttons", count: buttons.length },
+		{ label: "events", count: eventEntries.length },
+		{ label: "context menus", count: contextMenus.length },
+		{ label: "selects", count: selectMenus.length },
+		{ label: "modals", count: modals.length },
+	];
+	if (config.experimental?.cron) {
+		loadStats.push({ label: "cron", count: tasks.size });
+	}
+
+	devLog.summary({ title: "Project scanned", stats: loadStats });
 
 	let userConfig: unknown;
 	if (config.experimental?.userConfig) {

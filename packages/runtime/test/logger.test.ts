@@ -48,6 +48,27 @@ describe("logger", () => {
 		);
 	});
 
+	test("summary prints compact stats on one indented line", () => {
+		const logSpy = mock(() => {});
+		console.log = logSpy;
+
+		const log = createLogger("DEV");
+		log.summary({
+			title: "Project scanned",
+			stats: [
+				{ label: "commands", count: 16 },
+				{ label: "buttons", count: 1 },
+				{ label: "events", count: 0 },
+				{ label: "modals", count: 1 },
+			],
+		});
+
+		expect(logSpy).toHaveBeenCalledTimes(2);
+		expect(String(logSpy.mock.calls[0]?.[0])).toContain("Project scanned");
+		expect(String(logSpy.mock.calls[1]?.[0])).toContain("commands");
+		expect(String(logSpy.mock.calls[1]?.[0])).not.toContain("events");
+	});
+
 	test("respects DJS_LOG_LEVEL", () => {
 		process.env.DJS_LOG_LEVEL = "error";
 		const logSpy = mock(() => {});

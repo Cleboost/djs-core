@@ -106,6 +106,11 @@ export interface Logger {
 		body?: string[];
 		rows?: Array<{ label: string; value: string }>;
 	}): void;
+	/** Compact success summary with optional count chips on one indented line. */
+	summary(options: {
+		title: string;
+		stats: Array<{ label: string; count: number }>;
+	}): void;
 	/** Print pre-formatted output without the logger prefix (banners, tables). */
 	raw(message: string): void;
 	child(name: string): Logger;
@@ -153,6 +158,20 @@ export function createLogger(scope: LogScope, label?: string): Logger {
 					`${continuationIndent}${paint(scope, paddedLabel)} ${dim("→")} ${row.value}`,
 				);
 			}
+		},
+		summary: ({ title, stats }) => {
+			emit("success", title);
+
+			const visible = stats.filter((stat) => stat.count > 0);
+			if (visible.length === 0) {
+				return;
+			}
+
+			const continuationIndent = " ".repeat(9);
+			const parts = visible.map(
+				(stat) => `${dim(stat.label)} ${bold(String(stat.count))}`,
+			);
+			console.log(`${continuationIndent}${parts.join(dim(" · "))}`);
 		},
 		raw: (message) => {
 			console.log(message);
