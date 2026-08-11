@@ -68,7 +68,7 @@ export default new Command()
 import { Button } from "@djs-core/runtime";
 import { ButtonStyle } from "discord.js";
 
-export default new Button().withData<{ userId: string; action: string }>()
+export default new Button<{ userId: string; action: string }>()
   .setLabel("Confirm")
   .setStyle(ButtonStyle.Success)
   .setCustomId("confirm-button")

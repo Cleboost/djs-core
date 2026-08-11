@@ -1,0 +1,30 @@
+# djs-core
+
+> Framework for discord.js developpement
+
+## Docs
+
+- [Djs-Core](/index.md): The first type-safe Discord bot framework
+- [Installation](/getting-started/installation.md): Get started with djs-core.
+- [Project Structure](/getting-started/project-structure.md): How djs-core organizes your bot's code.
+- [Interactions](/interaction/index.md): Learn how to create and manage Discord interactions with djs-core.
+- [Commands](/interaction/commands.md): Learn how to create slash commands with djs-core.
+- [Context Menus](/interaction/context-menus.md): User and Message commands available from the Discord right-click menu.
+- [Event Listeners](/interaction/events.md)
+- [Components](/components/index.md): Learn how to create and manage reusable interaction components with djs-core.
+- [Buttons](/components/buttons.md): Creating and handling button interactions with djs-core.
+- [Modals](/components/modals.md): Handling modal submissions and data entry in djs-core.
+- [String Select Menus](/components/string-select-menus.md): Learn how to create and use string select menu components with djs-core.
+- [User Select Menus](/components/user-select-menus.md): Learn how to create and use user select menu components with djs-core.
+- [Role Select Menus](/components/role-select-menus.md): Learn how to create and use role select menu components with djs-core.
+- [Channel Select Menus](/components/channel-select-menus.md): Learn how to create and use channel select menu components with djs-core.
+- [Mentionable Select Menus](/components/mentionable-select-menus.md): Learn how to create and use mentionable select menu components with djs-core.
+- [Bundle](/bundle/index.md): Learn about bundling and building your Discord bot with djs-core.
+- [Plugins](/essentials/plugins.md): Extend your bot with the powerful djs-core plugin system.
+- [Cron Tasks](/essentials/events-tasks.md): How to run scheduled tasks in djs-core.
+- [Configuration](/essentials/configuration.md): Everything you need to know about configuring your djs-core bot.
+- [Cursor setup](/ai-tools/cursor.md): Configure Cursor for your documentation workflow
+- [Claude Code setup](/ai-tools/claude-code.md): Configure Claude Code for your documentation workflow
+- [Windsurf setup](/ai-tools/windsurf.md): Configure Windsurf for your documentation workflow
+- [Plugins-Marketplace](/plugins-marketplace.md)
+- [Partners](/partners.md)

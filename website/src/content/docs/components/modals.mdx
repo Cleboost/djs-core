@@ -1,100 +1,82 @@
 ---
-title: Modals
-description: Collect text input from users with modal dialogs in djs-core.
+title: "Modals"
+icon: "window-maximize"
+description: "Handling modal submissions and data entry in djs-core."
 ---
 
-import Tip from '@components/Tip.astro';
-import Note from '@components/Note.astro';
+Modals provide a way to collect multi-line text input from users. `djs-core` handles modal submissions using the `Modal` handler class.
 
-Modals are dialogs that appear over Discord's UI to collect structured text input from users. They can contain up to 5 text input fields.
+## Creating a Modal Handler
 
-<Note>
-Modals can only be shown in response to an interaction (button click, command, etc.) — they cannot be sent directly in a message.
-</Note>
+Create a `.ts` file in `src/interactions/modals`.
 
-## Creating a modal handler
-
-Create a file in `src/components/modals/`. Its custom ID is set via `.setCustomId()` and must match what you use when showing the modal.
-
-```typescript [src/components/modals/feedback.ts]
+```typescript src/interactions/modals/feedback.ts
 import { Modal } from "@djs-core/runtime";
 
 export default new Modal()
   .setCustomId("feedback-modal")
   .run(async (interaction) => {
-    const name = interaction.fields.getTextInputValue("name-input");
     const feedback = interaction.fields.getTextInputValue("feedback-input");
-
-    await interaction.reply({
-      content: `Thanks ${name}! We received your feedback.`,
-      ephemeral: true,
-    });
+    const name = interaction.fields.getTextInputValue("name-input");
+    
+    await interaction.reply({ content: `Thanks ${name}! Feedback: ${feedback}`, ephemeral: true });
   });
 ```
 
-## Showing a modal
-
-To display a modal, call `interaction.showModal()` from a command or button handler. Build it using discord.js's `ModalBuilder`:
-
-```typescript [src/interactions/commands/feedback.ts]
-import { Command } from "@djs-core/runtime";
+To show the modal in a command or button:
+```typescript
 import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from "discord.js";
 
-export default new Command()
-  .setDescription("Submit feedback")
-  .run(async (interaction) => {
-    const modal = new ModalBuilder()
-      .setCustomId("feedback-modal")
-      .setTitle("Give us feedback");
+const modal = new ModalBuilder()
+  .setCustomId("feedback-modal")
+  .setTitle("Give us Feedback");
 
-    const nameInput = new TextInputBuilder()
-      .setCustomId("name-input")
-      .setLabel("Your name")
-      .setStyle(TextInputStyle.Short)
-      .setRequired(true);
+const nameInput = new TextInputBuilder()
+  .setCustomId("name-input")
+  .setLabel("Your Name")
+  .setStyle(TextInputStyle.Short);
 
-    const feedbackInput = new TextInputBuilder()
-      .setCustomId("feedback-input")
-      .setLabel("Your feedback")
-      .setStyle(TextInputStyle.Paragraph)
-      .setRequired(true);
+const feedbackInput = new TextInputBuilder()
+  .setCustomId("feedback-input")
+  .setLabel("Your Feedback")
+  .setStyle(TextInputStyle.Paragraph);
 
-    modal.addComponents(
-      new ActionRowBuilder<TextInputBuilder>().addComponents(nameInput),
-      new ActionRowBuilder<TextInputBuilder>().addComponents(feedbackInput),
-    );
+modal.addComponents(
+  new ActionRowBuilder<TextInputBuilder>().addComponents(nameInput),
+  new ActionRowBuilder<TextInputBuilder>().addComponents(feedbackInput)
+);
 
-    await interaction.showModal(modal);
-  });
+await interaction.showModal(modal);
 ```
 
-## Passing data to a modal
+## Passing Data (Routing)
 
-Use `.withData<T>()` to declare a typed data payload, then `.setData()` when showing the modal.
+Modals also support dynamic `customId` parameters. This is useful for knowing which user or object the modal is for.
 
-```typescript [src/components/modals/edit-nickname.ts]
+```typescript src/interactions/modals/edit-user.ts
 import { Modal } from "@djs-core/runtime";
 
 export default new Modal()
-  .withData<{ targetUserId: string }>()
-  .setCustomId("edit-nickname")
-  .run(async (interaction, data) => {
-    const nickname = interaction.fields.getTextInputValue("nickname-input");
-
-    await interaction.guild?.members.edit(data.targetUserId, { nick: nickname });
-    await interaction.reply({ content: "Nickname updated!", ephemeral: true });
+  .setCustomId("user:edit/:userId")
+  .run(async (interaction) => {
+    const userId = interaction.params.userId;
+    const newNickname = interaction.fields.getTextInputValue("nickname-input");
+    
+    // logic to update user userId...
+    await interaction.reply(`Updated nickname for user ${userId} to ${newNickname}!`);
   });
 ```
 
+Create it like this:
 ```typescript
-import editNicknameModal from "../../components/modals/edit-nickname";
-
-// In a command or button handler:
-await interaction.showModal(
-  editNicknameModal.setData({ targetUserId: interaction.targetUser.id })
-);
+new ModalBuilder()
+  .setCustomId(`user:edit/${targetUser.id}`)
+  .setTitle(`Editing ${targetUser.username}`)
+  .addComponents(...)
 ```
 
-<Tip>
-Data passed via `.setData()` is stored server-side and retrieved automatically when the modal is submitted. It doesn't appear in the custom ID visible to the user.
-</Tip>
+## Key Characteristics
+
+- **`interaction.fields.getTextInputValue(id)`**: Method to retrieve values from the modal.
+- **`interaction.params`**: Available if you use dynamic `customId` routing.
+- ** पैटर्न Matching**: Works the same way as buttons and select menus.

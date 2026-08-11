@@ -1,13 +1,26 @@
 ---
+import Icon from "@components/Icon.astro";
+
 interface Props {
   title: string;
   icon?: string;
   href?: string;
+  horizontal?: boolean;
 }
-const { title, href } = Astro.props;
+const { title, href, icon, horizontal = false } = Astro.props;
 const Tag = href ? "a" : "div";
 ---
-<Tag href={href} class="doc-card">
-  <strong class="doc-card-title">{title}</strong>
-  <span class="doc-card-desc"><slot /></span>
+<Tag href={href} class:list={["doc-card", { "doc-card-horizontal": horizontal }]}>
+  {icon && (
+    <span class="doc-card-icon">
+      <Icon name={icon} size={18} />
+    </span>
+  )}
+  <span class="doc-card-body">
+    <strong class="doc-card-title">{title}</strong>
+    <span class="doc-card-desc"><slot /></span>
+  </span>
+  {horizontal && href && (
+    <span class="doc-card-arrow" aria-hidden="true">→</span>
+  )}
 </Tag>

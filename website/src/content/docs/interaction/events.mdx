@@ -1,13 +1,11 @@
 ---
-title: Event Listeners
-description: Listen to Discord events in djs-core.
+title: "Event Listeners"
+icon: "clock-eleven-thirty"
 ---
 
 import Tip from '@components/Tip.astro';
 
-Event listeners are defined in the `src/events/` directory. Each file exports a default `EventListener` instance and is automatically registered when the bot starts.
-
-## Basic example
+Event listeners are defined in the `src/events/` directory. Each file should export a default `EventListener` instance.
 
 ```typescript [src/events/ready.ts]
 import { EventListener } from "@djs-core/runtime";
@@ -21,44 +19,11 @@ export default new EventListener()
   });
 ```
 
-## Multiple listeners for the same event
+### Key Methods
 
-You can have several files listening to the same event — each file becomes an independent listener.
-
-```typescript [src/events/guild-member-add/welcome.ts]
-import { EventListener } from "@djs-core/runtime";
-import { Events } from "discord.js";
-
-export default new EventListener()
-  .event(Events.GuildMemberAdd)
-  .run((client, member) => {
-    const channel = member.guild.systemChannel;
-    channel?.send(`Welcome ${member}!`);
-  });
-```
-
-```typescript [src/events/guild-member-add/log.ts]
-import { EventListener } from "@djs-core/runtime";
-import { Events } from "discord.js";
-
-export default new EventListener()
-  .event(Events.GuildMemberAdd)
-  .run((client, member) => {
-    console.log(`${member.user.tag} joined ${member.guild.name}`);
-  });
-```
-
-## Common events
-
-| Event | Trigger |
-|-------|---------|
-| `Events.ClientReady` | Bot connected and ready |
-| `Events.MessageCreate` | New message in any channel |
-| `Events.GuildMemberAdd` | User joins a server |
-| `Events.GuildMemberRemove` | User leaves a server |
-| `Events.GuildCreate` | Bot added to a new server |
-| `Events.GuildDelete` | Bot removed from a server |
+- `.event(Events.EventName)`: Specifies which Discord event to listen for.
+- `.run((client, ...args) => { ... })`: The function that executes when the event is fired. It receives the `client` and any event-specific arguments.Docs WIP
 
 <Tip>
-The `.run()` callback receives `client` as its first argument, followed by the discord.js event arguments. TypeScript infers the correct argument types for each event automatically.
+  `Ready` event is auto replaced by `Events.ClientReady` event. `Ready` are [depreacted](https://discordjs.guide/v15#ready-event).
 </Tip>

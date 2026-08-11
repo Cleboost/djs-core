@@ -55,7 +55,7 @@ Role select menus can receive custom data using `.setData()`.
 ```typescript [src/components/selects/role/assign.ts]
 import { RoleSelectMenu } from "@djs-core/runtime";
 
-export default new RoleSelectMenu().withData<{ userId: string }>()
+export default new RoleSelectMenu<{ userId: string }>()
         .setPlaceholder("Select roles to assign")
         .run(async (interaction, data) => {
                 const roles = interaction.roles.map((r) => r.name);

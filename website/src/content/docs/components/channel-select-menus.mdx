@@ -59,7 +59,7 @@ Channel select menus can receive custom data using `.setData()`.
 ```typescript [src/components/selects/channel/config.ts]
 import { ChannelSelectMenu } from "@djs-core/runtime";
 
-export default new ChannelSelectMenu().withData<{ category: string }>()
+export default new ChannelSelectMenu<{ category: string }>()
         .setPlaceholder("Select channels")
         .run(async (interaction, data) => {
                 const channels = interaction.channels.map((ch) => ch.name);

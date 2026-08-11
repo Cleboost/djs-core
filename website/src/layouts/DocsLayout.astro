@@ -1,5 +1,5 @@
 ---
-import { nav, getPrevNext } from "@lib/nav";
+import { nav, tabs, getPrevNext, getActiveTab, showGuidesSidebar } from "@lib/nav";
 import SidebarNav from "@components/SidebarNav.astro";
 
 interface Props {
@@ -10,142 +10,188 @@ interface Props {
 
 const { title, description, slug } = Astro.props;
 const { prev, next } = getPrevNext(slug);
+const activeTab = getActiveTab(slug);
+const guidesSidebar = showGuidesSidebar(slug);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} — djs-core</title>
     {description && <meta name="description" content={description} />}
+    <meta name="theme-color" content="#5865F2" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles/global.css" />
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
-    <!-- Mobile header -->
-    <header class="mobile-header">
-      <a href="/" class="logo-link">
-        <img src="/logo.svg" alt="djs-core" class="logo" />
-      </a>
-      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
+    <header class="site-header" id="site-header">
+      <div class="header-top">
+        <div class="header-top-inner">
+          <div class="header-left">
+            <a href="/" class="logo-link">
+              <img src="/logo-light.svg" alt="djs-core" class="logo logo-light" />
+              <img src="/logo.svg" alt="djs-core" class="logo logo-dark" />
+            </a>
+          </div>
+          <div class="header-center">
+            <button type="button" class="search-btn" aria-label="Search (coming soon)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15.25 15.25L11.285 11.285"/><circle cx="7.75" cy="7.75" r="5"/></svg>
+              <span>Search...</span>
+              <kbd>⌘K</kbd>
+            </button>
+          </div>
+          <div class="header-right">
+            <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+              <svg class="icon-sun" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="9" cy="9" r="4"/><path d="M9 1.25V2.25M14.48 3.52l-.707.707M16.75 9H15.75M14.48 14.48l-.707-.707M9 16.75V15.75M3.52 14.48l.707-.707M1.25 9H2.25M3.52 3.52l.707.707"/></svg>
+              <svg class="icon-moon" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M13 11.75C9.548 11.75 6.75 8.952 6.75 5.5 6.75 4.148 7.183 2.901 7.912 1.878 4.548 2.506 2 5.453 2 9c0 4.004 3.246 7.25 7.25 7.25 3.372 0 6.198-2.306 7.009-5.424-1.05.583-2.163.924-3.359.924z"/></svg>
+            </button>
+            <button type="button" class="hamburger" id="hamburger" aria-label="Toggle menu">
+              <span></span><span></span><span></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="header-tabs">
+        <div class="header-tabs-inner">
+          <nav class="nav-tabs" aria-label="Documentation sections">
+            {tabs.map((tab) => (
+              <a
+                href={tab.slug ? `/${tab.slug}` : "/"}
+                class:list={["nav-tab", { active: activeTab === tab.slug }]}
+                aria-current={activeTab === tab.slug ? "page" : undefined}
+              >
+                {tab.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
     </header>
 
     <div class="layout">
-      <!-- Left sidebar -->
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-inner">
-          <a href="/" class="sidebar-logo">
-            <img src="/logo.svg" alt="djs-core" class="logo" />
-          </a>
-          <nav class="sidebar-nav">
-            <SidebarNav nav={nav} currentSlug={slug} />
-          </nav>
-          <div class="sidebar-footer">
-            <a href="https://github.com/Cleboost/djs-core" class="github-link" target="_blank" rel="noopener">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
-              GitHub
-            </a>
+      {guidesSidebar && (
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-inner">
+            <nav class="sidebar-nav">
+              <SidebarNav nav={nav} currentSlug={slug} />
+            </nav>
           </div>
-        </div>
-      </aside>
+        </aside>
+      )}
 
-      <!-- Overlay for mobile -->
       <div class="overlay" id="overlay"></div>
 
-      <!-- Main content -->
-      <main class="main">
+      <main class:list={["main", { "main-full": !guidesSidebar }]}>
         <article class="content">
-          <h1 class="page-title">{title}</h1>
+          <header class="page-header">
+            <h1 class="page-title">{title}</h1>
+            {description && <p class="page-description">{description}</p>}
+          </header>
           <div class="prose" id="prose">
             <slot />
           </div>
         </article>
 
-        <!-- Prev / Next navigation -->
-        {(prev || next) && (
+        {guidesSidebar && (prev || next) && (
           <nav class="page-nav">
             {prev ? (
               <a href={`/${prev.slug}`} class="page-nav-link page-nav-prev">
-                <span class="page-nav-label">← Previous</span>
-                <span class="page-nav-title">{prev.label}</span>
+                <span class="page-nav-label">Previous</span>
+                <span class="page-nav-title">← {prev.label}</span>
               </a>
             ) : <div />}
             {next && (
               <a href={`/${next.slug}`} class="page-nav-link page-nav-next">
-                <span class="page-nav-label">Next →</span>
-                <span class="page-nav-title">{next.label}</span>
+                <span class="page-nav-label">Next</span>
+                <span class="page-nav-title">{next.label} →</span>
               </a>
             )}
           </nav>
         )}
       </main>
 
-      <!-- Right TOC -->
-      <aside class="toc" id="toc-aside">
-        <div class="toc-inner">
-          <p class="toc-title">On this page</p>
-          <nav class="toc-nav" id="toc-nav"></nav>
-        </div>
-      </aside>
+      {guidesSidebar && (
+        <aside class="toc" id="toc-aside">
+          <div class="toc-inner">
+            <p class="toc-title">On this page</p>
+            <nav class="toc-nav" id="toc-nav"></nav>
+          </div>
+        </aside>
+      )}
     </div>
 
     <script>
-      // Mobile sidebar toggle
       const hamburger = document.getElementById("hamburger")!;
-      const sidebar = document.getElementById("sidebar")!;
+      const sidebar = document.getElementById("sidebar");
       const overlay = document.getElementById("overlay")!;
+      const themeToggle = document.getElementById("theme-toggle")!;
 
       function toggleSidebar() {
-        sidebar.classList.toggle("open");
+        sidebar?.classList.toggle("open");
         overlay.classList.toggle("visible");
         document.body.classList.toggle("no-scroll");
       }
-      hamburger.addEventListener("click", toggleSidebar);
+      hamburger?.addEventListener("click", toggleSidebar);
       overlay.addEventListener("click", toggleSidebar);
 
-      // Build TOC from headings
-      const prose = document.getElementById("prose")!;
-      const tocNav = document.getElementById("toc-nav")!;
-      const tocAside = document.getElementById("toc-aside")!;
+      themeToggle.addEventListener("click", () => {
+        const html = document.documentElement;
+        const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", next);
+        try { localStorage.setItem("theme", next); } catch (_) {}
+      });
 
-      const headings = Array.from(prose.querySelectorAll("h2, h3")) as HTMLElement[];
+      const prose = document.getElementById("prose");
+      const tocNav = document.getElementById("toc-nav");
+      const tocAside = document.getElementById("toc-aside");
 
-      if (headings.length === 0) {
-        tocAside.style.display = "none";
-      } else {
-        headings.forEach((h) => {
-          // Generate id if missing
-          if (!h.id) {
-            h.id = h.textContent!.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+      if (prose && tocNav && tocAside) {
+        const headings = Array.from(prose.querySelectorAll("h2, h3")) as HTMLElement[];
+
+        if (headings.length === 0) {
+          tocAside.style.display = "none";
+        } else {
+          headings.forEach((h) => {
+            if (!h.id) {
+              h.id = h.textContent!.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+            }
+            const a = document.createElement("a");
+            a.href = `#${h.id}`;
+            a.textContent = h.textContent!;
+            a.className = "toc-link" + (h.tagName === "H3" ? " toc-link-h3" : "");
+            tocNav.appendChild(a);
+          });
+
+          const links = Array.from(tocNav.querySelectorAll(".toc-link")) as HTMLAnchorElement[];
+
+          function setActive() {
+            let active = headings[0];
+            for (const h of headings) {
+              if (h.getBoundingClientRect().top <= 120) active = h;
+            }
+            links.forEach((l) => l.classList.remove("active"));
+            tocNav.querySelector(`a[href="#${active.id}"]`)?.classList.add("active");
           }
-          const a = document.createElement("a");
-          a.href = `#${h.id}`;
-          a.textContent = h.textContent!;
-          a.className = "toc-link" + (h.tagName === "H3" ? " toc-link-h3" : "");
-          tocNav.appendChild(a);
-        });
 
-        // Highlight active heading on scroll
-        const links = Array.from(tocNav.querySelectorAll(".toc-link")) as HTMLAnchorElement[];
-
-        function setActive() {
-          let active = headings[0];
-          for (const h of headings) {
-            if (h.getBoundingClientRect().top <= 96) active = h;
-          }
-          links.forEach((l) => l.classList.remove("active"));
-          const activeLink = tocNav.querySelector(`a[href="#${active.id}"]`);
-          activeLink?.classList.add("active");
+          window.addEventListener("scroll", setActive, { passive: true });
+          setActive();
         }
-
-        window.addEventListener("scroll", setActive, { passive: true });
-        setActive();
       }
     </script>
   </body>

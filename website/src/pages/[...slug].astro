@@ -15,19 +15,23 @@ import ResponseField from "@components/ResponseField.astro";
 import Columns from "@components/Columns.astro";
 import Column from "@components/Column.astro";
 import Experimental from "@components/Experimental.astro";
+import { entrySlug } from "@lib/slug";
 
 export async function getStaticPaths() {
   const docs = await getCollection("docs");
-  return docs.map((entry) => ({
-    params: { slug: entry.id === "index" ? undefined : entry.id },
-    props: { entry },
-  }));
+  return docs.map((entry) => {
+    const slug = entrySlug(entry.id);
+    return {
+      params: { slug: slug || undefined },
+      props: { entry },
+    };
+  });
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const slug = entry.id === "index" ? "" : entry.id;
+const slug = entrySlug(entry.id);
 ---
 
 <DocsLayout title={entry.data.title} description={entry.data.description} slug={slug}>

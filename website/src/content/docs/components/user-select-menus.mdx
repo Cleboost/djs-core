@@ -79,7 +79,7 @@ User select menus can receive custom data using `.setData()`.
 ```typescript [src/components/selects/user/assign.ts]
 import { UserSelectMenu } from "@djs-core/runtime";
 
-export default new UserSelectMenu().withData<{ action: string }>()
+export default new UserSelectMenu<{ action: string }>()
         .setPlaceholder("Select users to assign")
         .run(async (interaction, data) => {
                 const users = interaction.users.map((u) => u.username);
