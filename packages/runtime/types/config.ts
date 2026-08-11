@@ -4,7 +4,7 @@ import type {
 	InteractionContextType,
 	Partials,
 } from "discord.js";
-import type { PluginsConfigMap } from "../../runtime/Plugin";
+import type { PluginsConfigMap } from "../Plugin";
 
 // biome-ignore lint/suspicious/noExplicitAny: generic plugin array
 export interface Config<P extends readonly any[] = any[]> {

@@ -17,6 +17,11 @@ export interface DjsPlugin<
 	Extension = any,
 > {
 	name: Name;
+	/**
+	 * npm package name (e.g. `@djs-core/plugin-sql`).
+	 * Used to read `peerDependencies["@djs-core/runtime"]` at load time.
+	 */
+	packageName: string;
 	setup: (client: Client, config: Config) => Extension | Promise<Extension>;
 	onReady?: (
 		client: Client,

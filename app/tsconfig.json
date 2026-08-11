@@ -1,7 +1,6 @@
 {
 	"compilerOptions": {
 		"lib": ["ESNext"],
-		"baseUrl": ".",
 		"paths": {
 			"@components/*": ["./src/components/*"],
 			"@interactions/*": ["./src/interactions/*"],

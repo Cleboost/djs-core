@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { resolve } from "node:path";
 import { definePlugin } from "@djs-core/runtime";
+import packageJson from "./package.json" with { type: "json" };
 import { PrismaBunSqlite } from "prisma-adapter-bun-sqlite";
 
 export interface PrismaConfig {
@@ -23,6 +24,7 @@ export interface PrismaConfig {
  */
 export const prismaPlugin = definePlugin({
 	name: "prisma",
+	packageName: packageJson.name,
 	setup: async (_client, config: PrismaConfig) => {
 		const url = process.env.DATABASE_URL;
 

@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { definePlugin } from "@djs-core/runtime";
+import packageJson from "./package.json" with { type: "json" };
 
 export type DrizzleDialect = "sqlite" | "postgresql" | "mysql" | "turso";
 
@@ -47,6 +48,7 @@ type AnyDrizzleDb = any;
 
 export const drizzlePlugin = definePlugin({
 	name: "drizzle",
+	packageName: packageJson.name,
 	setup: async (_client, config: DrizzleConfig) => {
 		const root = process.cwd();
 		const dialect = config.dialect ?? "sqlite";

@@ -1,4 +1,5 @@
 import { definePlugin } from "@djs-core/runtime";
+import packageJson from "./package.json" with { type: "json" };
 
 export interface DemoConfig {
 	message: string;
@@ -6,6 +7,7 @@ export interface DemoConfig {
 
 export const demoPlugin = definePlugin({
 	name: "demo",
+	packageName: packageJson.name,
 	setup: (_client, config: DemoConfig) => {
 		return {
 			sayHello: () => {

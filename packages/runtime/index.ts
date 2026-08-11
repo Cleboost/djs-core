@@ -47,10 +47,17 @@ import {
 } from "./Plugin";
 
 import Task from "./Task";
+import type { Config } from "./types/config";
 
 export * from "./interaction/BaseInteraction";
 export { closeDataStore } from "./store/DataStore";
 export * from "./utils/route";
+export { resolvePlugin } from "./utils/plugin-resolver";
+export {
+	RUNTIME_PACKAGE_NAME,
+	RUNTIME_VERSION,
+	validatePluginRuntime,
+} from "./utils/plugin-compat";
 export {
 	createLogger,
 	devLog,
@@ -73,6 +80,7 @@ export {
 	type CommandAutocompleteFn,
 	CommandHandler,
 	type CommandRunFn,
+	type Config,
 	ContextMenu,
 	ContextMenuHandler,
 	type ContextMenuRunFn,

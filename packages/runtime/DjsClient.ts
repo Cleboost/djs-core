@@ -15,7 +15,7 @@ import {
 	type StringSelectMenuInteraction,
 	type UserSelectMenuInteraction,
 } from "discord.js";
-import type { Config } from "../utils/types/config";
+import type { Config } from "./types/config";
 import ApplicationCommandHandler from "./handler/ApplicationCommandHandler";
 import ButtonHandler from "./handler/ButtonHandler";
 import CommandHandler from "./handler/CommandHandler";

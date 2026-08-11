@@ -6,23 +6,24 @@
 	"types": "./dist/index.d.ts",
 	"scripts": {
 		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external discord.js --external drizzle-orm --external drizzle-kit --external bun:sqlite --external postgres --external mysql2 --external @libsql/client --minify",
-		"types": "dts-bundle-generator -o dist/index.d.ts index.ts --no-check --project tsconfig.json",
+		"types": "tsc --project tsconfig.json",
 		"prepack": "bun run build && bun run types"
 	},
 	"dependencies": {
-		"@djs-core/runtime": "workspace:*",
+		"drizzle-orm": "0.45.2"
+	},
+	"peerDependencies": {
+		"@djs-core/runtime": ">=1.0.0",
+		"discord.js": "14.25.1",
 		"drizzle-orm": "0.45.2"
 	},
 	"devDependencies": {
+		"@djs-core/runtime": "workspace:*",
 		"@libsql/client": "0.17.4",
 		"@types/bun": "1.3.14",
 		"drizzle-kit": "0.31.10",
 		"mysql2": "3.22.6",
 		"postgres": "3.4.9"
-	},
-	"peerDependencies": {
-		"discord.js": "14.25.1",
-		"drizzle-orm": "0.45.2"
 	},
 	"peerDependenciesMeta": {
 		"postgres": {

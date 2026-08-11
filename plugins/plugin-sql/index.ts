@@ -1,5 +1,6 @@
 import { Database } from "bun:sqlite";
 import { definePlugin } from "@djs-core/runtime";
+import packageJson from "./package.json" with { type: "json" };
 
 export interface SqlConfig {
 	/** Path to the SQLite database file. Use ":memory:" for in-memory DB. */
@@ -8,6 +9,7 @@ export interface SqlConfig {
 
 export const sqlPlugin = definePlugin({
 	name: "sql",
+	packageName: packageJson.name,
 	setup: (_client, config: SqlConfig) => {
 		const db = new Database(config.path);
 
