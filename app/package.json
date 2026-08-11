@@ -4,6 +4,7 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
+	  "djs-core": "djs-core",
 		"dev": "djs-core dev",
 		"build": "djs-core build",
 		"start": "djs-core start",
