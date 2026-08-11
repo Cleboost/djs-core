@@ -10,7 +10,7 @@
 		"prepack": "bun run build && bun run types"
 	},
 	"dependencies": {
-		"@prisma/client": "7.8.0",
+		"@prisma/client": "7.9.1",
 		"prisma": "7.9.1"
 	},
 	"peerDependencies": {
