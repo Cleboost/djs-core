@@ -38,6 +38,6 @@ Track breaking or additive plugin-contract changes in `@djs-core/runtime` CHANGE
 
 | Runtime | Plugin contract |
 |---------|-----------------|
-| `>=1.0.0` | Initial contract: `setup`, `onReady`, `cli`, `types`, `postinstall`. |
+| `>=1.13.1` | Baseline: plugin contract via runtime `peerDependencies` semver check (`packageName` + `setup`, `onReady`, `cli`, `types`, `postinstall`). |
 
 When you add a hook or break an existing one, document the exact runtime version here and in CHANGELOG.

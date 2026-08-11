@@ -13,7 +13,7 @@
 		"drizzle-orm": "0.45.2"
 	},
 	"peerDependencies": {
-		"@djs-core/runtime": ">=1.0.0",
+		"@djs-core/runtime": ">=1.13.1",
 		"discord.js": "14.25.1",
 		"drizzle-orm": "0.45.2"
 	},

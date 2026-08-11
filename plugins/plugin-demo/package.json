@@ -11,7 +11,7 @@
 		"prepack": "bun run build && bun run types"
 	},
 	"peerDependencies": {
-		"@djs-core/runtime": ">=1.0.0",
+		"@djs-core/runtime": ">=1.13.1",
 		"discord.js": "14.25.1"
 	},
 	"devDependencies": {
