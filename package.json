@@ -10,7 +10,7 @@
 		"app"
 	],
 	"devDependencies": {
-		"@biomejs/biome": "2.5.3",
+		"@biomejs/biome": "2.5.7",
 		"@changesets/cli": "2.31.1",
 		"knip": "6.26.0",
 		"turbo": "^2.10.9",
