@@ -1,0 +1,96 @@
+name: Publish Plugins
+
+# Bump a plugin version in plugins/*/package.json → merge to master → publish if new on npm.
+# Auth: npm trusted publisher (OIDC). No NPM_TOKEN. Configure on npmjs.com per package:
+#   Publisher: GitHub Actions · repo: Cleboost/djs-core · workflow: publish-plugins.yml
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "plugins/**/package.json"
+
+concurrency:
+  group: publish-plugins-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: List plugins whose package.json changed
+        id: changed
+        run: |
+          BEFORE="${{ github.event.before }}"
+          SHA="${{ github.sha }}"
+
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE" ]; then
+            BEFORE="$(git rev-parse "${SHA}^" 2>/dev/null || true)"
+          fi
+
+          if [ -z "$BEFORE" ]; then
+            echo "No parent commit — nothing to publish."
+            exit 0
+          fi
+
+          mapfile -t dirs < <(
+            git diff --name-only "$BEFORE" "$SHA" -- 'plugins/*/package.json' \
+              | while IFS= read -r file; do dirname "$file"; done \
+              | sort -u
+          )
+
+          if [ "${#dirs[@]}" -eq 0 ]; then
+            echo "No plugin package.json changes in this push."
+            exit 0
+          fi
+
+          echo "Changed plugin dirs:"
+          printf '  %s\n' "${dirs[@]}"
+
+          {
+            echo "dirs<<EOF"
+            printf '%s\n' "${dirs[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: oven-sh/setup-bun@v2
+        if: steps.changed.outputs.dirs != ''
+
+      - uses: actions/setup-node@v6.3.0
+        if: steps.changed.outputs.dirs != ''
+        with:
+          node-version: 25
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        if: steps.changed.outputs.dirs != ''
+        run: bun i
+
+      - name: Build changed plugins
+        if: steps.changed.outputs.dirs != ''
+        env:
+          CHANGED_PLUGINS: ${{ steps.changed.outputs.dirs }}
+        run: |
+          filters=()
+          while IFS= read -r dir; do
+            [ -z "$dir" ] && continue
+            name=$(node -p "require('./${dir}/package.json').name")
+            filters+=(--filter="$name")
+          done < <(printf '%s\n' "$CHANGED_PLUGINS")
+          bunx turbo build types "${filters[@]}"
+
+      - name: Publish new versions (OIDC + provenance)
+        if: steps.changed.outputs.dirs != ''
+        env:
+          CHANGED_PLUGINS: ${{ steps.changed.outputs.dirs }}
+        run: bun scripts/publish-plugins.ts
