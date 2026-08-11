@@ -1,7 +1,7 @@
+import { type Config, devLog } from "@djs-core/runtime";
 import type { CAC } from "cac";
 import fs from "fs/promises";
 import path from "path";
-import { devLog, type Config } from "@djs-core/runtime";
 import { banner } from "../utils/common";
 import { autoGenerateConfigTypes } from "../utils/config-type-generator";
 

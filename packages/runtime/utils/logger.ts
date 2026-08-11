@@ -13,7 +13,11 @@ const LEVEL_PRIORITY: Record<LogLevel, number> = {
 
 const LEVEL_CONFIG: Record<
 	LogLevel,
-	{ icon: string; paint: (value: string) => string; method: "log" | "warn" | "error" }
+	{
+		icon: string;
+		paint: (value: string) => string;
+		method: "log" | "warn" | "error";
+	}
 > = {
 	debug: { icon: "·", paint: pc.dim, method: "log" },
 	info: { icon: "ℹ", paint: pc.cyan, method: "log" },
@@ -117,11 +121,7 @@ export interface Logger {
 }
 
 export function createLogger(scope: LogScope, label?: string): Logger {
-	const emit = (
-		level: LogLevel,
-		message: string,
-		extra?: unknown,
-	): void => {
+	const emit = (level: LogLevel, message: string, extra?: unknown): void => {
 		write(level, scope, label, message, extra);
 	};
 
@@ -176,8 +176,7 @@ export function createLogger(scope: LogScope, label?: string): Logger {
 		raw: (message) => {
 			console.log(message);
 		},
-		child: (name) =>
-			createLogger(scope, label ? `${label}:${name}` : name),
+		child: (name) => createLogger(scope, label ? `${label}:${name}` : name),
 	};
 }
 

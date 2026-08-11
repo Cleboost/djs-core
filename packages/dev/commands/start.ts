@@ -1,5 +1,5 @@
-import type { CAC } from "cac";
 import { devLog } from "@djs-core/runtime";
+import type { CAC } from "cac";
 import { banner, runBot } from "../utils/common";
 
 export function registerStartCommand(cli: CAC) {

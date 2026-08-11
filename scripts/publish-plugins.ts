@@ -14,7 +14,11 @@ import { resolve } from "node:path";
 const isCi = Boolean(process.env.GITHUB_ACTIONS || process.env.GITLAB_CI);
 
 function run(cmd: string, args: string[], cwd?: string): boolean {
-	const result = spawnSync(cmd, args, { cwd, encoding: "utf-8", stdio: "inherit" });
+	const result = spawnSync(cmd, args, {
+		cwd,
+		encoding: "utf-8",
+		stdio: "inherit",
+	});
 	return result.status === 0;
 }
 
@@ -93,8 +97,9 @@ function resolveTargetDirs(): string[] {
 	}
 
 	const root = resolve(import.meta.dir, "..", "plugins");
-	return Bun.glob("*/package.json", { cwd: root })
-		.map((file) => resolve(root, file.replace("/package.json", "")));
+	return Bun.glob("*/package.json", { cwd: root }).map((file) =>
+		resolve(root, file.replace("/package.json", "")),
+	);
 }
 
 const dirs = resolveTargetDirs();

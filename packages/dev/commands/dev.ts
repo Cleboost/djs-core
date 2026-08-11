@@ -330,10 +330,7 @@ export function registerDevCommand(cli: CAC) {
 						!("code" in error) ||
 						(error as { code: number }).code !== 10063
 					) {
-						devLog.error(
-							`Error reloading ${config.label} ${absPath}`,
-							error,
-						);
+						devLog.error(`Error reloading ${config.label} ${absPath}`, error);
 					}
 					if (config.sync) syncState.pendingReloads.delete(absPath);
 					reloadState.reloading.delete(absPath);

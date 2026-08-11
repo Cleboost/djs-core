@@ -15,7 +15,6 @@ import {
 	type StringSelectMenuInteraction,
 	type UserSelectMenuInteraction,
 } from "discord.js";
-import type { Config } from "./types/config";
 import ApplicationCommandHandler from "./handler/ApplicationCommandHandler";
 import ButtonHandler from "./handler/ButtonHandler";
 import CommandHandler from "./handler/CommandHandler";
@@ -25,6 +24,7 @@ import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import type { PluginsExtensions, PluginsExtensionsMap } from "./Plugin";
+import type { Config } from "./types/config";
 import { pluginLog, runtimeLog } from "./utils/logger";
 import { resolvePlugin } from "./utils/plugin-resolver";
 

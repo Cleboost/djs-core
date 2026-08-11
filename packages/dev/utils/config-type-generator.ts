@@ -1,9 +1,9 @@
 import { existsSync } from "node:fs";
+import type { Config } from "@djs-core/runtime";
+import { devLog } from "@djs-core/runtime";
 import fs from "fs/promises";
 import path from "path";
-import { devLog } from "@djs-core/runtime";
 import pc from "picocolors";
-import type { Config } from "@djs-core/runtime";
 import { resolvePlugin } from "./plugin";
 
 function inferType(value: unknown): string {

@@ -8,8 +8,8 @@ import {
 } from "node:fs";
 import { resolve } from "node:path";
 import { definePlugin } from "@djs-core/runtime";
-import packageJson from "./package.json" with { type: "json" };
 import { PrismaBunSqlite } from "prisma-adapter-bun-sqlite";
+import packageJson from "./package.json" with { type: "json" };
 
 export interface PrismaConfig {
 	/**

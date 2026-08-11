@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { resolve } from "node:path";
+import { type Config, devLog } from "@djs-core/runtime";
 import { cac } from "cac";
-import { devLog, type Config } from "@djs-core/runtime";
 import { registerBuildCommand } from "./commands/build";
 import { registerCheckCommand } from "./commands/check";
 import { registerDevCommand } from "./commands/dev";

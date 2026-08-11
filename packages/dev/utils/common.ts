@@ -3,9 +3,9 @@ import {
 	type ChannelSelectMenu,
 	type Command,
 	type ContextMenu,
-	devLog,
 	DjsClient,
 	type DjsClientInstance,
+	devLog,
 	type EventListener,
 	getLeaf,
 	type MentionableSelectMenu,
@@ -24,11 +24,11 @@ type SelectMenu =
 	| ChannelSelectMenu
 	| MentionableSelectMenu;
 
+import type { Config } from "@djs-core/runtime";
 import { Events } from "discord.js";
 import fs from "fs/promises";
 import path, { resolve } from "path";
 import pc from "picocolors";
-import type { Config } from "@djs-core/runtime";
 import { autoGenerateConfigTypes } from "./config-type-generator";
 
 export const banner = `
@@ -246,9 +246,7 @@ export async function runBot(projectPath: string) {
 		// biome-ignore lint/suspicious/noExplicitAny: error handling
 		(error: any) => {
 			devLog.error("Failed to connect to Discord");
-			devLog.error(
-				pc.dim("Error: ") + pc.red(error.message || String(error)),
-			);
+			devLog.error(pc.dim("Error: ") + pc.red(error.message || String(error)));
 			if (error.message?.includes("token") || error.message?.includes("401")) {
 				devLog.warn(
 					`${pc.yellow("Tip:")} ${pc.dim("Vérifiez que votre token Discord est valide dans djs.config.ts")}`,

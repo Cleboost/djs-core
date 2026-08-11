@@ -336,8 +336,7 @@ export function registerBuildCommand(cli: CAC) {
 			const cronFiles = await listTsFilesRecursive(cronDir);
 
 			const configModule = await import(path.join(botRoot, "djs.config.ts"));
-			const config =
-				configModule.default as import("@djs-core/runtime").Config;
+			const config = configModule.default as import("@djs-core/runtime").Config;
 			const hasCronEnabled = config.experimental?.cron === true;
 			const hasUserConfigEnabled = config.experimental?.userConfig === true;
 			const hasBundleEnabled = config.experimental?.bundle === true;

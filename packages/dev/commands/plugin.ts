@@ -1,8 +1,8 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import { resolve } from "node:path";
-import type { CAC } from "cac";
 import { devLog } from "@djs-core/runtime";
+import type { CAC } from "cac";
 import pc from "picocolors";
 import { banner } from "../utils/common";
 
