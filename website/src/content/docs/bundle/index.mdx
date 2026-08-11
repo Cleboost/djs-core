@@ -1,19 +1,258 @@
 ---
-title: Bundle
+title: "Bundle"
 icon: "box-open"
-description: Learn about bundling and building your Discord bot with djs-core.
+description: "Learn about bundling and building your Discord bot with djs-core."
 ---
 
-Bundling allows you to compile and optimize your Discord bot for production deployment.
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+import Warning from '@components/Warning.astro';
+import Steps from '@components/Steps.astro';
+import Step from '@components/Step.astro';
+import ResponseField from '@components/ResponseField.astro';
 
-## What is Bundling?
+Production bots should not ship your entire `src/` folder. The `djs-core build` command scans your project, generates a single entry file, and outputs a deployable artifact in `dist/`.
 
-Bundling is the process of compiling your TypeScript code into optimized JavaScript that can be deployed and run in production environments.
+## Quick start
 
-## Build Process
+<Steps>
+  <Step title="Add build scripts">
+    In your `package.json`:
 
-djs-core provides build tools to help you bundle your bot efficiently with:
-- TypeScript compilation
-- Code optimization
-- Dependency bundling
-- Production-ready output
+    ```json
+    {
+      "scripts": {
+        "dev": "djs-core dev",
+        "build": "djs-core build --bundled",
+        "start:prod": "bun dist/index.js"
+      }
+    }
+    ```
+  </Step>
+  <Step title="Build">
+    ```bash
+    bun run build
+    ```
+
+    If you omit flags, the CLI asks which build type you want (bundled, external, compile, or Docker).
+  </Step>
+  <Step title="Run the output">
+    ```bash
+    bun run start:prod
+    ```
+
+    Or directly:
+
+    ```bash
+    bun dist/index.js
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+  Use `djs-core dev` while developing. Switch to `djs-core build` when you deploy — faster startup, single file, no TypeScript at runtime.
+</Tip>
+
+## What happens during a build?
+
+1. **Scan** — all handlers under `src/interactions/commands`, `src/components/*`, `src/events`, and optionally `src/cron`.
+2. **Generate** — a production entry at `.djscore/index.ts` that imports every route and wires handlers into `DjsClient`.
+3. **Bundle** — Bun compiles that entry into `dist/` (or a native binary with `--compile`).
+4. **Copy assets** — `config.json` is copied or embedded when `experimental.userConfig` is enabled (see below).
+
+<Note>
+  The `.djscore/` folder is auto-generated. Do not edit it manually — it is recreated on every build.
+</Note>
+
+## Build types
+
+| Type | CLI flag / prompt | Output | Best for |
+|------|-------------------|--------|----------|
+| **Bun (bundled)** | `--bundled` | `dist/index.js` (single file) | Most deployments, VPS, simple hosting |
+| **Bun (external)** | `--external` | `dist/index.js` + `package.json` | When you want smaller bundle + `bun install` in `dist/` |
+| **Compile** | `--compile` / `-c` | `dist/bot` native binary (~90 MB) | Single executable, no Bun runtime on server |
+| **Docker** | interactive prompt | `dist/index.js` + `Dockerfile` | Container deployments |
+
+### Bundled (recommended)
+
+Everything is inlined into one JavaScript file. Fastest to deploy — copy `dist/index.js`, set env vars, run with Bun.
+
+```bash
+djs-core build --bundled
+bun dist/index.js
+```
+
+### External dependencies
+
+Dependencies from your `package.json` stay external. A minimal `package.json` is generated inside `dist/`.
+
+```bash
+djs-core build --external
+cd dist && bun install && bun start
+```
+
+### Native binary
+
+Compiles a standalone executable. Great for distributing a bot without installing Bun on the target machine.
+
+```bash
+djs-core build --compile
+./dist/bot        # Linux/macOS
+./dist/bot.exe    # Windows
+```
+
+<Warning>
+  Compiled binaries are large (~90 MB) because they embed the Bun runtime. Prefer `--bundled` if size matters.
+</Warning>
+
+### Docker
+
+Generates a `Dockerfile` next to the bundle:
+
+```bash
+djs-core build
+# Select "Docker" in the prompt, then:
+docker build -t my-bot dist
+docker run --env-file .env my-bot
+```
+
+## CLI reference
+
+```bash
+djs-core build [options]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-p, --path <path>` | Project root (default: `.`) |
+| `-o, --outdir <dir>` | Output folder (default: `dist`) |
+| `--bundled` | Single-file Bun bundle |
+| `--external` | Bundle with external `node_modules` |
+| `-c, --compile` | Native executable |
+| `--no-minify` | Disable minification |
+
+<Note>
+  `--bundled`, `--external`, and `--compile` are mutually exclusive. Pick one per build.
+</Note>
+
+### Examples
+
+```bash
+# Default interactive picker
+djs-core build
+
+# Production bundle to custom folder
+djs-core build --bundled --outdir release
+
+# Compile without minify (debugging)
+djs-core build --compile --no-minify
+
+# Build a monorepo app subfolder
+djs-core build --path ./apps/my-bot --bundled
+```
+
+## Configuration for production builds
+
+### `experimental.bundle` + `userConfig`
+
+If you use a `config.json` for bot-specific settings (prefixes, feature flags, etc.), enable both flags to **embed** the JSON inside the bundle at build time:
+
+```typescript [djs.config.ts]
+import { defineConfig } from "@djs-core/runtime";
+
+export default defineConfig({
+  token: process.env.TOKEN!,
+  servers: ["YOUR_GUILD_ID"],
+  experimental: {
+    userConfig: true,
+    bundle: true,
+  },
+});
+```
+
+With `userConfig: true` but `bundle: false`, `config.json` is **copied** to `dist/` during build and loaded at runtime instead.
+
+<ResponseField name="experimental.userConfig" type="boolean">
+  Enables loading `config.json` into `client.config`. Types are auto-generated in `.djscore/config.types.ts`.
+</ResponseField>
+
+<ResponseField name="experimental.bundle" type="boolean">
+  Embeds `config.json` into the production bundle. Required for `bun build --compile` workflows with user config (e.g. Prisma SQLite plugin).
+</ResponseField>
+
+### Cron tasks in production
+
+Cron handlers under `src/cron/` are only included when `experimental.cron` is `true` in `djs.config.ts`. See [Cron Tasks](/essentials/events-tasks).
+
+## Project layout after build
+
+```
+my-bot/
+├── src/                  # your source (not needed at runtime)
+├── djs.config.ts         # needed at build time
+├── .djscore/
+│   └── index.ts          # generated entry (recreated each build)
+└── dist/
+    ├── index.js          # bundled output
+    ├── bot               # only with --compile
+    ├── Dockerfile        # only with Docker build type
+    ├── package.json      # only with --external
+    └── config.json       # copied when userConfig without bundle
+```
+
+## Deployment examples
+
+### VPS with Bun
+
+```bash
+bun run build
+TOKEN=xxx bun dist/index.js
+```
+
+Use `systemd`, `pm2`, or a process manager to keep the bot alive.
+
+### Standalone binary
+
+```bash
+djs-core build --compile
+scp dist/bot user@server:/opt/my-bot/
+ssh user@server '/opt/my-bot/bot'
+```
+
+### Docker
+
+```dockerfile
+# Generated by djs-core build (Docker option)
+FROM oven/bun:alpine
+WORKDIR /app
+COPY index.js .
+CMD ["bun", "index.js"]
+```
+
+```bash
+docker build -t my-discord-bot dist
+docker run -d --env-file .env --name bot my-discord-bot
+```
+
+## `dev` vs `build` vs `start`
+
+| Command | Loads from | Hot reload | Use case |
+|---------|------------|------------|----------|
+| `djs-core dev` | `src/` (dynamic import) | Yes | Local development |
+| `djs-core build` | `src/` → `dist/` | — | Create production artifact |
+| `bun dist/index.js` | `dist/` bundle | No | Run production build |
+| `djs-core start` | `src/` (dynamic import) | No | Run from source without bundling |
+
+<Tip>
+  For production, prefer `build` then `bun dist/index.js`. `djs-core start` is useful when your server has the full repo and TypeScript sources, but it does not run the `dist/` output.
+</Tip>
+
+## Troubleshooting
+
+**Build fails after adding a handler** — make sure every file under `src/interactions/commands`, `src/components`, etc. has a valid default export (`Command`, `Button`, `EventListener`, …).
+
+**`config.json` not found at runtime** — enable `experimental.userConfig`, rebuild, and check that `config.json` exists at the project root before building.
+
+**Binary too large** — use `--bundled` instead of `--compile`, or `--external` if you need smaller artifacts with separate `node_modules`.
+
+**Plugin not available in bundle** — plugins declared in `djs.config.ts` are resolved at build time. Run `djs-core generate-config-types` after changing plugins so types and imports stay in sync.
