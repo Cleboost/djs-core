@@ -9,9 +9,9 @@ dist/
 # Dev
 *.dev
 *.db
-# Generated declaration files alongside sources (tsc --declaration side-effect)
-packages/*/utils/*.d.ts
-packages/*/*.d.ts
+# tsc may emit declarations next to sources if run without outDir
+packages/**/*.d.ts
+plugins/**/*.d.ts
 .djscore
 .turbo
 
