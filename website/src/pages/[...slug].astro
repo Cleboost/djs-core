@@ -15,6 +15,8 @@ import ResponseField from "@components/ResponseField.astro";
 import Columns from "@components/Columns.astro";
 import Column from "@components/Column.astro";
 import Experimental from "@components/Experimental.astro";
+import PluginCard from "@components/PluginCard.astro";
+import PluginMarketplace from "@components/PluginMarketplace.astro";
 import { entrySlug } from "@lib/slug";
 
 export async function getStaticPaths() {
@@ -51,6 +53,8 @@ const slug = entrySlug(entry.id);
       Columns,
       Column,
       Experimental,
+      PluginCard,
+      PluginMarketplace,
     }}
   />
 </DocsLayout>

@@ -29,6 +29,8 @@ export const ICONS: Record<string, string> = {
 	"file-text": `<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 13H8"/><path d="M16 13h-2"/><path d="M10 17H8"/><path d="M16 17h-2"/>`,
 	search: `<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>`,
 	"chevron-right": `<path d="m9 18 6-6-6-6"/>`,
+	layers: `<path d="m12.83 2.18 8.25 4.76v9.12l-8.25 4.76-8.25-4.76V6.94Z"/><path d="m21.08 6.94-8.25 4.76-8.25-4.76"/><path d="M12.83 12.46v9.12"/>`,
+	zap: `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`,
 };
 
 export function iconSvg(name: string, size = 16): string {

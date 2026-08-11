@@ -1,30 +1,20 @@
 ---
-title: "Plugins-Marketplace"
+title: "Plugins Marketplace"
+description: "Official djs-core plugins for databases, ORM integrations, and more."
 ---
 
-import Card from '@components/Card.astro';
-import Columns from '@components/Columns.astro';
-import Column from '@components/Column.astro';
+import PluginMarketplace from '@components/PluginMarketplace.astro';
 
-<Columns cols={4}>
-  <Column>
-    <Card icon="database" title="SQL Plugin">
-      Postgres/Sqlite
-    </Card>
-  </Column>
-  <Column>
-    <Card icon="database" title="Prisma Plugin">
-      (soon...)
-    </Card>
-  </Column>
-  <Column>
-    <Card icon="sparkles">
-      
-    </Card>
-  </Column>
-  <Column>
-    <Card icon="sparkles">
-      
-    </Card>
-  </Column>
-</Columns>
+Browse official plugins built for djs-core. Install with the CLI, configure in `djs.config.ts`, and access everything through typed `client` extensions.
+
+<PluginMarketplace />
+
+## Build your own
+
+Plugins use `definePlugin` from `@djs-core/runtime`. Share logic across bots, attach typed APIs to `client`, and hook into the bot lifecycle.
+
+```bash
+djs-core plugin install <your-package>
+```
+
+See the [Plugins guide](/essentials/plugins) for authoring your own.

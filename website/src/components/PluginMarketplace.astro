@@ -1,0 +1,47 @@
+---
+import PluginCard from "@components/PluginCard.astro";
+import { marketplacePlugins } from "@lib/plugins-marketplace";
+
+const categories = [...new Set(marketplacePlugins.map((p) => p.category))];
+---
+
+<section class="plugin-marketplace-shell">
+  <div class="marketplace-hero">
+    <div class="marketplace-hero-copy">
+      <p class="marketplace-eyebrow">Official extensions</p>
+      <p class="marketplace-lead">
+        Pick a plugin, run one command, get typed APIs on <code>client</code>.
+      </p>
+    </div>
+    <div class="marketplace-stats">
+      <div class="marketplace-stat">
+        <span class="marketplace-stat-value">{marketplacePlugins.length}</span>
+        <span class="marketplace-stat-label">Plugins</span>
+      </div>
+      <div class="marketplace-stat">
+        <span class="marketplace-stat-value">{categories.length}</span>
+        <span class="marketplace-stat-label">Categories</span>
+      </div>
+      <div class="marketplace-stat">
+        <span class="marketplace-stat-value">100%</span>
+        <span class="marketplace-stat-label">Typed</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="marketplace-toolbar">
+    <div class="marketplace-filters">
+      <span class="marketplace-filter active">All</span>
+      {categories.map((category) => (
+        <span class="marketplace-filter">{category}</span>
+      ))}
+    </div>
+    <span class="marketplace-count">{marketplacePlugins.length} results</span>
+  </div>
+
+  <div class="plugin-marketplace-grid">
+    {marketplacePlugins.map((plugin) => (
+      <PluginCard plugin={plugin} />
+    ))}
+  </div>
+</section>

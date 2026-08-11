@@ -1,0 +1,74 @@
+---
+import Icon from "@components/Icon.astro";
+import type { MarketplacePlugin } from "@lib/plugins-marketplace";
+
+interface Props {
+  plugin: MarketplacePlugin;
+}
+
+const { plugin } = Astro.props;
+---
+
+<article class="plugin-card" style={`--plugin-accent: ${plugin.accent}`}>
+  <div class="plugin-card-banner">
+    <div class="plugin-card-banner-bg" aria-hidden="true"></div>
+    <div class="plugin-card-icon">
+      <Icon name={plugin.icon} size={26} />
+    </div>
+    <span class="plugin-card-badge">Official</span>
+  </div>
+
+  <div class="plugin-card-body">
+    <header class="plugin-card-header">
+      <div>
+        <h2 class="plugin-card-name">{plugin.name}</h2>
+        <span class="plugin-card-version">v{plugin.version}</span>
+      </div>
+      <span class="plugin-card-category">{plugin.category}</span>
+    </header>
+
+    <code class="plugin-card-package">{plugin.package}</code>
+
+    <p class="plugin-card-desc">{plugin.description}</p>
+
+    <ul class="plugin-card-tags">
+      {plugin.tags.map((tag) => (
+        <li class="plugin-card-tag">{tag}</li>
+      ))}
+    </ul>
+
+    <ul class="plugin-card-highlights">
+      {plugin.highlights.map((item) => (
+        <li>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <footer class="plugin-card-footer">
+    <div class="plugin-card-install">
+      <pre class="plugin-card-code"><code>{plugin.install}</code></pre>
+    </div>
+    <div class="plugin-card-actions">
+      <a href={plugin.npm} class="plugin-card-btn plugin-card-btn-primary" target="_blank" rel="noopener noreferrer">
+        <Icon name="npm" size={14} />
+        View on npm
+      </a>
+      {plugin.docs ? (
+        <a href={plugin.docs} class="plugin-card-btn" target="_blank" rel="noopener noreferrer">
+          <Icon name="file-text" size={14} />
+          Docs
+        </a>
+      ) : (
+        <a href="/essentials/plugins" class="plugin-card-btn">
+          <Icon name="plug" size={14} />
+          Guide
+        </a>
+      )}
+    </div>
+  </footer>
+</article>
