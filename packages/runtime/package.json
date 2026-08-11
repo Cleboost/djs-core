@@ -26,7 +26,7 @@
 	},
 	"files": [
 		"dist",
-		"PLUGIN_CONTRACT.md"
+		"PLUGIN_API_CHANGELOG.md"
 	],
 	"author": "Cleboost",
 	"license": "MIT",

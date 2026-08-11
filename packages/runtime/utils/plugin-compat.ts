@@ -71,7 +71,7 @@ export interface PluginRuntimeCheck {
 
 /**
  * Validates that the installed @djs-core/runtime version satisfies the plugin's
- * peerDependency range (source of truth for required runtime / plugin contract).
+ * peerDependency range (source of truth for required runtime; see PLUGIN_API_CHANGELOG.md).
  */
 export function validatePluginRuntime(
 	plugin: PluginRuntimeCheck,
