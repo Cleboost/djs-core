@@ -1,5 +1,41 @@
 # @djs-core/dev
 
+## 5.5.0
+
+### Minor Changes
+
+- 4a24ff1: Collapse dev startup load logs into a compact summary.
+
+  - Replace per-file load lines with a single summary showing counts for commands, buttons, modals, select menus, context menus, events, crons, and tasks
+  - Add `loadSummary()` on the shared logger for grouped startup output
+
+- 3e06307: Decouple `@djs-core/dev` from automatic runtime patch bumps.
+
+  - Move `@djs-core/runtime` from dev `dependencies` to `peerDependencies` (`^1.13.0`)
+  - Add `PLUGIN_API_CHANGELOG.md` to track plugin API changes separately from runtime bugfixes
+  - Remove the internal `PLUGIN_CONTRACT.md` in favor of the dedicated plugin API changelog
+
+### Patch Changes
+
+- 032b767: Add a scoped colored logger shared by the runtime and dev CLI.
+
+  - New `HH:MM [SCOPE]` log format with levels (`debug`, `info`, `success`, `warn`, `error`) and TTY-aware colors
+  - Export `createLogger`, `runtimeLog`, `devLog`, `pluginLog`, and related types from `@djs-core/runtime`
+  - Replace ad-hoc `console.log` / `picocolors` usage across runtime handlers and dev commands with the unified logger
+  - Add `warnBlock()` for multi-line warnings such as permission mismatches during command sync
+
+- 3b69980: Replace `dts-bundle-generator` with `tsc` for faster, more reliable type emits in runtime and dev.
+
+  - Export `Config` from `@djs-core/runtime` so published declarations stay self-contained
+  - Export plugin helpers: `resolvePlugin`, `RUNTIME_PACKAGE_NAME`, `RUNTIME_VERSION`, and `validatePluginRuntime`
+  - Add runtime semver validation against a plugin's `peerDependencies["@djs-core/runtime"]` at load time
+
+- Updated dependencies [4a24ff1]
+- Updated dependencies [3e06307]
+- Updated dependencies [032b767]
+- Updated dependencies [3b69980]
+  - @djs-core/runtime@1.14.0
+
 ## 5.4.1
 
 ### Patch Changes
