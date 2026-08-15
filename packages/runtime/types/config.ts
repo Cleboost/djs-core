@@ -1,10 +1,10 @@
+import type { DbConfig } from "@djs-core/db";
 import type {
 	BitFieldResolvable,
 	GatewayIntentsString,
 	InteractionContextType,
 	Partials,
 } from "discord.js";
-import type { DbConfig } from "@djs-core/db";
 import type { PluginsConfigMap } from "../Plugin";
 
 // biome-ignore lint/suspicious/noExplicitAny: generic plugin array

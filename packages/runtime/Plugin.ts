@@ -1,3 +1,4 @@
+import type { DbConfig } from "@djs-core/db";
 import type {
 	BitFieldResolvable,
 	Client,
@@ -5,7 +6,6 @@ import type {
 	InteractionContextType,
 	Partials,
 } from "discord.js";
-import type { DbConfig } from "@djs-core/db";
 
 /**
  * Definition of a djs-core plugin.

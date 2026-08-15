@@ -1,5 +1,5 @@
-import { Command } from "@djs-core/runtime";
 import { desc, schema } from "@djs-core/db";
+import { Command } from "@djs-core/runtime";
 
 export default new Command()
 	.setDescription("List all your tasks")
@@ -15,8 +15,7 @@ export default new Command()
 
 		const list = items
 			.map(
-				(t) =>
-					`\`#${t.id}\` - **${t.task}** (${t.createdAt.toLocaleString()})`,
+				(t) => `\`#${t.id}\` - **${t.task}** (${t.createdAt.toLocaleString()})`,
 			)
 			.join("\n");
 		return interaction.reply(`📝 **Your Todo List:**\n${list}`);

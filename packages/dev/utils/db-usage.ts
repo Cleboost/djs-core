@@ -37,9 +37,6 @@ export function usesDbInSource(root: string): boolean {
 	}
 }
 
-export function projectNeedsDb(
-	root: string,
-	hasDbInConfig: boolean,
-): boolean {
+export function projectNeedsDb(root: string, hasDbInConfig: boolean): boolean {
 	return hasDbInConfig || usesDbInSource(root);
 }

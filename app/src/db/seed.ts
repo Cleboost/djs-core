@@ -1,6 +1,6 @@
 import Database from "bun:sqlite";
-import { drizzle } from "drizzle-orm/bun-sqlite";
 import { schema } from "@djs-core/db";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 
 const db = drizzle(new Database(".djscore/db.sqlite"));
 

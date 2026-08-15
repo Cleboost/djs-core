@@ -1,11 +1,11 @@
-export { createDb } from "./create";
 export {
+	type DbConfig,
+	type DbDialect,
 	DEFAULT_MIGRATIONS_FOLDER,
 	DEFAULT_SCHEMA_PATH,
 	DEFAULT_SQLITE_URL,
-	type DbConfig,
-	type DbDialect,
 } from "./config";
+export { createDb } from "./create";
 export {
 	and,
 	asc,
@@ -32,8 +32,6 @@ export {
 	sql,
 	sum,
 } from "./drizzle";
-export { migrateDb } from "./migrate";
-export { getDbRoot, resolveMigrationsFolder, resolveSchemaPath } from "./paths";
 export {
 	buildDrizzleKitConfigContent,
 	DRIZZLE_CONFIG_STUB,
@@ -41,6 +39,8 @@ export {
 	syncDrizzleKitConfig,
 	writeDrizzleKitConfig,
 } from "./drizzle-kit";
+export { migrateDb } from "./migrate";
+export { getDbRoot, resolveMigrationsFolder, resolveSchemaPath } from "./paths";
 export {
 	resolveDbDialectFromConfig,
 	scaffoldDbProject,

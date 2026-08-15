@@ -1,5 +1,5 @@
-import { writeDrizzleKitConfig } from "@djs-core/db";
 import { existsSync } from "node:fs";
+import { writeDrizzleKitConfig } from "@djs-core/db";
 import type { Config, DbDialect } from "@djs-core/runtime";
 import { devLog } from "@djs-core/runtime";
 import fs from "fs/promises";
@@ -178,7 +178,11 @@ async function ensureDbTsconfigPaths(
 			tsconfig.include = include;
 		}
 
-		await fs.writeFile(tsconfigPath, JSON.stringify(tsconfig, null, 2), "utf-8");
+		await fs.writeFile(
+			tsconfigPath,
+			JSON.stringify(tsconfig, null, 2),
+			"utf-8",
+		);
 		if (!silent && enabled) {
 			devLog.success("tsconfig.json paths updated for @djs-core/db");
 		}

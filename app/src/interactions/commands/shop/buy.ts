@@ -1,5 +1,5 @@
-import { Command } from "@djs-core/runtime";
 import { eq, gt, schema } from "@djs-core/db";
+import { Command } from "@djs-core/runtime";
 
 export default new Command()
 	.setDescription("Buy a product from the shop")

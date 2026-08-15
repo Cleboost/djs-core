@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
-import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createDb } from "../create";
+import { join } from "node:path";
 import type { DbConfig } from "../config";
+import { createDb } from "../create";
 import { resolveMigrationsFolder } from "../paths";
 
 describe("@djs-core/db", () => {

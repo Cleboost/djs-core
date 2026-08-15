@@ -7,10 +7,7 @@ import {
 } from "node:fs";
 import { resolve } from "node:path";
 import type { DbDialect } from "./config";
-import {
-	DRIZZLE_CONFIG_STUB,
-	writeDrizzleKitConfig,
-} from "./drizzle-kit";
+import { DRIZZLE_CONFIG_STUB, writeDrizzleKitConfig } from "./drizzle-kit";
 
 const schemaTemplates: Record<DbDialect, string> = {
 	sqlite: `import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";

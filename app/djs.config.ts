@@ -21,10 +21,7 @@ const config = defineConfig({
 		cron: true,
 		userConfig: true,
 	},
-	plugins: [
-		import("@djs-core/plugin-sql"),
-		demoPlugin,
-	],
+	plugins: [import("@djs-core/plugin-sql"), demoPlugin],
 	db: {
 		dialect: "sqlite",
 		autoMigrate: true,
