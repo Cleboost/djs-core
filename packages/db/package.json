@@ -24,7 +24,7 @@
 	},
 	"dependencies": {
 		"drizzle-orm": "0.44.5",
-		"postgres": "3.4.7",
+		"postgres": "3.4.9",
 		"mysql2": "3.14.3",
 		"@libsql/client": "0.15.10"
 	},
