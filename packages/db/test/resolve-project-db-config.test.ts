@@ -2,9 +2,64 @@ import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { syncDrizzleKitConfig } from "../drizzle-kit";
 import {
+	parseDbConfigFromSource,
 	resolveProjectDbConfig,
 	resolveProjectDbDialect,
 } from "../resolve-project-db-config";
+
+describe("parseDbConfigFromSource", () => {
+	test("rejects executable payloads in db block", () => {
+		const db = parseDbConfigFromSource(`export default {
+  db: {
+    dialect: "sqlite",
+    autoMigrate: (() => { throw new Error("pwned"); })(),
+  },
+};`);
+		expect(db).toBeUndefined();
+	});
+
+	test("rejects unknown db keys", () => {
+		const db = parseDbConfigFromSource(`export default {
+  db: {
+    dialect: "sqlite",
+    evil: true,
+  },
+};`);
+		expect(db).toBeUndefined();
+	});
+
+	test("parses env substitution and trailing commas", () => {
+		const previous = process.env.DATABASE_URL;
+		process.env.DATABASE_URL = "postgresql://new-host/db";
+
+		const db = parseDbConfigFromSource(`export default {
+  db: {
+    dialect: "postgresql",
+    url: process.env.DATABASE_URL,
+    autoMigrate: true,
+  },
+};`);
+
+		if (previous === undefined) delete process.env.DATABASE_URL;
+		else process.env.DATABASE_URL = previous;
+
+		expect(db).toEqual({
+			dialect: "postgresql",
+			url: "postgresql://new-host/db",
+			autoMigrate: true,
+		});
+	});
+
+	test("rejects Function constructor payloads", () => {
+		const db = parseDbConfigFromSource(`export default {
+  db: {
+    dialect: "sqlite",
+    autoMigrate: Function("return true")(),
+  },
+};`);
+		expect(db).toBeUndefined();
+	});
+});
 
 describe("resolveProjectDbConfig", () => {
 	const fixtureRoot = join(import.meta.dir, "fixtures", "config-throws-token");

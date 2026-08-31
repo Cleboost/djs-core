@@ -65,29 +65,73 @@ function substituteProcessEnv(source: string): string {
 	});
 }
 
+const ALLOWED_DB_KEYS = new Set(["dialect", "url", "autoMigrate"]);
+
+function isSafeDbObjectLiteral(source: string): boolean {
+	return !/[`]|=>|\bfunction\b|\bimport\b|\brequire\b|\beval\b|Function\s*\(/.test(
+		source,
+	);
+}
+
+function objectLiteralToJson(source: string): string {
+	const withoutTrailingCommas = source.replace(/,(\s*[}\]])/g, "$1");
+	return withoutTrailingCommas.replace(
+		/([{,]\s*)([A-Za-z_][A-Za-z0-9_]*)\s*:/g,
+		'$1"$2":',
+	);
+}
+
 function parseDbObjectLiteral(literal: string): DbConfig | undefined {
 	const sanitized = substituteProcessEnv(stripComments(literal));
+	if (!isSafeDbObjectLiteral(sanitized)) return undefined;
+
 	try {
-		const value = new Function(`return ${sanitized}`)();
-		if (!value || typeof value !== "object" || Array.isArray(value)) {
-			return undefined;
-		}
-		return value as DbConfig;
+		const value = JSON.parse(objectLiteralToJson(sanitized));
+		return normalizeDbConfig(value);
 	} catch {
 		return undefined;
 	}
 }
 
-function normalizeDbConfig(db: DbConfig | undefined): DbConfig | undefined {
-	if (!db) return undefined;
-	if (db.dialect && !VALID_DIALECTS.has(db.dialect)) return undefined;
-	return db;
+function normalizeDbConfig(db: unknown): DbConfig | undefined {
+	if (!db || typeof db !== "object" || Array.isArray(db)) {
+		return undefined;
+	}
+
+	const record = db as Record<string, unknown>;
+	for (const key of Object.keys(record)) {
+		if (!ALLOWED_DB_KEYS.has(key)) return undefined;
+	}
+
+	const config: DbConfig = {};
+
+	if ("dialect" in record) {
+		if (
+			typeof record.dialect !== "string" ||
+			!VALID_DIALECTS.has(record.dialect as DbDialect)
+		) {
+			return undefined;
+		}
+		config.dialect = record.dialect as DbDialect;
+	}
+
+	if ("url" in record) {
+		if (typeof record.url !== "string") return undefined;
+		config.url = record.url;
+	}
+
+	if ("autoMigrate" in record) {
+		if (typeof record.autoMigrate !== "boolean") return undefined;
+		config.autoMigrate = record.autoMigrate;
+	}
+
+	return config;
 }
 
-function parseDbConfigFromSource(source: string): DbConfig | undefined {
+export function parseDbConfigFromSource(source: string): DbConfig | undefined {
 	const literal = extractDbObjectLiteral(source);
 	if (!literal) return undefined;
-	return normalizeDbConfig(parseDbObjectLiteral(literal));
+	return parseDbObjectLiteral(literal);
 }
 
 async function importDbConfigFromModule(
