@@ -10,7 +10,7 @@ import {
 	requireDescription,
 } from "../rules/index";
 
-export const ALL_RULES: Rule[] = [
+const ALL_RULES: Rule[] = [
 	noEphemeral,
 	noGenericConstructor,
 	preferTypedOptions,
