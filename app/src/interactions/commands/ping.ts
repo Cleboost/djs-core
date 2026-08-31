@@ -1,5 +1,5 @@
-import { Command } from "@djs-core/runtime";
 import { sql } from "@djs-core/db";
+import { Command } from "@djs-core/runtime";
 
 export default new Command()
 	.setDescription("Ping the bot")

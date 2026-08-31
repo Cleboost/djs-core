@@ -7,11 +7,7 @@ import {
 } from "../resolve-project-db-config";
 
 describe("resolveProjectDbConfig", () => {
-	const fixtureRoot = join(
-		import.meta.dir,
-		"fixtures",
-		"config-throws-token",
-	);
+	const fixtureRoot = join(import.meta.dir, "fixtures", "config-throws-token");
 
 	test("reads db block without executing TOKEN guard", async () => {
 		const previousToken = process.env.TOKEN;

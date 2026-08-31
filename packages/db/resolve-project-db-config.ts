@@ -121,7 +121,9 @@ export async function resolveProjectDbConfig(
 	return importDbConfigFromModule(configPath);
 }
 
-export async function resolveProjectDbDialect(root: string): Promise<DbDialect> {
+export async function resolveProjectDbDialect(
+	root: string,
+): Promise<DbDialect> {
 	const db = await resolveProjectDbConfig(root);
 	return db?.dialect ?? "sqlite";
 }
