@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
 import { Client } from "discord.js";
-import CommandHandler from "../handler/CommandHandler";
-import Command from "../interaction/Command";
+import { Command, CommandHandler } from "@djs-core/runtime";
+import { createMockChatInputInteraction, testCommand } from "@djs-core/testing";
 
 describe("CommandHandler", () => {
 	let client: Client;
@@ -21,17 +21,12 @@ describe("CommandHandler", () => {
 
 		handler.set([{ route: "ping", command }]);
 
-		// Mock interaction
-		const interaction = {
-			commandName: "ping",
-			options: {
-				getSubcommandGroup: () => null,
-				getSubcommand: () => null,
-			},
-		} as any;
-
-		await handler.onCommandInteraction(interaction);
+		const res = await testCommand(command, {
+			viaHandler: true,
+			route: "ping",
+		});
 		expect(executed).toHaveBeenCalled();
+		expect(res.repliedWith).toBeNull();
 	});
 
 	test("should route subcommand", async () => {
@@ -43,16 +38,10 @@ describe("CommandHandler", () => {
 
 		handler.set([{ route: "config.user", command }]);
 
-		// Mock interaction for /config user
-		const interaction = {
-			commandName: "config",
-			options: {
-				getSubcommandGroup: () => null,
-				getSubcommand: () => "user",
-			},
-		} as any;
-
-		await handler.onCommandInteraction(interaction);
+		await testCommand(command, {
+			viaHandler: true,
+			route: "config.user",
+		});
 		expect(executed).toHaveBeenCalled();
 	});
 
@@ -61,15 +50,8 @@ describe("CommandHandler", () => {
 		const consoleSpy = mock(() => {});
 		console.error = consoleSpy;
 
-		const interaction = {
-			commandName: "unknown",
-			options: {
-				getSubcommandGroup: () => null,
-				getSubcommand: () => null,
-			},
-		} as any;
-
-		await handler.onCommandInteraction(interaction);
+		const interaction = createMockChatInputInteraction({ route: "unknown" });
+		await handler.onCommandInteraction(interaction as never);
 		expect(consoleSpy).toHaveBeenCalled();
 
 		console.error = originalError;

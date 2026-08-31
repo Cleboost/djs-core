@@ -8,15 +8,16 @@
 		"djs-core": "dist/index.js"
 	},
 	"scripts": {
-		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external discord.js --minify",
+		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external @djs-core/testing --external discord.js --minify",
 		"types": "tsc --project tsconfig.json",
-		"dev": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external discord.js --watch",
+		"dev": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external @djs-core/testing --external discord.js --watch",
 		"test": "bun test",
 		"prepack": "bun turbo build types"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.7.0",
 		"@djs-core/db": "workspace:*",
+		"@djs-core/testing": "workspace:*",
 		"cac": "7.0.0",
 		"chokidar": "5.0.0",
 		"picocolors": "1.1.1",

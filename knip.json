@@ -6,8 +6,12 @@
 			"entry": ["index.ts", "runtime.ts", "test/**/*.test.ts"],
 			"ignore": ["test/fixtures/**"]
 		},
+		"packages/testing": {
+			"entry": ["index.ts", "test/**/*.test.ts"]
+		},
 		"packages/dev": {
-			"entry": "index.ts"
+			"entry": "index.ts",
+			"ignoreDependencies": ["@djs-core/testing"]
 		},
 		"plugins/plugin-demo": {
 			"entry": "index.ts"

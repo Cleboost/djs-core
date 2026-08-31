@@ -11,6 +11,7 @@ import { registerGenerateConfigTypesCommand } from "./commands/generate-config-t
 import { registerListCommand } from "./commands/list";
 import { registerPluginCommand } from "./commands/plugin";
 import { registerStartCommand } from "./commands/start";
+import { registerTestCommand } from "./commands/test";
 import { resolvePlugin } from "./utils/plugin";
 
 export type { Config };
@@ -27,6 +28,7 @@ async function run() {
 	registerGenerateConfigTypesCommand(cli);
 	registerPluginCommand(cli);
 	registerDbCommand(cli);
+	registerTestCommand(cli);
 
 	try {
 		const configPath = resolve(process.cwd(), "djs.config.ts");

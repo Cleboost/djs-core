@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"stripInternal": true,
+		"rootDir": ".",
+		"outDir": "./dist",
+		"noEmit": false,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"types": ["bun"]
+	},
+	"include": ["index.ts", "src/**/*.ts"],
+	"exclude": ["node_modules", "dist", "test", "**/*.test.ts"]
+}

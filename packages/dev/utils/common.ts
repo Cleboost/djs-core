@@ -70,7 +70,8 @@ async function scanDir<T>(
 		} else if (
 			entry.isFile() &&
 			entry.name.endsWith(".ts") &&
-			!entry.name.endsWith(".d.ts")
+			!entry.name.endsWith(".d.ts") &&
+			!entry.name.endsWith(".test.ts")
 		) {
 			const stem = entry.name.slice(0, -3);
 			let route: string;

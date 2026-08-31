@@ -1,0 +1,155 @@
+---
+title: "Testing"
+icon: "flask"
+description: "Test commands and interactions with @djs-core/testing and bun:test."
+---
+
+import Note from '@components/Note.astro';
+import Steps from '@components/Steps.astro';
+import Step from '@components/Step.astro';
+
+Test your bot without connecting to Discord. The `@djs-core/testing` package ships with `@djs-core/dev` — no extra install step.
+
+<Note>
+Use Bun's native test runner (`bun:test`). Colocate tests next to your source files: `ping.ts` + `ping.test.ts`.
+</Note>
+
+## Quick start
+
+Most tests need **one line of setup** — no Discord mock, no manual `client.db` wiring:
+
+<Steps>
+  <Step title="Colocate a test file">
+    ```ts
+    // src/interactions/commands/ping.test.ts
+    import { expect, test } from "bun:test";
+    import { testCommand } from "@djs-core/testing";
+    import pingCommand from "./ping";
+
+    test("ping replies with pong", async () => {
+      const res = await testCommand(pingCommand);
+      expect(res.repliedWith).toContain("Pong!");
+    });
+    ```
+  </Step>
+  <Step title="Run tests">
+    ```bash
+    djs-core test
+    # or
+    bun test
+    ```
+  </Step>
+</Steps>
+
+## Zero-config client stubs
+
+`testCommand` (and other helpers) attach a mock `interaction.client` automatically:
+
+| API | Default stub |
+|-----|--------------|
+| `client.db.get()` | `{ val: 1 }` |
+| `client.db.execute()` | `[]` |
+| `client.myPlugin.anyMethod()` | `"test"` |
+| `client.anything.you.call()` | `"test"` |
+
+So a command that uses `client.db` **and** a plugin works out of the box — you only pass `client` when you need a **specific** return value for your assertion.
+
+```ts
+// Enough for most smoke tests
+await testCommand(pingCommand);
+
+// Override only what you assert on
+await testCommand(myCommand, {
+  client: {
+    demo: { sayHello: () => "bonjour" },
+  },
+});
+expect(res.repliedWith).toContain("bonjour");
+```
+
+<Note>
+Auto-stubs are intentionally dumb (`"test"`, `{ val: 1 }`). They keep commands from crashing — not a substitute for testing real DB logic. Override `client.db` when the query result matters.
+</Note>
+
+## Helpers
+
+| Helper | Use for |
+|--------|---------|
+| `testCommand` | Slash commands |
+| `testButton` | Buttons |
+| `testModal` | Modals |
+| `testSelectMenu` | Select menus |
+| `testContextMenu` | Context menus |
+| `testAutocomplete` | Autocomplete options |
+| `testEvent` | Event listeners |
+
+### Slash command options
+
+```ts
+await testCommand(echoCommand, {
+  options: { msg: "hello" },
+});
+```
+
+### Button with payload
+
+```ts
+await testButton(myButton, {
+  data: { userId: "123" },
+});
+```
+
+### Modal fields
+
+```ts
+await testModal(myModal, {
+  fields: { username: "grug" },
+});
+```
+
+### Autocomplete
+
+```ts
+const res = await testAutocomplete(searchCommand, {
+  focused: { name: "q", value: "pi" },
+});
+expect(res.respondedWith).toEqual([{ name: "pi", value: "pi" }]);
+```
+
+## Handler routing
+
+By default, helpers call `.execute()` directly. To exercise routing (subcommands, custom IDs):
+
+```ts
+await testCommand(command, {
+  viaHandler: true,
+  route: "config.user",
+});
+```
+
+## Assertions
+
+Each helper returns:
+
+- `repliedWith` — last reply content (string)
+- `replies` — all reply/followUp/editReply/defer calls
+- `deferred` — whether `deferReply()` was called
+- `respondedWith` — autocomplete choices (autocomplete only)
+
+```ts
+const res = await testCommand(slowCommand);
+expect(res.deferred).toBe(true);
+expect(res.repliedWith).toBe("done");
+```
+
+## Low-level mocks
+
+For advanced cases, use factories directly:
+
+```ts
+import {
+  createMockChatInputInteraction,
+  createReplyTracker,
+  mockClient,
+} from "@djs-core/testing";
+```

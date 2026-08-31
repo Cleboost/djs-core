@@ -76,7 +76,10 @@ export const nav: NavGroup[] = [
 	},
 	{
 		label: "Other",
-		items: [{ label: "Configuration", slug: "essentials/configuration", icon: "gear" }],
+		items: [
+			{ label: "Configuration", slug: "essentials/configuration", icon: "gear" },
+			{ label: "Testing", slug: "essentials/testing", icon: "flask" },
+		],
 	},
 	{
 		label: "AI tools",

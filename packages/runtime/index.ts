@@ -1,5 +1,6 @@
 export type { DbConfig, DbDialect } from "@djs-core/db";
 export { DjsClient, type DjsClientInstance } from "./DjsClient";
+export { default as ButtonHandler } from "./handler/ButtonHandler";
 export {
 	default as CommandHandler,
 	type Route,
@@ -8,6 +9,7 @@ export { default as ContextMenuHandler } from "./handler/ContextMenuHandler";
 export { default as CronHandler } from "./handler/CronHandler";
 export { default as EventHandler } from "./handler/EventHandler";
 export { default as ModalHandler } from "./handler/ModalHandler";
+export { default as SelectMenuHandler } from "./handler/SelectMenuHandler";
 export * from "./interaction/BaseInteraction";
 export { type ButtonRunFn, default as Button } from "./interaction/Button";
 export {

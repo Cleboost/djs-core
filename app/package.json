@@ -11,7 +11,8 @@
 		"check": "djs-core check",
 		"db:generate": "djs-core db generate",
 		"db:migrate": "djs-core db migrate",
-		"db:seed": "bun src/db/seed.ts"
+		"db:seed": "bun src/db/seed.ts",
+		"test": "djs-core test"
 	},
 	"imports": {
 		"#db": "./.djscore/db.ts"

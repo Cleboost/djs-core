@@ -57,7 +57,8 @@ async function listTsFilesRecursive(dir: string): Promise<string[]> {
 		} else if (
 			e.isFile() &&
 			e.name.endsWith(".ts") &&
-			!e.name.endsWith(".d.ts")
+			!e.name.endsWith(".d.ts") &&
+			!e.name.endsWith(".test.ts")
 		) {
 			out.push(full);
 		}
