@@ -11,7 +11,9 @@ import type { PluginsConfigMap } from "../Plugin";
 export interface Config<P extends readonly any[] = any[]> {
 	token: string;
 	servers: string[];
+	/** Defaults to `Guilds` only. Add intents your bot actually needs. */
 	intents?: BitFieldResolvable<GatewayIntentsString, number>;
+	/** Defaults to none. Opt in when listening to partial gateway payloads. */
 	partials?: Partials[];
 	commands?: {
 		defaultContext?: InteractionContextType[];

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
-import { Client } from "discord.js";
+import { Client, IntentsBitField } from "discord.js";
 import { DjsClient } from "../DjsClient";
 import {
 	closeDataStore,
@@ -21,6 +21,21 @@ describe("DjsClient.destroy", () => {
 	afterEach(() => {
 		Client.prototype.destroy = originalDestroy;
 		closeDataStore();
+	});
+
+	test("defaults to Guilds intent with limited cache and sweepers", () => {
+		const client = new DjsClient({
+			djsConfig: {
+				token: "test-token",
+				servers: [],
+			},
+		});
+
+		expect(client.options.intents.has(IntentsBitField.Flags.Guilds)).toBe(true);
+		expect(
+			client.options.intents.has(IntentsBitField.Flags.GuildMessages),
+		).toBe(false);
+		expect(client.sweepers.options.threads?.interval).toBe(3600);
 	});
 
 	test("stops cron jobs, closes datastore, and closes db", async () => {

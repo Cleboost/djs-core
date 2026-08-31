@@ -10,7 +10,7 @@ import {
 	type Interaction,
 	type MentionableSelectMenuInteraction,
 	type ModalSubmitInteraction,
-	Partials,
+	Options,
 	type RoleSelectMenuInteraction,
 	type StringSelectMenuInteraction,
 	type UserSelectMenuInteraction,
@@ -58,34 +58,9 @@ export class DjsClient<
 		userConfig,
 	}: { djsConfig: Config<Plugins>; userConfig?: UserConfig }) {
 		super({
-			intents: djsConfig.intents ?? [
-				IntentsBitField.Flags.DirectMessageReactions,
-				IntentsBitField.Flags.DirectMessageTyping,
-				IntentsBitField.Flags.DirectMessages,
-				IntentsBitField.Flags.GuildModeration,
-				IntentsBitField.Flags.GuildExpressions,
-				IntentsBitField.Flags.GuildIntegrations,
-				IntentsBitField.Flags.GuildInvites,
-				IntentsBitField.Flags.GuildMembers,
-				IntentsBitField.Flags.GuildMessageReactions,
-				IntentsBitField.Flags.GuildMessageTyping,
-				IntentsBitField.Flags.GuildMessages,
-				IntentsBitField.Flags.GuildPresences,
-				IntentsBitField.Flags.GuildScheduledEvents,
-				IntentsBitField.Flags.GuildVoiceStates,
-				IntentsBitField.Flags.GuildWebhooks,
-				IntentsBitField.Flags.Guilds,
-				IntentsBitField.Flags.MessageContent,
-			],
-			partials: djsConfig.partials ?? [
-				Partials.Channel,
-				Partials.User,
-				Partials.Reaction,
-				Partials.Message,
-				Partials.GuildMember,
-				Partials.GuildScheduledEvent,
-				Partials.ThreadMember,
-			],
+			...Options.createDefault(),
+			intents: djsConfig.intents ?? [IntentsBitField.Flags.Guilds],
+			partials: djsConfig.partials ?? [],
 		});
 		this.djsConfig = djsConfig;
 		this.config = userConfig as UserConfig;
