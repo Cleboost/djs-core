@@ -399,7 +399,7 @@ export function registerDevCommand(cli: CAC) {
 				});
 			}
 
-			process.on("SIGINT", async () => {
+			const shutdown = async () => {
 				devLog.info("Shutting down...");
 				await watcher.close();
 				if (configWatcher) {
@@ -407,6 +407,9 @@ export function registerDevCommand(cli: CAC) {
 				}
 				await client.destroy();
 				process.exit(0);
-			});
+			};
+
+			process.on("SIGINT", shutdown);
+			process.on("SIGTERM", shutdown);
 		});
 }
