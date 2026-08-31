@@ -58,3 +58,13 @@ Ensure your `.gitignore` includes:
 node_modules/
 dist/
 ```
+
+## Development hot reload
+
+`djs-core dev` hot-reloads handlers under `src/` (commands, buttons, components, events, cron tasks). It does **not** reload the running process when configuration changes.
+
+<Warning>
+  After editing `djs.config.ts` (token, `servers`, `db`, plugins, experimental flags), **restart** `djs-core dev`. The dev server watches the file and prints a reminder, but changes are not applied live.
+</Warning>
+
+During long dev sessions, Bun keeps every cache-busted module import in memory. If memory usage grows, restart `djs-core dev` to reclaim it.

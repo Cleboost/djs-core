@@ -50,6 +50,9 @@ export function registerDevCommand(cli: CAC) {
 		.action(async (options) => {
 			devLog.raw(banner);
 			devLog.info("Starting development server...");
+			devLog.info(
+				"Hot reload watches handlers under src/. Restart djs-core dev after djs.config.ts changes.",
+			);
 
 			const {
 				client,
@@ -176,6 +179,7 @@ export function registerDevCommand(cli: CAC) {
 						client.buttonsHandler.add(btn);
 					},
 					unload: async (route) => client.buttonsHandler.delete(route),
+					unloadBeforeReload: true,
 				},
 				{
 					label: "context menu",
@@ -291,6 +295,7 @@ export function registerDevCommand(cli: CAC) {
 				if (config.sync) syncState.pendingReloads.add(absPath);
 
 				try {
+					// Each cache-busted import stays in Bun's module graph until process exit.
 					const mod = await import(
 						`${absPath}?t=${Date.now()}&r=${Math.random()}`
 					);
@@ -382,22 +387,39 @@ export function registerDevCommand(cli: CAC) {
 				.on("unlink", (p) => processFile("unlink", p));
 
 			let configWatcher: FSWatcher | null = null;
+			const djsConfigPath = path.join(root, "djs.config.ts");
+			const watchedConfigPaths = [djsConfigPath];
 			if (config.experimental?.userConfig) {
-				const configJsonPath = path.join(root, "config.json");
-				configWatcher = chokidar.watch(configJsonPath, {
-					ignoreInitial: true,
-				});
-
-				configWatcher.on("change", async () => {
-					devLog.info("config.json changed, regenerating types...");
-					await autoGenerateConfigTypes(root, config);
-				});
-
-				configWatcher.on("add", async () => {
-					devLog.success("config.json created, generating types...");
-					await autoGenerateConfigTypes(root, config);
-				});
+				watchedConfigPaths.push(path.join(root, "config.json"));
 			}
+
+			configWatcher = chokidar.watch(watchedConfigPaths, {
+				ignoreInitial: true,
+			});
+
+			configWatcher.on("change", async (changedPath) => {
+				if (changedPath === djsConfigPath) {
+					devLog.warn(
+						"djs.config.ts changed — restart djs-core dev to apply (token, plugins, db, …).",
+					);
+					return;
+				}
+
+				devLog.info("config.json changed, regenerating types...");
+				await autoGenerateConfigTypes(root, config);
+			});
+
+			configWatcher.on("add", async (changedPath) => {
+				if (changedPath === djsConfigPath) {
+					devLog.warn(
+						"djs.config.ts added — restart djs-core dev to load the new config.",
+					);
+					return;
+				}
+
+				devLog.success("config.json created, generating types...");
+				await autoGenerateConfigTypes(root, config);
+			});
 
 			const shutdown = async () => {
 				devLog.info("Shutting down...");
