@@ -19,11 +19,17 @@ type Template = (name: string) => string;
 
 const templates: Record<
 	string,
-	{ dest: (root: string, name: string) => string; template: Template }
+	{
+		dest: (root: string, name: string) => string;
+		template: Template;
+	}
 > = {
 	command: {
 		dest: (root, name) =>
-			path.join(root, PATH_ALIASES.interactions, "commands", `${name}.ts`),
+			resolveSafeDest(
+				path.join(root, PATH_ALIASES.interactions, "commands"),
+				name,
+			),
 		template: () => `import { Command } from "@djs-core/runtime";
 
 export default new Command()
@@ -36,7 +42,10 @@ export default new Command()
 
 	button: {
 		dest: (root, name) =>
-			path.join(root, PATH_ALIASES.components, "buttons", `${name}.ts`),
+			resolveSafeDest(
+				path.join(root, PATH_ALIASES.components, "buttons"),
+				name,
+			),
 		template: (name) => `import { Button } from "@djs-core/runtime";
 import { MessageFlags } from "discord.js";
 
@@ -50,7 +59,7 @@ export default new Button()
 
 	modal: {
 		dest: (root, name) =>
-			path.join(root, PATH_ALIASES.components, "modals", `${name}.ts`),
+			resolveSafeDest(path.join(root, PATH_ALIASES.components, "modals"), name),
 		template: (name) => `import { Modal } from "@djs-core/runtime";
 import { TextInputBuilder, TextInputStyle, ActionRowBuilder, MessageFlags } from "discord.js";
 
@@ -73,7 +82,10 @@ export default new Modal()
 
 	select: {
 		dest: (root, name) =>
-			path.join(root, PATH_ALIASES.components, "selects", `${name}.ts`),
+			resolveSafeDest(
+				path.join(root, PATH_ALIASES.components, "selects"),
+				name,
+			),
 		template: () => `import { StringSelectMenu } from "@djs-core/runtime";
 import { MessageFlags } from "discord.js";
 
@@ -91,7 +103,8 @@ export default new StringSelectMenu()
 	},
 
 	event: {
-		dest: (root, name) => path.join(root, PATH_ALIASES.events, `${name}.ts`),
+		dest: (root, name) =>
+			resolveSafeDest(path.join(root, PATH_ALIASES.events), name),
 		template: (name) => `import { EventListener } from "@djs-core/runtime";
 import { Events } from "discord.js";
 
@@ -105,7 +118,10 @@ export default new EventListener()
 
 	context: {
 		dest: (root, name) =>
-			path.join(root, PATH_ALIASES.interactions, "contexts", `${name}.ts`),
+			resolveSafeDest(
+				path.join(root, PATH_ALIASES.interactions, "contexts"),
+				name,
+			),
 		template: () => `import { ContextMenu } from "@djs-core/runtime";
 import { ApplicationCommandType, MessageFlags } from "discord.js";
 
@@ -119,6 +135,37 @@ export default new ContextMenu()
 };
 
 const TYPES = Object.keys(templates);
+
+export function resolveSafeDest(baseDir: string, name: string): string {
+	if (!name || name.includes("\0") || path.isAbsolute(name)) {
+		throw new Error(`Invalid name: ${name}`);
+	}
+
+	const resolvedBase = path.resolve(baseDir);
+	const dest = path.normalize(path.join(resolvedBase, `${name}.ts`));
+	const resolvedDest = path.resolve(dest);
+	const basePrefix = resolvedBase.endsWith(path.sep)
+		? resolvedBase
+		: `${resolvedBase}${path.sep}`;
+
+	if (resolvedDest !== resolvedBase && !resolvedDest.startsWith(basePrefix)) {
+		throw new Error(`Invalid name: ${name}`);
+	}
+
+	return resolvedDest;
+}
+
+function assertDestWithinRoot(root: string, dest: string): void {
+	const resolvedRoot = path.resolve(root);
+	const resolvedDest = path.resolve(path.normalize(dest));
+	const rootPrefix = resolvedRoot.endsWith(path.sep)
+		? resolvedRoot
+		: `${resolvedRoot}${path.sep}`;
+
+	if (resolvedDest !== resolvedRoot && !resolvedDest.startsWith(rootPrefix)) {
+		throw new Error("Generated path escapes project root");
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Command
@@ -145,7 +192,16 @@ export function registerGenerateCommand(cli: CAC) {
 				}
 
 				const root = path.resolve(process.cwd(), options.path);
-				const dest = tpl.dest(root, name);
+				let dest: string;
+				try {
+					dest = tpl.dest(root, name);
+					assertDestWithinRoot(root, dest);
+				} catch (error) {
+					const message =
+						error instanceof Error ? error.message : String(error);
+					console.error(pc.red(`\n  ${message}\n`));
+					process.exit(1);
+				}
 				const rel = path.relative(root, dest);
 
 				// Check existence
