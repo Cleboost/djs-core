@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { resolve } from "node:path";
 import semver from "semver";
 import {
 	RUNTIME_PACKAGE_NAME,
@@ -10,7 +10,10 @@ import {
 } from "../utils/plugin-compat";
 import { resolvePlugin } from "../utils/plugin-resolver";
 
-function makeProjectWithPlugin(peerRange: string, runtimeVersion = RUNTIME_VERSION) {
+function makeProjectWithPlugin(
+	peerRange: string,
+	runtimeVersion = RUNTIME_VERSION,
+) {
 	const root = resolve(
 		tmpdir(),
 		`djs-plugin-compat-${Date.now()}-${Math.random().toString(36).slice(2)}`,

@@ -20,7 +20,7 @@ describe("Task Class", () => {
 
 	test("run() should set the run function and return this", () => {
 		const task = new Task();
-		const runFn = (client: Client) => {
+		const runFn = (_client: Client) => {
 			console.log("running task");
 		};
 		const result = task.run(runFn);
@@ -31,7 +31,7 @@ describe("Task Class", () => {
 
 	test("should handle async run function", async () => {
 		const task = new Task();
-		const runFn = async (client: Client) => {
+		const runFn = async (_client: Client) => {
 			await Promise.resolve();
 		};
 		task.run(runFn);
@@ -41,7 +41,7 @@ describe("Task Class", () => {
 	test("chaining cron() and run()", () => {
 		const task = new Task();
 		const cronExpr = "0 0 * * *";
-		const runFn = (client: Client) => {};
+		const runFn = (_client: Client) => {};
 
 		task.cron(cronExpr).run(runFn);
 
@@ -54,7 +54,9 @@ describe("Task Class", () => {
 		task.cron("1 * * * *").run(() => {});
 
 		const newCron = "2 * * * *";
-		const newRun = () => { console.log("new"); };
+		const newRun = () => {
+			console.log("new");
+		};
 
 		task.cron(newCron).run(newRun);
 

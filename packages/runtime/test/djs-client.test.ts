@@ -13,7 +13,9 @@ describe("DjsClient.destroy", () => {
 	beforeEach(() => {
 		process.env.NODE_ENV = "test";
 		originalDestroy = Client.prototype.destroy;
-		Client.prototype.destroy = mock(() => Promise.resolve()) as typeof Client.prototype.destroy;
+		Client.prototype.destroy = mock(() =>
+			Promise.resolve(),
+		) as typeof Client.prototype.destroy;
 	});
 
 	afterEach(() => {

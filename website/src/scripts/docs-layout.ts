@@ -52,7 +52,9 @@ function initToc(): void {
 	tocCleanup?.();
 	tocNav.innerHTML = "";
 
-	const headings = Array.from(prose.querySelectorAll("h2, h3")) as HTMLElement[];
+	const headings = Array.from(
+		prose.querySelectorAll("h2, h3"),
+	) as HTMLElement[];
 
 	if (headings.length === 0) {
 		tocAside.style.display = "none";
@@ -62,16 +64,15 @@ function initToc(): void {
 	tocAside.style.display = "";
 	headings.forEach((heading) => {
 		if (!heading.id) {
-			heading.id = heading.textContent!
-				.toLowerCase()
+			heading.id = heading.textContent
+				?.toLowerCase()
 				.replace(/\s+/g, "-")
 				.replace(/[^\w-]/g, "");
 		}
 		const link = document.createElement("a");
 		link.href = `#${heading.id}`;
 		link.textContent = heading.textContent!;
-		link.className =
-			"toc-link" + (heading.tagName === "H3" ? " toc-link-h3" : "");
+		link.className = `toc-link${heading.tagName === "H3" ? " toc-link-h3" : ""}`;
 		tocNav.appendChild(link);
 	});
 
@@ -107,7 +108,7 @@ function initToc(): void {
 
 	const resolveActiveHeading = (): HTMLElement => {
 		const scrollY = window.scrollY;
-		const viewportBottom = scrollY + window.innerHeight;
+		const _viewportBottom = scrollY + window.innerHeight;
 		const maxScroll =
 			document.documentElement.scrollHeight - window.innerHeight;
 

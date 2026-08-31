@@ -1,18 +1,18 @@
 {
-  "name": "website",
-  "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/mdx": "^6.0.3",
-    "astro": "^7.1.3",
-    "astro-expressive-code": "^0.43.1",
-    "sharp": "^0.35.3"
-  }
+	"name": "website",
+	"type": "module",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "astro dev",
+		"start": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"astro": "astro"
+	},
+	"dependencies": {
+		"@astrojs/mdx": "^6.0.3",
+		"astro": "^7.1.3",
+		"astro-expressive-code": "^0.43.1",
+		"sharp": "^0.35.3"
+	}
 }

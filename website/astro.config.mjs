@@ -1,7 +1,7 @@
 // @ts-check
 import mdx from "@astrojs/mdx";
-import expressiveCode from "astro-expressive-code";
 import { defineConfig } from "astro/config";
+import expressiveCode from "astro-expressive-code";
 
 export default defineConfig({
 	site: "https://djs-core.cleboost.com",

@@ -28,7 +28,10 @@ describe("ContextMenuHandler", () => {
 
 	test("should route user context menu interaction", async () => {
 		const executed = mock(() => {});
-		const menu = new ContextMenu().setName("Info").run(executed).withType(ApplicationCommandType.User);
+		const menu = new ContextMenu()
+			.setName("Info")
+			.run(executed)
+			.withType(ApplicationCommandType.User);
 		handler.set([menu]);
 
 		await handler.onContextMenuInteraction({
@@ -41,7 +44,10 @@ describe("ContextMenuHandler", () => {
 
 	test("should route message context menu interaction", async () => {
 		const executed = mock(() => {});
-		const menu = new ContextMenu().setName("Quote").run(executed).withType(ApplicationCommandType.Message);
+		const menu = new ContextMenu()
+			.setName("Quote")
+			.run(executed)
+			.withType(ApplicationCommandType.Message);
 		handler.set([menu]);
 
 		await handler.onContextMenuInteraction({
@@ -63,8 +69,14 @@ describe("ContextMenuHandler", () => {
 
 	test("set() replaces all context menus", async () => {
 		const executed = mock(() => {});
-		const a = new ContextMenu().setName("A").run(executed).withType(ApplicationCommandType.User);
-		const b = new ContextMenu().setName("B").run(() => {}).withType(ApplicationCommandType.User);
+		const a = new ContextMenu()
+			.setName("A")
+			.run(executed)
+			.withType(ApplicationCommandType.User);
+		const b = new ContextMenu()
+			.setName("B")
+			.run(() => {})
+			.withType(ApplicationCommandType.User);
 		handler.set([a, b]);
 		handler.set([a]);
 

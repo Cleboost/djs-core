@@ -1,33 +1,33 @@
 ---
 import { getCollection, render } from "astro:content";
-import DocsLayout from "@layouts/DocsLayout.astro";
-import Card from "@components/Card.astro";
-import CardGroup from "@components/CardGroup.astro";
-import Note from "@components/Note.astro";
-import Tip from "@components/Tip.astro";
-import Warning from "@components/Warning.astro";
-import Info from "@components/Info.astro";
-import Steps from "@components/Steps.astro";
-import Step from "@components/Step.astro";
 import Accordion from "@components/Accordion.astro";
 import AccordionGroup from "@components/AccordionGroup.astro";
-import ResponseField from "@components/ResponseField.astro";
-import Columns from "@components/Columns.astro";
+import Card from "@components/Card.astro";
+import CardGroup from "@components/CardGroup.astro";
 import Column from "@components/Column.astro";
+import Columns from "@components/Columns.astro";
 import Experimental from "@components/Experimental.astro";
+import Info from "@components/Info.astro";
+import Note from "@components/Note.astro";
 import PluginCard from "@components/PluginCard.astro";
 import PluginMarketplace from "@components/PluginMarketplace.astro";
+import ResponseField from "@components/ResponseField.astro";
+import Step from "@components/Step.astro";
+import Steps from "@components/Steps.astro";
+import Tip from "@components/Tip.astro";
+import Warning from "@components/Warning.astro";
+import DocsLayout from "@layouts/DocsLayout.astro";
 import { entrySlug } from "@lib/slug";
 
 export async function getStaticPaths() {
-  const docs = await getCollection("docs");
-  return docs.map((entry) => {
-    const slug = entrySlug(entry.id);
-    return {
-      params: { slug: slug || undefined },
-      props: { entry },
-    };
-  });
+	const docs = await getCollection("docs");
+	return docs.map((entry) => {
+		const slug = entrySlug(entry.id);
+		return {
+			params: { slug: slug || undefined },
+			props: { entry },
+		};
+	});
 }
 
 const { entry } = Astro.props;

@@ -1,13 +1,19 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import { nav, tabs, getPrevNext, getActiveTab, showGuidesSidebar } from "@lib/nav";
-import SidebarNav from "@components/SidebarNav.astro";
 import SearchDialog from "@components/SearchDialog.astro";
+import SidebarNav from "@components/SidebarNav.astro";
+import {
+	getActiveTab,
+	getPrevNext,
+	nav,
+	showGuidesSidebar,
+	tabs,
+} from "@lib/nav";
 
 interface Props {
-  title: string;
-  description?: string;
-  slug: string;
+	title: string;
+	description?: string;
+	slug: string;
 }
 
 const { title, description, slug } = Astro.props;

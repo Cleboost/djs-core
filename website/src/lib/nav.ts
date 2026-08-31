@@ -25,8 +25,16 @@ export const nav: NavGroup[] = [
 		label: "Getting Started",
 		items: [
 			{ label: "Djs-Core", slug: "", icon: "house" },
-			{ label: "Installation", slug: "getting-started/installation", icon: "download" },
-			{ label: "Project Structure", slug: "getting-started/project-structure", icon: "folder-tree" },
+			{
+				label: "Installation",
+				slug: "getting-started/installation",
+				icon: "download",
+			},
+			{
+				label: "Project Structure",
+				slug: "getting-started/project-structure",
+				icon: "folder-tree",
+			},
 		],
 	},
 	{
@@ -34,8 +42,16 @@ export const nav: NavGroup[] = [
 		items: [
 			{ label: "Interactions", slug: "interaction", icon: "message" },
 			{ label: "Commands", slug: "interaction/commands", icon: "terminal" },
-			{ label: "Context Menus", slug: "interaction/context-menus", icon: "mouse-pointer" },
-			{ label: "Event Listeners", slug: "interaction/events", icon: "clock-eleven-thirty" },
+			{
+				label: "Context Menus",
+				slug: "interaction/context-menus",
+				icon: "mouse-pointer",
+			},
+			{
+				label: "Event Listeners",
+				slug: "interaction/events",
+				icon: "clock-eleven-thirty",
+			},
 		],
 	},
 	{
@@ -44,11 +60,31 @@ export const nav: NavGroup[] = [
 			{ label: "Components", slug: "components", icon: "puzzle-piece" },
 			{ label: "Buttons", slug: "components/buttons", icon: "square" },
 			{ label: "Modals", slug: "components/modals", icon: "window-maximize" },
-			{ label: "String Select Menus", slug: "components/string-select-menus", icon: "list" },
-			{ label: "User Select Menus", slug: "components/user-select-menus", icon: "users" },
-			{ label: "Role Select Menus", slug: "components/role-select-menus", icon: "user-circle" },
-			{ label: "Channel Select Menus", slug: "components/channel-select-menus", icon: "hashtag" },
-			{ label: "Mentionable Select Menus", slug: "components/mentionable-select-menus", icon: "at" },
+			{
+				label: "String Select Menus",
+				slug: "components/string-select-menus",
+				icon: "list",
+			},
+			{
+				label: "User Select Menus",
+				slug: "components/user-select-menus",
+				icon: "users",
+			},
+			{
+				label: "Role Select Menus",
+				slug: "components/role-select-menus",
+				icon: "user-circle",
+			},
+			{
+				label: "Channel Select Menus",
+				slug: "components/channel-select-menus",
+				icon: "hashtag",
+			},
+			{
+				label: "Mentionable Select Menus",
+				slug: "components/mentionable-select-menus",
+				icon: "at",
+			},
 		],
 	},
 	{
@@ -72,12 +108,22 @@ export const nav: NavGroup[] = [
 	},
 	{
 		label: "Experimtental",
-		items: [{ label: "Cron Tasks", slug: "essentials/events-tasks", icon: "calendar-check" }],
+		items: [
+			{
+				label: "Cron Tasks",
+				slug: "essentials/events-tasks",
+				icon: "calendar-check",
+			},
+		],
 	},
 	{
 		label: "Other",
 		items: [
-			{ label: "Configuration", slug: "essentials/configuration", icon: "gear" },
+			{
+				label: "Configuration",
+				slug: "essentials/configuration",
+				icon: "gear",
+			},
 			{ label: "Testing", slug: "essentials/testing", icon: "flask" },
 		],
 	},
@@ -85,7 +131,11 @@ export const nav: NavGroup[] = [
 		label: "AI tools",
 		items: [
 			{ label: "Cursor setup", slug: "ai-tools/cursor", icon: "arrow-pointer" },
-			{ label: "Claude Code setup", slug: "ai-tools/claude-code", icon: "asterisk" },
+			{
+				label: "Claude Code setup",
+				slug: "ai-tools/claude-code",
+				icon: "asterisk",
+			},
 			{ label: "Windsurf setup", slug: "ai-tools/windsurf", icon: "water" },
 		],
 	},

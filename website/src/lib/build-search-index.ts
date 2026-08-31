@@ -1,7 +1,7 @@
 import { getCollection } from "astro:content";
 import { flatNav, nav } from "@lib/nav";
+import { type SearchDocument, stripMarkdown } from "@lib/search";
 import { entrySlug } from "@lib/slug";
-import { stripMarkdown, type SearchDocument } from "@lib/search";
 
 const SLUG_ICONS: Record<string, string> = {
 	"plugins-marketplace": "sparkles",
@@ -10,7 +10,10 @@ const SLUG_ICONS: Record<string, string> = {
 
 export async function buildSearchIndex(): Promise<SearchDocument[]> {
 	const navMeta = new Map(
-		flatNav().map((item) => [item.slug, { label: item.label, icon: item.icon }]),
+		flatNav().map((item) => [
+			item.slug,
+			{ label: item.label, icon: item.icon },
+		]),
 	);
 	const sectionBySlug = new Map<string, string>();
 

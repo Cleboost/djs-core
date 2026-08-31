@@ -33,13 +33,5 @@
 				"organizeImports": "on"
 			}
 		}
-	},
-	"overrides": [
-		{
-			"includes": ["packages/runtime/test/**", "docs/**", "website/**"],
-			"linter": { "enabled": false },
-			"formatter": { "enabled": false },
-			"assist": { "enabled": false }
-		}
-	]
+	}
 }

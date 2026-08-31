@@ -15,7 +15,10 @@ describe("ModalHandler", () => {
 
 	test("should route modal submit without data", async () => {
 		const executed = mock(() => {});
-		const modal = new Modal().setCustomId("my-modal").setTitle("Test").run(executed);
+		const modal = new Modal()
+			.setCustomId("my-modal")
+			.setTitle("Test")
+			.run(executed);
 		handler.add(modal);
 
 		await handler.onModalSubmit({ customId: "my-modal" } as any);
@@ -38,11 +41,17 @@ describe("ModalHandler", () => {
 	});
 
 	test("should reply with expiry message for invalid token", async () => {
-		const modal = new Modal().setCustomId("exp-modal").setTitle("X").run(() => {});
+		const modal = new Modal()
+			.setCustomId("exp-modal")
+			.setTitle("X")
+			.run(() => {});
 		handler.add(modal);
 
 		const reply = mock(() => {});
-		await handler.onModalSubmit({ customId: "exp-modal:badtoken", reply } as any);
+		await handler.onModalSubmit({
+			customId: "exp-modal:badtoken",
+			reply,
+		} as any);
 		expect(reply).toHaveBeenCalled();
 	});
 
@@ -52,8 +61,14 @@ describe("ModalHandler", () => {
 	});
 
 	test("set() replaces all modals", () => {
-		const a = new Modal().setCustomId("a").setTitle("A").run(() => {});
-		const b = new Modal().setCustomId("b").setTitle("B").run(() => {});
+		const a = new Modal()
+			.setCustomId("a")
+			.setTitle("A")
+			.run(() => {});
+		const b = new Modal()
+			.setCustomId("b")
+			.setTitle("B")
+			.run(() => {});
 		handler.set([a, b]);
 		handler.delete("a");
 		// Only b remains — routing b should not crash

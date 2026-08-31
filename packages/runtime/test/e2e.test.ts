@@ -12,7 +12,7 @@ describe("E2E Integration (Ready to Prod)", () => {
 		process.env.GUILD_ID = "1234567890";
 		process.env.SKIP_SYNC = "true";
 
-		const { DjsClient } = (await import("../DjsClient"));
+		const { DjsClient } = await import("../DjsClient");
 		DjsClient.prototype.login = mock(() => Promise.resolve("mock-token"));
 		DjsClient.prototype.isReady = () => true;
 
@@ -38,9 +38,7 @@ describe("E2E Integration (Ready to Prod)", () => {
 	test("should have loaded all commands from app/", () => {
 		const routes = bot.client.commandsHandler.getRoutes();
 		expect(routes.length).toBeGreaterThan(0);
-		expect(
-			routes.find((r: any) => r.route === "ping"),
-		).toBeDefined();
+		expect(routes.find((r: any) => r.route === "ping")).toBeDefined();
 	});
 
 	test("should execute ping command flow", async () => {

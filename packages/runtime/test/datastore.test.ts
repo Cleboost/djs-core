@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { closeDataStore, getInteractionData, storeInteractionData } from "../store/DataStore";
+import {
+	closeDataStore,
+	getInteractionData,
+	storeInteractionData,
+} from "../store/DataStore";
 
 describe("DataStore", () => {
 	test("should store and retrieve data", () => {

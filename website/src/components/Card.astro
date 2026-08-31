@@ -1,14 +1,12 @@
 ---
-import Icon from "@components/Icon.astro";
-
 interface Props {
-  title: string;
-  icon?: string;
-  href?: string;
-  horizontal?: boolean;
+	title: string;
+	icon?: string;
+	href?: string;
+	horizontal?: boolean;
 }
 const { title, href, icon, horizontal = false } = Astro.props;
-const Tag = href ? "a" : "div";
+const _Tag = href ? "a" : "div";
 ---
 <Tag href={href} class:list={["doc-card", { "doc-card-horizontal": horizontal }]}>
   {icon && (

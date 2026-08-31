@@ -1,10 +1,14 @@
 import { navigate } from "astro:transitions/client";
-import { docHref, searchDocuments, type SearchDocument } from "@lib/search";
 import { iconSvg } from "@lib/icons";
+import { docHref, type SearchDocument, searchDocuments } from "@lib/search";
 import { saveSidebarScroll } from "./sidebar-scroll";
 
-const dialog = document.getElementById("search-dialog") as HTMLDialogElement | null;
-const input = document.getElementById("search-input") as HTMLInputElement | null;
+const dialog = document.getElementById(
+	"search-dialog",
+) as HTMLDialogElement | null;
+const input = document.getElementById(
+	"search-input",
+) as HTMLInputElement | null;
 const results = document.getElementById("search-results");
 const empty = document.getElementById("search-empty");
 const label = document.getElementById("search-results-label");
@@ -60,7 +64,7 @@ function closeDialog() {
 function createResultButton(doc: SearchDocument, i: number): HTMLButtonElement {
 	const button = document.createElement("button");
 	button.type = "button";
-	button.className = "search-result" + (i === activeIndex ? " active" : "");
+	button.className = `search-result${i === activeIndex ? " active" : ""}`;
 	button.dataset.index = String(i);
 
 	const icon = document.createElement("span");
@@ -144,7 +148,9 @@ function setActive(index: number) {
 	const buttons = results.querySelectorAll<HTMLButtonElement>(".search-result");
 	if (buttons.length === 0) return;
 	activeIndex = Math.max(0, Math.min(index, buttons.length - 1));
-	buttons.forEach((button, i) => button.classList.toggle("active", i === activeIndex));
+	buttons.forEach((button, i) => {
+		button.classList.toggle("active", i === activeIndex);
+	});
 	buttons[activeIndex]?.scrollIntoView({ block: "nearest" });
 }
 

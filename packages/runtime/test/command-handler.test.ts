@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
-import { Client } from "discord.js";
 import { Command, CommandHandler } from "@djs-core/runtime";
 import { createMockChatInputInteraction, testCommand } from "@djs-core/testing";
+import { Client } from "discord.js";
 
 describe("CommandHandler", () => {
 	let client: Client;

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
-import { Events, type Client } from "discord.js";
+import { type Client, Events } from "discord.js";
 import EventHandler from "../handler/EventHandler";
 import EventListener from "../interaction/EventListener";
 
@@ -62,11 +62,9 @@ describe("EventHandler", () => {
 		const errorSpy = mock(() => {});
 		console.error = errorSpy;
 
-		const listener = new EventListener()
-			.event(Events.ClientReady)
-			.run(() => {
-				throw new Error("sync boom");
-			});
+		const listener = new EventListener().event(Events.ClientReady).run(() => {
+			throw new Error("sync boom");
+		});
 
 		handler.add("ready-sync", listener);
 

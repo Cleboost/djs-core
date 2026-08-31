@@ -2,11 +2,11 @@
 import { ICONS } from "@lib/icons";
 
 interface Props {
-  name: string;
-  size?: number;
+	name: string;
+	size?: number;
 }
 const { name, size = 14 } = Astro.props;
-const path = ICONS[name];
+const _path = ICONS[name];
 ---
 
 {path && (
