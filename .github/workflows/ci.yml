@@ -35,6 +35,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - run: bun i
+      - run: bun run build
       - run: bun test
   knip:
     concurrency:

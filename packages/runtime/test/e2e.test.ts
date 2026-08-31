@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, mock, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Events } from "discord.js";
 import { resolve } from "path";
 import { runBot } from "../../dev/utils/common";
@@ -28,6 +28,11 @@ describe("E2E Integration (Ready to Prod)", () => {
 
 		bot.client.emit(Events.ClientReady, bot.client);
 		await new Promise((resolve) => setTimeout(resolve, 100));
+	});
+
+	afterAll(async () => {
+		const { clearDbRoot } = await import("@djs-core/db/runtime");
+		clearDbRoot();
 	});
 
 	test("should have loaded all commands from app/", () => {

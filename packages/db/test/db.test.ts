@@ -1,16 +1,21 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { DbConfig } from "../config";
 import { createDb } from "../create";
-import { resolveMigrationsFolder } from "../paths";
+import { clearDbRoot, resolveMigrationsFolder } from "../paths";
 
 describe("@djs-core/db", () => {
 	let tempDir: string;
 	let previousCwd: string;
 
+	beforeEach(() => {
+		clearDbRoot();
+	});
+
 	afterEach(() => {
+		clearDbRoot();
 		if (tempDir) {
 			rmSync(tempDir, { recursive: true, force: true });
 		}

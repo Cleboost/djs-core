@@ -14,6 +14,10 @@ export function setDbRoot(root: string): void {
 	explicitDbRoot = root;
 }
 
+export function clearDbRoot(): void {
+	explicitDbRoot = undefined;
+}
+
 /** Project root for DB paths: dev = bot root, bundled prod = dist (cwd). */
 export function getDbRoot(): string {
 	return explicitDbRoot ?? process.cwd();

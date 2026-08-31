@@ -40,7 +40,7 @@ export {
 	writeDrizzleKitConfig,
 } from "./drizzle-kit";
 export { migrateDb } from "./migrate";
-export { getDbRoot, resolveMigrationsFolder, resolveSchemaPath, setDbRoot } from "./paths";
+export { clearDbRoot, getDbRoot, resolveMigrationsFolder, resolveSchemaPath, setDbRoot } from "./paths";
 export {
 	resolveDbDialectFromConfig,
 	scaffoldDbProject,

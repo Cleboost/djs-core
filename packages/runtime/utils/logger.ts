@@ -32,28 +32,31 @@ const SCOPE_COLORS: Record<LogScope, (value: string) => string> = {
 	PLUGIN: pc.yellow,
 };
 
-const colorsEnabled =
-	process.env.NO_COLOR === undefined &&
-	process.env.FORCE_COLOR !== "0" &&
-	(process.stdout.isTTY ?? false);
+function isColorsEnabled(): boolean {
+	return (
+		process.env.NO_COLOR === undefined &&
+		process.env.FORCE_COLOR !== "0" &&
+		(process.stdout.isTTY ?? false)
+	);
+}
 
 function paint(scope: LogScope, value: string): string {
-	if (!colorsEnabled) return value;
+	if (!isColorsEnabled()) return value;
 	return SCOPE_COLORS[scope](value);
 }
 
 function levelPaint(level: LogLevel, value: string): string {
-	if (!colorsEnabled) return value;
+	if (!isColorsEnabled()) return value;
 	return LEVEL_CONFIG[level].paint(value);
 }
 
 function dim(value: string): string {
-	if (!colorsEnabled) return value;
+	if (!isColorsEnabled()) return value;
 	return pc.dim(value);
 }
 
 function bold(value: string): string {
-	if (!colorsEnabled) return value;
+	if (!isColorsEnabled()) return value;
 	return pc.bold(value);
 }
 

@@ -19,6 +19,7 @@
 	"scripts": {
 		"check": "biome check",
 		"build": "turbo build types --filter=./packages/* --filter=./plugins/*",
+		"test": "bun run build && bun test",
 		"dev": "turbo dev --filter=./packages/* --filter=./plugins/*",
 		"types": "turbo types --filter=./packages/* --filter=./plugins/*",
 		"changeset": "changeset",

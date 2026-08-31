@@ -1,16 +1,23 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
 import { createLogger } from "../utils/logger";
 
 describe("logger", () => {
 	const originalLog = console.log;
 	const originalWarn = console.warn;
 	const originalError = console.error;
+	const originalNoColor = process.env.NO_COLOR;
+
+	beforeEach(() => {
+		process.env.NO_COLOR = "1";
+	});
 
 	afterEach(() => {
 		console.log = originalLog;
 		console.warn = originalWarn;
 		console.error = originalError;
 		delete process.env.DJS_LOG_LEVEL;
+		if (originalNoColor === undefined) delete process.env.NO_COLOR;
+		else process.env.NO_COLOR = originalNoColor;
 	});
 
 	test("formats scoped messages with time and level icon", () => {
