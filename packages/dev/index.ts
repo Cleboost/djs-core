@@ -13,11 +13,13 @@ import { registerPluginCommand } from "./commands/plugin";
 import { registerStartCommand } from "./commands/start";
 import { registerTestCommand } from "./commands/test";
 import { resolvePlugin } from "./utils/plugin";
+import { CLI_VERSION } from "./version";
 
 export type { Config };
+export { CLI_VERSION };
 
 async function run() {
-	const cli = cac("djs-core").version("5.1.0").help();
+	const cli = cac("djs-core").version(CLI_VERSION).help();
 
 	registerStartCommand(cli);
 	registerDevCommand(cli);
