@@ -12,8 +12,7 @@
 		"types": "tsc --project tsconfig.json",
 		"dev": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external discord.js --watch",
 		"test": "bun test",
-		"sync-docs": "bun run scripts/sync-docs.ts",
-		"prepack": "bun turbo build types && bun run scripts/sync-docs.ts"
+		"prepack": "bun turbo build types"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.7.0",
@@ -32,8 +31,7 @@
 		"@types/bun": "1.3.14"
 	},
 	"files": [
-		"dist",
-		"docs"
+		"dist"
 	],
 	"author": "Cleboost",
 	"license": "MIT",

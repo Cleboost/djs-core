@@ -83,8 +83,6 @@ Schema lives in `db/schema.ts`. CLI: `djs-core db init | generate | migrate`. Dr
 
 Full documentation is available at **[djs-core.cleboost.com](https://djs-core.cleboost.com)**.
 
-It is also bundled inside `@djs-core/dev` — available at `node_modules/@djs-core/dev/docs/` for offline access and AI agent consumption.
-
 ---
 
 <div align="center">
