@@ -27,11 +27,11 @@
 				"djs.config.ts",
 				"prisma.config.ts",
 				"drizzle.config.ts",
-				"src/**/*.ts",
-				"src/db/seed.ts"
+				"src/**/*.ts"
 			],
 			"ignore": ["db/schema.ts"],
-			"ignoreDependencies": ["dotenv", "prisma", "drizzle-kit"]
+			"ignoreDependencies": ["dotenv", "prisma", "drizzle-kit"],
+			"ignoreUnresolved": ["#db"]
 		}
 	},
 	"ignoreBinaries": ["tail"],
