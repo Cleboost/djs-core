@@ -11,11 +11,41 @@ const DEFAULT_TTL_MINUTES = 120;
 let _dataStore: Database | null = null;
 let _cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
+type DataStoreStatements = {
+	insert: ReturnType<Database["prepare"]>;
+	select: ReturnType<Database["prepare"]>;
+	deleteByToken: ReturnType<Database["prepare"]>;
+	deleteExpired: ReturnType<Database["prepare"]>;
+};
+
+let _statements: DataStoreStatements | null = null;
+
+function createStatements(db: Database): DataStoreStatements {
+	return {
+		insert: db.prepare(
+			"INSERT OR REPLACE INTO interaction_data (token, data, created_at, expires_at) VALUES (?, ?, ?, ?)",
+		),
+		select: db.prepare(
+			"SELECT data, expires_at FROM interaction_data WHERE token = ?",
+		),
+		deleteByToken: db.prepare("DELETE FROM interaction_data WHERE token = ?"),
+		deleteExpired: db.prepare(
+			"DELETE FROM interaction_data WHERE expires_at > 0 AND expires_at < ?",
+		),
+	};
+}
+
+function getStatements(): DataStoreStatements {
+	getOrInitDataStore();
+	return _statements as DataStoreStatements;
+}
+
 function getOrInitDataStore(): Database {
 	if (_dataStore) return _dataStore;
 
 	if (globalThis.__djsCoreDataStore) {
 		_dataStore = globalThis.__djsCoreDataStore;
+		_statements ??= createStatements(_dataStore);
 		return _dataStore;
 	}
 
@@ -58,6 +88,7 @@ function getOrInitDataStore(): Database {
 
 	globalThis.__djsCoreDataStore = db;
 	_dataStore = db;
+	_statements = createStatements(db);
 
 	cleanupExpiredTokens();
 	_cleanupInterval = setInterval(() => cleanupExpiredTokens(), 60 * 1000);
@@ -74,6 +105,7 @@ export function closeDataStore(): void {
 	if (_dataStore) {
 		_dataStore.close();
 		_dataStore = null;
+		_statements = null;
 		globalThis.__djsCoreDataStore = undefined;
 	}
 }
@@ -86,15 +118,13 @@ export function storeInteractionData(
 	data: unknown,
 	ttlMinutes?: number,
 ): void {
-	const db = getOrInitDataStore();
+	const statements = getStatements();
 	const jsonData = JSON.stringify(data);
 	const now = Math.floor(Date.now() / 1000);
 	const ttl = ttlMinutes ?? DEFAULT_TTL_MINUTES;
 	const expiresAt = ttl === 0 ? 0 : now + ttl * 60;
 
-	db.prepare(
-		"INSERT OR REPLACE INTO interaction_data (token, data, created_at, expires_at) VALUES (?, ?, ?, ?)",
-	).run(token, jsonData, now, expiresAt);
+	statements.insert.run(token, jsonData, now, expiresAt);
 }
 
 /**
@@ -104,10 +134,10 @@ export function storeInteractionData(
 export function getInteractionData(
 	token: string,
 ): { data: unknown; expired: boolean } | null {
-	const db = getOrInitDataStore();
-	const result = db
-		.prepare("SELECT data, expires_at FROM interaction_data WHERE token = ?")
-		.get(token) as { data: string; expires_at: number } | undefined;
+	const statements = getStatements();
+	const result = statements.select.get(token) as
+		| { data: string; expires_at: number }
+		| undefined;
 
 	if (!result) return null;
 
@@ -125,17 +155,11 @@ export function getInteractionData(
 }
 
 function deleteInteractionData(token: string): void {
-	const db = getOrInitDataStore();
-	db.prepare("DELETE FROM interaction_data WHERE token = ?").run(token);
+	getStatements().deleteByToken.run(token);
 }
 
 function cleanupExpiredTokens(): number {
-	const db = getOrInitDataStore();
 	const now = Math.floor(Date.now() / 1000);
-	const result = db
-		.prepare(
-			"DELETE FROM interaction_data WHERE expires_at > 0 AND expires_at < ?",
-		)
-		.run(now);
+	const result = getStatements().deleteExpired.run(now);
 	return result.changes;
 }
