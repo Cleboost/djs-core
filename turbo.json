@@ -10,6 +10,7 @@
 			"outputs": ["dist/**/*.d.ts"]
 		},
 		"dev": {
+			"dependsOn": ["^build"],
 			"cache": false,
 			"persistent": true
 		}

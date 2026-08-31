@@ -79,6 +79,22 @@ await interaction.client.db
 
 Schema lives in `db/schema.ts`. CLI: `djs-core db init | generate | migrate`. Drizzle Kit config is synced from `djs.config.ts` — no duplicate dialect in `drizzle.config.ts`.
 
+## Development (monorepo)
+
+From the repository root:
+
+```bash
+bun install
+bun dev
+```
+
+This builds workspace packages, starts their watch rebuilders, and runs the example bot in `app/` via `djs-core dev`.
+
+- Bot only: `bun run dev:app` (same as `cd app && bun dev`)
+- Framework packages only: `bun run dev:packages`
+
+Set `TOKEN` (and other env vars) in `app/.env` before starting the bot.
+
 ## Documentation
 
 Full documentation is available at **[djs-core.cleboost.com](https://djs-core.cleboost.com)**.
