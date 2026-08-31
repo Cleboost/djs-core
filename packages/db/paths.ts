@@ -8,7 +8,13 @@ export function resolveSchemaPath(root: string): string {
 	return join(root, "db", "schema.ts");
 }
 
+let explicitDbRoot: string | undefined;
+
+export function setDbRoot(root: string): void {
+	explicitDbRoot = root;
+}
+
 /** Project root for DB paths: dev = bot root, bundled prod = dist (cwd). */
 export function getDbRoot(): string {
-	return process.cwd();
+	return explicitDbRoot ?? process.cwd();
 }

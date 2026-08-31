@@ -239,6 +239,8 @@ export async function runBot(projectPath: string) {
 	}) as unknown as DjsClientInstance;
 
 	if (config.db) {
+		const { setDbRoot } = await import("@djs-core/db/runtime");
+		setDbRoot(root);
 		const { prepareClientDb } = await import("@djs-core/runtime/prepareDb");
 		client.registerDbInit(prepareClientDb(client, config.db));
 	}
