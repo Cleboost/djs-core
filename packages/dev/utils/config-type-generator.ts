@@ -180,7 +180,7 @@ async function ensureDbTsconfigPaths(
 
 		await fs.writeFile(
 			tsconfigPath,
-			JSON.stringify(tsconfig, null, 2),
+			JSON.stringify(tsconfig, null, "\t"),
 			"utf-8",
 		);
 		if (!silent && enabled) {
@@ -235,7 +235,7 @@ async function ensureDiscordAugmentation(
 		tsconfig.include = include;
 		await fs.writeFile(
 			tsconfigPath,
-			JSON.stringify(tsconfig, null, 2),
+			JSON.stringify(tsconfig, null, "\t"),
 			"utf-8",
 		);
 		if (!silent) {

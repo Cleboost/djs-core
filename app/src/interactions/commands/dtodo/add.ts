@@ -1,4 +1,4 @@
-import { eq, schema } from "@djs-core/db";
+import { schema } from "@djs-core/db";
 import { Command } from "@djs-core/runtime";
 
 export default new Command()
