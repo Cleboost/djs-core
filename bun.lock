@@ -7,6 +7,7 @@
       "devDependencies": {
         "@biomejs/biome": "2.5.7",
         "@changesets/cli": "2.31.1",
+        "@djs-core/testing": "workspace:*",
         "knip": "6.32.0",
         "turbo": "^2.10.12",
         "typescript": "7.0.2",
@@ -72,7 +73,6 @@
         "semver": "7.8.5",
       },
       "devDependencies": {
-        "@djs-core/testing": "workspace:*",
         "@types/bun": "1.3.14",
         "@types/semver": "7.8.0",
       },
@@ -82,7 +82,7 @@
     },
     "packages/testing": {
       "name": "@djs-core/testing",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "devDependencies": {
         "@djs-core/runtime": "workspace:*",
         "@types/bun": "1.3.14",
