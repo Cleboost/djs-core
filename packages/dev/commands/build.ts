@@ -67,7 +67,7 @@ async function listTsFilesRecursive(dir: string): Promise<string[]> {
 }
 
 function makeVar(
-	prefix: "cmd" | "btn" | "ctx" | "sel" | "evt" | "cron",
+	prefix: "cmd" | "btn" | "ctx" | "sel" | "mod" | "evt" | "cron",
 	route: string,
 ): string {
 	const safe = route.replace(/[^a-zA-Z0-9_]+/g, "_");
@@ -79,7 +79,7 @@ type RouteEntry = { route: string; varName: string };
 function processFiles(
 	files: string[],
 	genDir: string,
-	prefix: "cmd" | "btn" | "ctx" | "sel" | "evt" | "cron",
+	prefix: "cmd" | "btn" | "ctx" | "sel" | "mod" | "evt" | "cron",
 	getRoute: (f: string) => string | null,
 ): { importLines: string[]; entries: RouteEntry[] } {
 	const importLines: string[] = [];
@@ -96,16 +96,18 @@ function processFiles(
 	return { importLines, entries };
 }
 
-function buildGeneratedEntry(opts: {
+export function buildGeneratedEntry(opts: {
 	genDir: string;
 	commandsDir: string;
 	buttonsDir: string;
 	contextsDir: string;
 	selectsDir: string;
+	modalsDir: string;
 	commandFiles: string[];
 	buttonFiles: string[];
 	contextFiles: string[];
 	selectFiles: string[];
+	modalFiles: string[];
 	eventFiles: string[];
 	cronFiles: string[];
 	hasCronEnabled: boolean;
@@ -113,7 +115,14 @@ function buildGeneratedEntry(opts: {
 	hasBundleEnabled: boolean;
 	hasDbEnabled: boolean;
 }): string {
-	const { genDir, commandsDir, buttonsDir, contextsDir, selectsDir } = opts;
+	const {
+		genDir,
+		commandsDir,
+		buttonsDir,
+		contextsDir,
+		selectsDir,
+		modalsDir,
+	} = opts;
 
 	const cmds = processFiles(opts.commandFiles, genDir, "cmd", (f) =>
 		routeFromFile(commandsDir, f),
@@ -127,6 +136,9 @@ function buildGeneratedEntry(opts: {
 	const sels = processFiles(opts.selectFiles, genDir, "sel", (f) =>
 		routeFromFile(selectsDir, f),
 	);
+	const mods = processFiles(opts.modalFiles, genDir, "mod", (f) =>
+		routeFromFile(modalsDir, f),
+	);
 	const evts = processFiles(opts.eventFiles, genDir, "evt", (f) =>
 		path.basename(f, ".ts"),
 	);
@@ -139,6 +151,7 @@ function buildGeneratedEntry(opts: {
 		...btns.importLines,
 		...ctxs.importLines,
 		...sels.importLines,
+		...mods.importLines,
 		...evts.importLines,
 		...crons.importLines,
 	];
@@ -147,6 +160,7 @@ function buildGeneratedEntry(opts: {
 	const sortedBtns = btns.entries;
 	const sortedCtxs = ctxs.entries;
 	const sortedSels = sels.entries;
+	const sortedMods = mods.entries;
 	const sortedEvts = evts.entries;
 	const sortedCrons = crons.entries;
 
@@ -219,6 +233,14 @@ ${sortedSels
 	.map((s) => `  ${s.varName}.setCustomId(${JSON.stringify(s.route)});`)
 	.join("\n")}
 
+  const modals = [
+${sortedMods.map((m) => `    ${m.varName},`).join("\n")}
+  ];
+
+${sortedMods
+	.map((m) => `  ${m.varName}.setCustomId(${JSON.stringify(m.route)});`)
+	.join("\n")}
+
   const events = {
 ${sortedEvts
 	.map((e) => `    ${JSON.stringify(e.route)}: ${e.varName},`)
@@ -279,6 +301,7 @@ ${
     await client.applicationCommandHandler.sync();
     client.buttonsHandler.set(buttons);
     client.selectMenusHandler.set(selectMenus);
+    client.modalsHandler.set(modals);
 ${
 	opts.hasCronEnabled && sortedCrons.length > 0
 		? "    if (config.experimental?.cron && tasks.size > 0) {\n      client.cronHandler.set(tasks);\n    }"
@@ -379,6 +402,7 @@ export function registerBuildCommand(cli: CAC) {
 				"contexts",
 			);
 			const selectsDir = path.join(botRoot, PATH_ALIASES.components, "selects");
+			const modalsDir = path.join(botRoot, PATH_ALIASES.components, "modals");
 			const eventsDir = path.join(botRoot, PATH_ALIASES.events);
 			const cronDir = path.join(botRoot, "src", "cron");
 
@@ -391,6 +415,7 @@ export function registerBuildCommand(cli: CAC) {
 			const buttonFiles = await listTsFilesRecursive(buttonsDir);
 			const contextFiles = await listTsFilesRecursive(contextsDir);
 			const selectFiles = await listTsFilesRecursive(selectsDir);
+			const modalFiles = await listTsFilesRecursive(modalsDir);
 			const eventFiles = await listTsFilesRecursive(eventsDir);
 			const cronFiles = await listTsFilesRecursive(cronDir);
 
@@ -420,10 +445,12 @@ export function registerBuildCommand(cli: CAC) {
 				buttonsDir,
 				contextsDir,
 				selectsDir,
+				modalsDir,
 				commandFiles,
 				buttonFiles,
 				contextFiles,
 				selectFiles,
+				modalFiles,
 				eventFiles,
 				cronFiles,
 				hasCronEnabled,
@@ -602,6 +629,7 @@ export function registerBuildCommand(cli: CAC) {
 				buttonFiles.length +
 				contextFiles.length +
 				selectFiles.length +
+				modalFiles.length +
 				eventFiles.length;
 
 			console.log(
