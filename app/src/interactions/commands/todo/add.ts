@@ -1,4 +1,5 @@
 import { Command } from "@djs-core/runtime";
+import { schema } from "@djs-core/db";
 
 export default new Command()
 	.setDescription("Add a new task to your todo list")
@@ -7,6 +8,8 @@ export default new Command()
 	)
 	.run(async (interaction) => {
 		const task = interaction.options.getString("task", true);
-		interaction.client.sql.run`INSERT INTO todos (task) VALUES (${task})`;
+
+		await interaction.client.db.insert(schema.todos).values({ task });
+
 		return interaction.reply(`✅ Added task: **${task}**`);
 	});

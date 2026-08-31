@@ -1093,6 +1093,12 @@ body {
   border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
+.plugin-card-badge-deprecated {
+  color: #fca5a5;
+  background: color-mix(in srgb, #ef4444 12%, var(--bg));
+  border-color: color-mix(in srgb, #ef4444 35%, transparent);
+}
+
 .plugin-card-body {
   display: flex;
   flex-direction: column;

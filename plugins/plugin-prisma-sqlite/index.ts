@@ -26,6 +26,9 @@ export const prismaPlugin = definePlugin({
 	name: "prisma",
 	packageName: packageJson.name,
 	setup: async (_client, config: PrismaConfig) => {
+		console.warn(
+			"[@djs-core/plugin-prisma-sqlite] Deprecated: migrate to native client.db or use Prisma directly (see https://djs-core.cleboost.com/guides/migrate-db-plugins).",
+		);
 		const url = process.env.DATABASE_URL;
 
 		if (!url) {

@@ -1,4 +1,5 @@
 import { Command } from "@djs-core/runtime";
+import { eq, schema } from "@djs-core/db";
 
 export default new Command()
 	.setDescription("Remove a task from your todo list")
@@ -7,6 +8,10 @@ export default new Command()
 	)
 	.run(async (interaction) => {
 		const id = interaction.options.getInteger("id", true);
-		interaction.client.sql.run`DELETE FROM todos WHERE id = ${id}`;
+
+		await interaction.client.db
+			.delete(schema.todos)
+			.where(eq(schema.todos.id, id));
+
 		return interaction.reply(`🗑️ Removed task with ID: \`#${id}\``);
 	});

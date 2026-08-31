@@ -1,0 +1,97 @@
+---
+title: "Database"
+icon: "database"
+description: "Native Drizzle database with client.db and djs-core db CLI."
+---
+
+import Note from '@components/Note.astro';
+import Warning from '@components/Warning.astro';
+import Steps from '@components/Steps.astro';
+import Step from '@components/Step.astro';
+
+djs-core ships a native Drizzle layer — no plugin required. Configure `db:` in `djs.config.ts`, define your schema in `db/schema.ts`, and query via `interaction.client.db`.
+
+<Note>
+Official database plugins (`@djs-core/plugin-drizzle`, `@djs-core/plugin-sql`, `@djs-core/plugin-prisma-sqlite`) are deprecated. See the [migration guide](/guides/migrate-db-plugins).
+</Note>
+
+## Quick start
+
+<Steps>
+  <Step title="Configure db in djs.config.ts">
+    ```ts
+    import { defineConfig } from "@djs-core/runtime";
+
+    export default defineConfig({
+      token: process.env.TOKEN!,
+      servers: ["YOUR_GUILD_ID"],
+      db: {
+        dialect: "sqlite",
+        autoMigrate: true,
+      },
+    });
+    ```
+  </Step>
+  <Step title="Scaffold db/">
+    ```bash
+    djs-core db init
+    ```
+    Creates `db/schema.ts` and `db/migrations/`.
+  </Step>
+  <Step title="Define schema and migrate">
+    Edit `db/schema.ts`, then:
+
+    ```bash
+    djs-core db generate
+    djs-core db migrate
+    ```
+  </Step>
+  <Step title="Query in a command">
+    ```ts
+    import { Command } from "@djs-core/runtime";
+    import { eq, schema } from "@djs-core/db";
+
+    export default new Command()
+      .setDescription("List todos")
+      .run(async (interaction) => {
+        const items = await interaction.client.db
+          .select()
+          .from(schema.todos)
+          .where(eq(schema.todos.id, 1));
+
+        await interaction.reply(JSON.stringify(items));
+      });
+    ```
+  </Step>
+</Steps>
+
+## Configuration
+
+| Option | Type | Description |
+|---|---|---|
+| `dialect` | `"sqlite"` \| `"postgresql"` \| `"mysql"` \| `"turso"` | Database driver |
+| `url` | `string` | Connection URL (optional — defaults per dialect) |
+| `autoMigrate` | `boolean` | Apply migrations on bot startup |
+
+SQLite uses `file:./db.sqlite` by default. PostgreSQL reads `DATABASE_URL`. Turso reads `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`.
+
+## CLI
+
+| Command | Description |
+|---|---|
+| `djs-core db init` | Scaffold `db/schema.ts` and migrations folder |
+| `djs-core db generate` | Generate SQL migration from schema |
+| `djs-core db migrate` | Apply pending migrations |
+| `djs-core db push` | Push schema directly (dev) |
+| `djs-core db studio` | Open Drizzle Studio |
+| `djs-core db pull` | Pull schema from database |
+
+Drizzle Kit config is synced from `djs.config.ts` — you do not need a separate `drizzle.config.ts`.
+
+## Typing
+
+When `db:` is configured, djs-core generates `.djscore/db.d.ts` and adds TypeScript paths so `interaction.client.db` is fully typed against your schema.
+
+## Bundle
+
+If `db:` is not set, database code is tree-shaken from the production bundle.

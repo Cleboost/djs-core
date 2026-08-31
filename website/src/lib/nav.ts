@@ -52,6 +52,17 @@ export const nav: NavGroup[] = [
 		],
 	},
 	{
+		label: "Database",
+		items: [
+			{ label: "Database", slug: "essentials/database", icon: "database" },
+			{
+				label: "Migrate from plugins",
+				slug: "guides/migrate-db-plugins",
+				icon: "arrow-right-arrow-left",
+			},
+		],
+	},
+	{
 		label: "Bundle",
 		items: [{ label: "Bundle", slug: "bundle", icon: "box-open" }],
 	},

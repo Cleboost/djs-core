@@ -1,5 +1,8 @@
 # @djs-core/plugin-prisma-sqlite
 
+> **Deprecated** — migrate to native Drizzle `client.db` or use Prisma directly without this plugin.
+> See [migration guide](https://djs-core.cleboost.com/guides/migrate-db-plugins).
+
 Ce plugin permet d'intégrer **Prisma 7** avec Bun en utilisant l'adaptateur natif SQLite de Bun (`bun:sqlite`), permettant ainsi de générer un bundle unique ("all-in-one") sans dépendance aux binaires Rust de Prisma.
 
 ## Installation

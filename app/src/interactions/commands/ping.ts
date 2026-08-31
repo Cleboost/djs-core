@@ -1,11 +1,14 @@
 import { Command } from "@djs-core/runtime";
+import { sql } from "@djs-core/db";
 
 export default new Command()
 	.setDescription("Ping the bot")
 	.run(async (interaction) => {
-		const result = interaction.client.sql.execute`SELECT 1 as val`;
+		const [result] = await interaction.client.db
+			.select({ val: sql<number>`1` })
+			.limit(1);
 		const message = interaction.client.demo.sayHello();
 		await interaction.reply(
-			`Pong! ${message}. SQL Test: ${JSON.stringify(result)}`,
+			`Pong! ${message}. DB Test: ${JSON.stringify(result)}`,
 		);
 	});

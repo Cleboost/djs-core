@@ -15,7 +15,9 @@ const { plugin } = Astro.props;
     <div class="plugin-card-icon">
       <Icon name={plugin.icon} size={26} />
     </div>
-    <span class="plugin-card-badge">Official</span>
+    <span class={`plugin-card-badge${plugin.deprecated ? " plugin-card-badge-deprecated" : ""}`}>
+      {plugin.deprecated ? "Deprecated" : "Official"}
+    </span>
   </div>
 
   <div class="plugin-card-body">
@@ -54,14 +56,26 @@ const { plugin } = Astro.props;
       <pre class="plugin-card-code"><code>{plugin.install}</code></pre>
     </div>
     <div class="plugin-card-actions">
-      <a href={plugin.npm} class="plugin-card-btn plugin-card-btn-primary" target="_blank" rel="noopener noreferrer">
-        <Icon name="npm" size={14} />
-        View on npm
-      </a>
+      {plugin.replacement ? (
+        <a href={plugin.replacement} class="plugin-card-btn plugin-card-btn-primary">
+          <Icon name="database" size={14} />
+          Native DB
+        </a>
+      ) : (
+        <a href={plugin.npm} class="plugin-card-btn plugin-card-btn-primary" target="_blank" rel="noopener noreferrer">
+          <Icon name="npm" size={14} />
+          View on npm
+        </a>
+      )}
       {plugin.docs ? (
-        <a href={plugin.docs} class="plugin-card-btn" target="_blank" rel="noopener noreferrer">
+        <a
+          href={plugin.docs}
+          class="plugin-card-btn"
+          target={plugin.docs.startsWith("/") ? undefined : "_blank"}
+          rel={plugin.docs.startsWith("/") ? undefined : "noopener noreferrer"}
+        >
           <Icon name="file-text" size={14} />
-          Docs
+          {plugin.deprecated ? "Migration" : "Docs"}
         </a>
       ) : (
         <a href="/essentials/plugins" class="plugin-card-btn">

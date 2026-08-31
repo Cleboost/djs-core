@@ -51,7 +51,7 @@ export const drizzlePlugin = definePlugin({
 	packageName: packageJson.name,
 	setup: async (_client, config: DrizzleConfig) => {
 		console.warn(
-			"[@djs-core/plugin-drizzle] Deprecated: use native db in djs.config.ts and client.db (see djs-core v2 migration).",
+			"[@djs-core/plugin-drizzle] Deprecated: use native db in djs.config.ts and client.db (see https://djs-core.cleboost.com/guides/migrate-db-plugins).",
 		);
 		const root = process.cwd();
 		const dialect = config.dialect ?? "sqlite";

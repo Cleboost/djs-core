@@ -15,7 +15,6 @@
 	},
 	"dependencies": {
 		"@djs-core/plugin-demo": "workspace:*",
-		"@djs-core/plugin-sql": "workspace:*",
 		"@djs-core/runtime": "workspace:*",
 		"discord.js": "14.27.0"
 	},

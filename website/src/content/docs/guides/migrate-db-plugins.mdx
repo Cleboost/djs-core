@@ -1,0 +1,109 @@
+---
+title: "Migrate from DB plugins"
+icon: "arrow-right-arrow-left"
+description: "Move from official database plugins to native client.db."
+---
+
+import Warning from '@components/Warning.astro';
+import Steps from '@components/Steps.astro';
+import Step from '@components/Step.astro';
+
+Official database plugins are deprecated. Native DB is built into `@djs-core/runtime` — same Drizzle stack, simpler setup.
+
+<Warning>
+Third-party plugins using `definePlugin` are not affected. Only official `@djs-core/plugin-*` database packages are deprecated.
+</Warning>
+
+## From @djs-core/plugin-drizzle
+
+<Steps>
+  <Step title="Remove the plugin">
+    Remove from `djs.config.ts`:
+
+    ```ts
+    // Before
+    plugins: [import("@djs-core/plugin-drizzle")],
+    pluginsConfig: { drizzle: { dialect: "sqlite" } },
+
+    // After — add native db block instead
+    db: { dialect: "sqlite", autoMigrate: true },
+    ```
+
+    Uninstall: `bun remove @djs-core/plugin-drizzle`
+  </Step>
+  <Step title="Move schema folder">
+    Move `src/db/schema.ts` → `db/schema.ts` (project root).
+
+    Move migrations from `drizzle/` → `db/migrations/` if you had generated migrations.
+  </Step>
+  <Step title="Update imports and client access">
+    ```ts
+    // Before
+    import * as schema from "../../../db/schema";
+    await interaction.client.drizzle.select().from(schema.users);
+
+    // After
+    import { schema } from "@djs-core/db";
+    await interaction.client.db.select().from(schema.users);
+    ```
+  </Step>
+  <Step title="Update CLI commands">
+    | Before | After |
+    |---|---|
+    | `djs-core drizzle generate` | `djs-core db generate` |
+    | `djs-core drizzle migrate` | `djs-core db migrate` |
+    | `djs-core drizzle push` | `djs-core db push` |
+    | `djs-core drizzle studio` | `djs-core db studio` |
+
+    Delete `drizzle.config.ts` — config is synced from `djs.config.ts`.
+  </Step>
+</Steps>
+
+## From @djs-core/plugin-sql
+
+Raw SQL on `client.sql` has no direct equivalent in native DB — migrate to Drizzle queries.
+
+<Steps>
+  <Step title="Add native db config">
+    ```ts
+    db: { dialect: "sqlite", autoMigrate: true },
+    ```
+    Run `djs-core db init`, define tables in `db/schema.ts`, then `djs-core db generate && djs-core db migrate`.
+  </Step>
+  <Step title="Replace client.sql calls">
+    ```ts
+    // Before
+    client.sql.run`INSERT INTO todos (task) VALUES (${task})`;
+    client.sql.execute`SELECT * FROM todos`;
+
+    // After
+    import { schema } from "@djs-core/db";
+    await client.db.insert(schema.todos).values({ task });
+    await client.db.select().from(schema.todos);
+    ```
+  </Step>
+  <Step title="Remove plugin">
+    Remove `import("@djs-core/plugin-sql")` and `pluginsConfig.sql` from `djs.config.ts`.
+    Uninstall: `bun remove @djs-core/plugin-sql`
+  </Step>
+</Steps>
+
+Remove table creation from `ready` events — migrations handle schema.
+
+## From @djs-core/plugin-prisma-sqlite
+
+Prisma has no native equivalent yet. Options:
+
+1. **Migrate to Drizzle** (recommended) — rewrite schema in `db/schema.ts` and queries with `client.db`
+2. **Keep Prisma as a third-party dependency** — use Prisma directly without the official plugin, or wait for a native Prisma path
+
+## Checklist
+
+- [ ] `db:` block in `djs.config.ts`
+- [ ] Schema in `db/schema.ts`
+- [ ] `client.drizzle` / `client.sql` → `client.db`
+- [ ] CLI: `djs-core db` instead of `djs-core drizzle`
+- [ ] Official DB plugins removed from `plugins` and `package.json`
+- [ ] Run `djs-core db generate && djs-core db migrate`
+
+See the [Database guide](/essentials/database) for full setup.

@@ -1,21 +1,23 @@
 import { Command } from "@djs-core/runtime";
+import { desc, schema } from "@djs-core/db";
 
 export default new Command()
 	.setDescription("List all your tasks")
 	.run(async (interaction) => {
-		const todos = interaction.client.sql
-			.execute`SELECT * FROM todos ORDER BY created_at DESC` as {
-			id: number;
-			task: string;
-			created_at: string;
-		}[];
+		const todos = await interaction.client.db
+			.select()
+			.from(schema.todos)
+			.orderBy(desc(schema.todos.createdAt));
 
 		if (todos.length === 0) {
 			return interaction.reply("📭 Your todo list is empty!");
 		}
 
 		const list = todos
-			.map((t) => `\`#${t.id}\` - **${t.task}** (${t.created_at})`)
+			.map(
+				(t) =>
+					`\`#${t.id}\` - **${t.task}** (${t.createdAt.toLocaleString()})`,
+			)
 			.join("\n");
 		return interaction.reply(`📝 **Your Todo List:**\n${list}`);
 	});

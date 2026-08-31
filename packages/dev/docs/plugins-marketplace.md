@@ -1,30 +1,15 @@
 ---
-title: "Plugins-Marketplace"
+title: "Plugins-Markplace"
 ---
 
-import Card from '@components/Card.astro';
-import Columns from '@components/Columns.astro';
-import Column from '@components/Column.astro';
+Official database plugins are **deprecated**. Use [native Database](../essentials/database.md) instead.
 
-<Columns cols={4}>
-  <Column>
-    <Card icon="database" title="SQL Plugin">
-      Postgres/Sqlite
-    </Card>
-  </Column>
-  <Column>
-    <Card icon="database" title="Prisma Plugin">
-      (soon...)
-    </Card>
-  </Column>
-  <Column>
-    <Card icon="sparkles">
-      
-    </Card>
-  </Column>
-  <Column>
-    <Card icon="sparkles">
-      
-    </Card>
-  </Column>
-</Columns>
+See [Migrate from DB plugins](../guides/migrate-db-plugins.md) for upgrade steps.
+
+| Plugin | Status | Replacement |
+|---|---|---|
+| `@djs-core/plugin-drizzle` | Deprecated | `db:` + `client.db` |
+| `@djs-core/plugin-sql` | Deprecated | `db:` + `client.db` |
+| `@djs-core/plugin-prisma-sqlite` | Deprecated | Drizzle native or Prisma direct |
+
+Third-party plugins via `definePlugin` are not affected.

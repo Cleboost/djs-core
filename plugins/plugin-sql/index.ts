@@ -11,6 +11,9 @@ export const sqlPlugin = definePlugin({
 	name: "sql",
 	packageName: packageJson.name,
 	setup: (_client, config: SqlConfig) => {
+		console.warn(
+			"[@djs-core/plugin-sql] Deprecated: use native db in djs.config.ts and client.db (see https://djs-core.cleboost.com/guides/migrate-db-plugins).",
+		);
 		const db = new Database(config.path);
 
 		return {
