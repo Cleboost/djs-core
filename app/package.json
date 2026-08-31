@@ -13,6 +13,9 @@
 		"db:migrate": "djs-core db migrate",
 		"db:seed": "bun src/db/seed.ts"
 	},
+	"imports": {
+		"#db": "./.djscore/db.ts"
+	},
 	"dependencies": {
 		"@djs-core/plugin-demo": "workspace:*",
 		"@djs-core/runtime": "workspace:*",

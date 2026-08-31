@@ -102,6 +102,17 @@ async function scanDir<T>(
 
 export async function runBot(projectPath: string) {
 	const root = resolve(process.cwd(), projectPath);
+	const previousCwd = process.cwd();
+	process.chdir(root);
+
+	try {
+		return await runBotInRoot(root);
+	} finally {
+		process.chdir(previousCwd);
+	}
+}
+
+async function runBotInRoot(root: string) {
 	let configModule: { default: unknown };
 	try {
 		configModule = await import(

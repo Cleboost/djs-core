@@ -9,7 +9,8 @@
 			"@components/*": ["./src/components/*"],
 			"@interactions/*": ["./src/interactions/*"],
 			"@events/*": ["./src/events/*"],
-			"@djs-core/db": ["./.djscore/db.ts"]
+			"@djs-core/db": ["./.djscore/db.ts"],
+			"#db": ["./.djscore/db.ts"]
 		},
 		"types": ["bun"]
 	},

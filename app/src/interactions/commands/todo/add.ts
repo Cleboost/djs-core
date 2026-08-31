@@ -1,5 +1,5 @@
-import { schema } from "@djs-core/db";
 import { Command } from "@djs-core/runtime";
+import { schema } from "#db";
 
 export default new Command()
 	.setDescription("Add a new task to your todo list")

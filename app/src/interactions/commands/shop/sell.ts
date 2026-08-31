@@ -1,5 +1,5 @@
-import { eq, schema } from "@djs-core/db";
 import { Command } from "@djs-core/runtime";
+import { eq, schema } from "#db";
 
 export default new Command()
 	.setDescription("Sell a product back to the shop")

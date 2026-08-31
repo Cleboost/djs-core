@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
-import { createDb, schema, setDbRoot } from "@djs-core/db";
+import { createDb, setDbRoot } from "@djs-core/db/runtime";
+import { schema } from "#db";
 
 setDbRoot(resolve(import.meta.dir, "../.."));
 

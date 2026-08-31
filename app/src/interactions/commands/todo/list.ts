@@ -1,5 +1,5 @@
-import { desc, schema } from "@djs-core/db";
 import { Command } from "@djs-core/runtime";
+import { desc, schema } from "#db";
 
 export default new Command()
 	.setDescription("List all your tasks")

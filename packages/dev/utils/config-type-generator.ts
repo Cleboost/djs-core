@@ -107,6 +107,7 @@ const TSCONFIG_INCLUDE_ENTRY = ".djscore/**/*.d.ts";
 const TSCONFIG_INCLUDE_ROOT_DTS = ".djscore/*.d.ts";
 const TSCONFIG_DB_ENTRY = "./.djscore/db.ts";
 const DB_PATH_ALIAS = "@djs-core/db";
+const DB_IMPORT_ALIAS = "#db";
 const DB_PATH_TARGET = "./.djscore/db.ts";
 
 const DB_ENTRY_TS_CONTENT = `// Auto-generated. Do not edit manually.
@@ -162,11 +163,13 @@ async function ensureDbTsconfigPaths(
 
 		if (enabled) {
 			paths[DB_PATH_ALIAS] = [DB_PATH_TARGET];
+			paths[DB_IMPORT_ALIAS] = [DB_PATH_TARGET];
 			if (!include.includes(TSCONFIG_DB_ENTRY)) {
 				include.push(TSCONFIG_DB_ENTRY);
 			}
 		} else {
 			delete paths[DB_PATH_ALIAS];
+			delete paths[DB_IMPORT_ALIAS];
 			const dbEntryIndex = include.indexOf(TSCONFIG_DB_ENTRY);
 			if (dbEntryIndex !== -1) {
 				include.splice(dbEntryIndex, 1);
@@ -188,6 +191,35 @@ async function ensureDbTsconfigPaths(
 		}
 	} catch {
 		// tsconfig not found or invalid: skip
+	}
+}
+
+async function ensureDbPackageImports(
+	projectRoot: string,
+	enabled: boolean,
+): Promise<void> {
+	const packageJsonPath = path.join(projectRoot, "package.json");
+
+	try {
+		const raw = await fs.readFile(packageJsonPath, "utf-8");
+		const pkg = JSON.parse(raw) as {
+			imports?: Record<string, string>;
+		};
+
+		if (enabled) {
+			pkg.imports = { ...pkg.imports, [DB_IMPORT_ALIAS]: DB_PATH_TARGET };
+		} else if (pkg.imports?.[DB_IMPORT_ALIAS]) {
+			const { [DB_IMPORT_ALIAS]: _, ...rest } = pkg.imports;
+			pkg.imports = Object.keys(rest).length > 0 ? rest : undefined;
+		}
+
+		await fs.writeFile(
+			packageJsonPath,
+			`${JSON.stringify(pkg, null, "\t")}\n`,
+			"utf-8",
+		);
+	} catch {
+		// package.json not found or invalid: skip
 	}
 }
 
@@ -266,6 +298,7 @@ async function generateDbTypes(
 			await fs.unlink(dbEntryPath).catch(() => {});
 		}
 		await ensureDbTsconfigPaths(projectRoot, false, silent);
+		await ensureDbPackageImports(projectRoot, false);
 		return;
 	}
 
@@ -347,6 +380,7 @@ declare module "@djs-core/runtime" {
 	await fs.writeFile(dbEntryPath, DB_ENTRY_TS_CONTENT, "utf-8");
 	writeDrizzleKitConfig(projectRoot, config.db);
 	await ensureDbTsconfigPaths(projectRoot, true, silent);
+	await ensureDbPackageImports(projectRoot, true);
 }
 
 /**
