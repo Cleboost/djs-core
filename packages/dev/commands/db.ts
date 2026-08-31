@@ -1,6 +1,4 @@
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
 import {
 	resolveDbDialectFromConfig,
 	scaffoldDbProject,
@@ -44,12 +42,13 @@ export function registerDbCommand(cli: CAC) {
 			}
 
 			const synced = await syncDrizzleKitConfig(root);
-			if (!synced && !existsSync(resolve(root, ".djscore/drizzle.kit.ts"))) {
-				console.warn(
-					pc.yellow(
-						"⚠️  Could not read djs.config.ts — using existing .djscore/drizzle.kit.ts if present",
+			if (!synced) {
+				console.error(
+					pc.red(
+						"\n✗  No db: block found in djs.config.ts — add db config or run djs-core db init\n",
 					),
 				);
+				process.exit(1);
 			}
 
 			const result = spawnSync("bunx", kitArgs, {

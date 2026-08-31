@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { DbConfig, DbDialect } from "./config";
 import { DEFAULT_SQLITE_URL } from "./config";
+import { resolveProjectDbConfig } from "./resolve-project-db-config";
 
 const DRIZZLE_KIT_DIALECT: Record<DbDialect, string> = {
 	sqlite: "sqlite",
@@ -52,17 +53,11 @@ export function writeDrizzleKitConfig(root: string, db: DbConfig): string {
 export async function resolveDbConfigFromProject(
 	root: string,
 ): Promise<DbConfig | undefined> {
-	try {
-		const configPath = resolve(root, "djs.config.ts");
-		const mod = await import(configPath);
-		return mod.default?.db as DbConfig | undefined;
-	} catch {
-		return undefined;
-	}
+	return resolveProjectDbConfig(root);
 }
 
 export async function syncDrizzleKitConfig(root: string): Promise<boolean> {
-	const db = await resolveDbConfigFromProject(root);
+	const db = await resolveProjectDbConfig(root);
 	if (!db) return false;
 	writeDrizzleKitConfig(root, db);
 	return true;

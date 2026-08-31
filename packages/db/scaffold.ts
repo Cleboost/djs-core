@@ -7,7 +7,11 @@ import {
 } from "node:fs";
 import { resolve } from "node:path";
 import type { DbDialect } from "./config";
-import { DRIZZLE_CONFIG_STUB, writeDrizzleKitConfig } from "./drizzle-kit";
+import {
+	DRIZZLE_CONFIG_STUB,
+	writeDrizzleKitConfig,
+} from "./drizzle-kit";
+import { resolveProjectDbDialect } from "./resolve-project-db-config";
 
 const schemaTemplates: Record<DbDialect, string> = {
 	sqlite: `import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
@@ -93,19 +97,5 @@ export function scaffoldDbProject(root: string, dialect: DbDialect = "sqlite") {
 export async function resolveDbDialectFromConfig(
 	root: string,
 ): Promise<DbDialect> {
-	try {
-		const configPath = resolve(root, "djs.config.ts");
-		if (!existsSync(configPath)) return "sqlite";
-		const mod = await import(configPath);
-		const dialect = mod.default?.db?.dialect;
-		if (
-			dialect &&
-			["sqlite", "postgresql", "mysql", "turso"].includes(dialect)
-		) {
-			return dialect as DbDialect;
-		}
-	} catch {
-		// ignore
-	}
-	return "sqlite";
+	return resolveProjectDbDialect(root);
 }
