@@ -1,5 +1,6 @@
 import type { Client, ClientEvents } from "discord.js";
 import type EventListener from "../interaction/EventListener";
+import { runtimeLog } from "../utils/logger";
 
 type ListenerInfo<K extends keyof ClientEvents = keyof ClientEvents> = {
 	listener: EventListener<K>;
@@ -61,11 +62,15 @@ export default class EventHandler {
 		}
 
 		const eventKey = event as keyof ClientEvents;
-		const wrappedFn = ((...args: unknown[]) => {
-			(fn as (client: Client, ...args: unknown[]) => void)(
-				this.client,
-				...args,
-			);
+		const wrappedFn = (async (...args: ClientEvents[typeof eventKey]) => {
+			try {
+				await (fn as (client: Client, ...args: unknown[]) => unknown)(
+					this.client,
+					...args,
+				);
+			} catch (error) {
+				runtimeLog.error(`Event listener '${id}' failed`, error);
+			}
 		}) as (...args: ClientEvents[typeof eventKey]) => void;
 
 		this.listenerInfo.set(id, {
