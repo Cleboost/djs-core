@@ -321,19 +321,19 @@ declare module "@djs-core/runtime" {
   }
 }
 `,
-		postgresql: `import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+		postgresql: `import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type * as schema from "../db/schema";
 import type {} from "@djs-core/runtime";
 
 declare module "discord.js" {
   interface Client {
-    db: NodePgDatabase<typeof schema>;
+    db: PostgresJsDatabase<typeof schema>;
   }
 }
 
 declare module "@djs-core/runtime" {
   interface DjsClient {
-    db: NodePgDatabase<typeof schema>;
+    db: PostgresJsDatabase<typeof schema>;
   }
 }
 `,
