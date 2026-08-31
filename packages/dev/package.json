@@ -8,9 +8,9 @@
 		"djs-core": "dist/index.js"
 	},
 	"scripts": {
-		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external @djs-core/testing --external discord.js --minify",
+		"build": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external @djs-core/testing --external discord.js --external ts-morph --minify",
 		"types": "tsc --project tsconfig.json",
-		"dev": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external @djs-core/testing --external discord.js --watch",
+		"dev": "bun build index.ts --outdir dist --target bun --external @djs-core/runtime --external @djs-core/db --external @djs-core/testing --external discord.js --external ts-morph --watch",
 		"test": "bun test",
 		"prepack": "bun turbo build types"
 	},
