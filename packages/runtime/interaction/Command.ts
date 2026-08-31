@@ -21,8 +21,9 @@ import {
 	type SlashCommandUserOption,
 	type User,
 } from "discord.js";
+import { runtimeLog } from "../utils/logger";
 
-// ---------------------------------------------------------------------------
+const MAX_AUTOCOMPLETE_CHOICES = 25;
 // Probe interfaces — TypeScript type-level only, used for name/required inference.
 // Each probe overrides setName/setRequired to carry literal types as brands.
 // ---------------------------------------------------------------------------
@@ -520,6 +521,13 @@ export default class Command<
 
 		if (handler) {
 			const choices = await handler(focused.value, interaction);
+			if (choices.length > MAX_AUTOCOMPLETE_CHOICES) {
+				runtimeLog.warn(
+					`Autocomplete for '${focused.name}' returned ${choices.length} choices; Discord allows at most ${MAX_AUTOCOMPLETE_CHOICES}. Extra choices were dropped.`,
+				);
+				await interaction.respond(choices.slice(0, MAX_AUTOCOMPLETE_CHOICES));
+				return;
+			}
 			await interaction.respond(choices);
 			return;
 		}
