@@ -21,6 +21,7 @@ type BuildOptions = {
 	compile?: boolean;
 	bundled?: boolean;
 	external?: boolean;
+	docker?: boolean;
 };
 
 function toPosixPath(p: string): string {
@@ -347,8 +348,8 @@ async function copyDbMigrationsToDist(
 	botRoot: string,
 	outdirAbs: string,
 	config: import("@djs-core/runtime").Config,
-): Promise<void> {
-	if (!config.db) return;
+): Promise<boolean> {
+	if (!config.db) return false;
 
 	const migrationsSrc = path.join(botRoot, "db", "migrations");
 	const migrationsDest = path.join(outdirAbs, "db", "migrations");
@@ -359,6 +360,7 @@ async function copyDbMigrationsToDist(
 		console.log(
 			`${pc.green("✓")}  db/migrations copied to ${pc.bold("dist/db/migrations/")}`,
 		);
+		return true;
 	} catch {
 		if (config.db.autoMigrate) {
 			console.warn(
@@ -367,7 +369,32 @@ async function copyDbMigrationsToDist(
 				),
 			);
 		}
+		return false;
 	}
+}
+
+export function generateDockerfileContent(options: {
+	includeMigrations: boolean;
+}): string {
+	const lines = [
+		"FROM oven/bun:alpine",
+		"WORKDIR /app",
+		"COPY --chown=bun:bun index.js .",
+	];
+
+	if (options.includeMigrations) {
+		lines.push("COPY --chown=bun:bun db/migrations ./db/migrations");
+	}
+
+	lines.push(
+		"USER bun",
+		"HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \\",
+		'  CMD test "$(cat /proc/1/comm 2>/dev/null)" = bun || exit 1',
+		'CMD ["bun", "index.js"]',
+		"",
+	);
+
+	return lines.join("\n");
 }
 
 export function registerBuildCommand(cli: CAC) {
@@ -383,6 +410,7 @@ export function registerBuildCommand(cli: CAC) {
 		.option("--bundled", "Bun (bundled)")
 		.option("--external", "Bun (external deps)")
 		.option("-c, --compile", "Compile to a standalone binary")
+		.option("--docker", "Bun bundle + Dockerfile for container deployment")
 		.action(async (options: BuildOptions) => {
 			console.log(banner);
 
@@ -462,28 +490,27 @@ export function registerBuildCommand(cli: CAC) {
 			await fs.writeFile(entryPath, code, "utf8");
 
 			let buildType: string | null = null;
+			const buildFlagConflict = () => {
+				console.error(
+					pc.red(
+						"❌ Cannot combine build flags --bundled/--external/--compile/--docker",
+					),
+				);
+				process.exit(1);
+			};
+
 			if (options.compile) buildType = "compile";
 			if (options.bundled) {
-				if (buildType) {
-					console.error(
-						pc.red(
-							"❌ Cannot combine build flags --bundled/--external/--compile",
-						),
-					);
-					process.exit(1);
-				}
+				if (buildType) buildFlagConflict();
 				buildType = "bun";
 			}
 			if (options.external) {
-				if (buildType) {
-					console.error(
-						pc.red(
-							"❌ Cannot combine build flags --bundled/--external/--compile",
-						),
-					);
-					process.exit(1);
-				}
+				if (buildType) buildFlagConflict();
 				buildType = "bun-external";
+			}
+			if (options.docker) {
+				if (buildType) buildFlagConflict();
+				buildType = "docker";
 			}
 
 			if (!buildType) {
@@ -513,6 +540,8 @@ export function registerBuildCommand(cli: CAC) {
 
 			await fs.mkdir(outdirAbs, { recursive: true });
 
+			let migrationsCopied = false;
+
 			if (hasUserConfigEnabled && !hasBundleEnabled) {
 				const configJsonPath = path.join(botRoot, "config.json");
 				const outConfigJsonPath = path.join(outdirAbs, "config.json");
@@ -527,7 +556,11 @@ export function registerBuildCommand(cli: CAC) {
 			}
 
 			if (needsDb) {
-				await copyDbMigrationsToDist(botRoot, outdirAbs, config);
+				migrationsCopied = await copyDbMigrationsToDist(
+					botRoot,
+					outdirAbs,
+					config,
+				);
 			}
 
 			if (buildType === "compile") {
@@ -643,11 +676,9 @@ export function registerBuildCommand(cli: CAC) {
 			for (const p of outputs) console.log(pc.dim(`  - ${p}`));
 
 			if (buildType === "docker") {
-				const dockerfileContent = `FROM oven/bun:alpine
-WORKDIR /app
-COPY index.js .
-CMD ["bun", "index.js"]
-`;
+				const dockerfileContent = generateDockerfileContent({
+					includeMigrations: migrationsCopied,
+				});
 				const dockerfilePath = path.join(outdirAbs, "Dockerfile");
 				await fs.writeFile(dockerfilePath, dockerfileContent, "utf8");
 				console.log(

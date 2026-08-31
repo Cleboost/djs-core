@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
 import { cac } from "cac";
-import { buildGeneratedEntry, registerBuildCommand } from "../commands/build";
+import {
+	buildGeneratedEntry,
+	generateDockerfileContent,
+	registerBuildCommand,
+} from "../commands/build";
 
 test("build command registers without throwing", () => {
 	const cli = cac("djs-core-test");
@@ -48,4 +52,23 @@ test("buildGeneratedEntry registers modals like dev and start", () => {
 	expect(code).toContain("mod_demo,");
 	expect(code).toContain('mod_demo.setCustomId("demo");');
 	expect(code).toContain("client.modalsHandler.set(modals);");
+});
+
+test("generateDockerfileContent runs as non-root with healthcheck", () => {
+	const dockerfile = generateDockerfileContent({ includeMigrations: false });
+
+	expect(dockerfile).toContain("FROM oven/bun:alpine");
+	expect(dockerfile).toContain("COPY --chown=bun:bun index.js .");
+	expect(dockerfile).toContain("USER bun");
+	expect(dockerfile).toContain("HEALTHCHECK");
+	expect(dockerfile).not.toContain("COPY db/migrations");
+	expect(dockerfile).toContain('CMD ["bun", "index.js"]');
+});
+
+test("generateDockerfileContent copies migrations when present", () => {
+	const dockerfile = generateDockerfileContent({ includeMigrations: true });
+
+	expect(dockerfile).toContain(
+		"COPY --chown=bun:bun db/migrations ./db/migrations",
+	);
 });
