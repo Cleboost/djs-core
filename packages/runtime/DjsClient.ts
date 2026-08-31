@@ -24,6 +24,7 @@ import EventHandler from "./handler/EventHandler";
 import ModalHandler from "./handler/ModalHandler";
 import SelectMenuHandler from "./handler/SelectMenuHandler";
 import type { PluginsExtensions, PluginsExtensionsMap } from "./Plugin";
+import { closeDataStore } from "./store/DataStore";
 import type { Config } from "./types/config";
 import { pluginLog, runtimeLog } from "./utils/logger";
 import { resolvePlugin } from "./utils/plugin-resolver";
@@ -155,6 +156,29 @@ export class DjsClient<
 
 	public async waitForPlugins(): Promise<void> {
 		await this.waitForReady();
+	}
+
+	public override destroy(): Promise<void> {
+		return this.shutdown();
+	}
+
+	private async shutdown(): Promise<void> {
+		this.cronHandler.clear();
+		closeDataStore();
+
+		try {
+			await this.dbInitPromise;
+		} catch {
+			// Database initialization failed; nothing to close.
+		}
+
+		if (this.db) {
+			const { closeDb } = await import("@djs-core/db/close");
+			await closeDb(this.db);
+			this.db = undefined;
+		}
+
+		await super.destroy();
 	}
 
 	private async initPlugins() {

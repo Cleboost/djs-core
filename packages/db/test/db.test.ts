@@ -1,7 +1,8 @@
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { closeDb } from "../close";
 import type { DbConfig } from "../config";
 import { createDb } from "../create";
 import { clearDbRoot, resolveMigrationsFolder } from "../paths";
@@ -54,5 +55,24 @@ describe("@djs-core/db", () => {
 		const db = await createDb(config);
 		expect(db).toBeDefined();
 		expect(db.select).toBeDefined();
+		await closeDb(db);
+	});
+
+	test("closeDb closes sqlite client", async () => {
+		const fixtureRoot = join(import.meta.dir, "fixtures", "db-project");
+		previousCwd = process.cwd();
+		process.chdir(fixtureRoot);
+
+		const db = await createDb({
+			dialect: "sqlite",
+			url: join(fixtureRoot, "close-test.db"),
+		});
+
+		const client = db.$client as { close: () => void };
+		const closeSpy = mock(client.close.bind(client));
+		client.close = closeSpy;
+
+		await closeDb(db);
+		expect(closeSpy).toHaveBeenCalled();
 	});
 });

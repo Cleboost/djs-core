@@ -61,6 +61,7 @@ function getOrInitDataStore(): Database {
 
 	cleanupExpiredTokens();
 	_cleanupInterval = setInterval(() => cleanupExpiredTokens(), 60 * 1000);
+	_cleanupInterval.unref?.();
 
 	return _dataStore;
 }

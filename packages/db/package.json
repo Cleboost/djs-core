@@ -15,11 +15,16 @@
 			"bun": "./runtime.ts",
 			"types": "./dist/runtime.d.ts",
 			"default": "./dist/runtime.js"
+		},
+		"./close": {
+			"bun": "./close.ts",
+			"types": "./dist/close.d.ts",
+			"default": "./dist/close.js"
 		}
 	},
 	"scripts": {
-		"build": "bun build index.ts runtime.ts --outdir dist --target bun --external drizzle-orm --external drizzle-orm/* --external postgres --external mysql2 --external @libsql/client --minify",
-		"dev": "bun build index.ts runtime.ts --outdir dist --target bun --external drizzle-orm --external drizzle-orm/* --external postgres --external mysql2 --external @libsql/client --watch",
+		"build": "bun build index.ts runtime.ts close.ts --outdir dist --target bun --external drizzle-orm --external drizzle-orm/* --external postgres --external mysql2 --external @libsql/client --minify",
+		"dev": "bun build index.ts runtime.ts close.ts --outdir dist --target bun --external drizzle-orm --external drizzle-orm/* --external postgres --external mysql2 --external @libsql/client --watch",
 		"types": "tsc --project tsconfig.json",
 		"test": "bun test",
 		"prepack": "bun turbo build types"

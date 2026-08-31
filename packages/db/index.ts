@@ -1,3 +1,4 @@
+export { closeDb } from "./close";
 export {
 	type DbConfig,
 	type DbDialect,
