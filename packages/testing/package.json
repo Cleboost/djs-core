@@ -20,12 +20,12 @@
 	},
 	"peerDependencies": {
 		"@djs-core/runtime": "^1.13.0",
-		"discord.js": ">=14.25.0"
+		"discord.js": "catalog:"
 	},
 	"devDependencies": {
 		"@djs-core/runtime": "workspace:*",
 		"@types/bun": "1.3.14",
-		"discord.js": "14.27.0"
+		"discord.js": "catalog:"
 	},
 	"files": [
 		"dist"

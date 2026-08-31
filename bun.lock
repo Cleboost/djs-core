@@ -19,7 +19,7 @@
       "dependencies": {
         "@djs-core/plugin-demo": "workspace:*",
         "@djs-core/runtime": "workspace:*",
-        "discord.js": "14.27.0",
+        "discord.js": "catalog:",
       },
       "devDependencies": {
         "@djs-core/dev": "workspace:*",
@@ -60,7 +60,7 @@
       },
       "peerDependencies": {
         "@djs-core/runtime": "^1.13.0",
-        "discord.js": "14.25.1",
+        "discord.js": "catalog:",
       },
     },
     "packages/runtime": {
@@ -75,9 +75,10 @@
       "devDependencies": {
         "@types/bun": "1.3.14",
         "@types/semver": "7.8.0",
+        "discord.js": "catalog:",
       },
       "peerDependencies": {
-        "discord.js": "14.26.5",
+        "discord.js": "catalog:",
       },
     },
     "packages/testing": {
@@ -86,11 +87,11 @@
       "devDependencies": {
         "@djs-core/runtime": "workspace:*",
         "@types/bun": "1.3.14",
-        "discord.js": "14.27.0",
+        "discord.js": "catalog:",
       },
       "peerDependencies": {
         "@djs-core/runtime": "^1.13.0",
-        "discord.js": ">=14.25.0",
+        "discord.js": "catalog:",
       },
     },
     "plugins/plugin-demo": {
@@ -102,7 +103,7 @@
       },
       "peerDependencies": {
         "@djs-core/runtime": ">=1.13.1",
-        "discord.js": "14.25.1",
+        "discord.js": "catalog:",
       },
     },
     "plugins/plugin-drizzle": {
@@ -122,7 +123,7 @@
       "peerDependencies": {
         "@djs-core/runtime": ">=1.13.1",
         "@libsql/client": "*",
-        "discord.js": "14.25.1",
+        "discord.js": "catalog:",
         "drizzle-kit": "*",
         "drizzle-orm": "0.45.2",
         "mysql2": "*",
@@ -149,7 +150,7 @@
       },
       "peerDependencies": {
         "@djs-core/runtime": ">=1.13.1",
-        "discord.js": "14.25.1",
+        "discord.js": "catalog:",
       },
     },
     "plugins/plugin-sql": {
@@ -161,9 +162,12 @@
       },
       "peerDependencies": {
         "@djs-core/runtime": ">=1.13.1",
-        "discord.js": "14.25.1",
+        "discord.js": "catalog:",
       },
     },
+  },
+  "catalog": {
+    "discord.js": "14.27.0",
   },
   "packages": {
     "@babel/runtime": ["@babel/runtime@7.29.7", "", {}, "sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw=="],

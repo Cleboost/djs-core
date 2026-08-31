@@ -25,7 +25,7 @@
 	},
 	"peerDependencies": {
 		"@djs-core/runtime": "^1.13.0",
-		"discord.js": "14.25.1"
+		"discord.js": "catalog:"
 	},
 	"devDependencies": {
 		"@djs-core/runtime": "workspace:*",
