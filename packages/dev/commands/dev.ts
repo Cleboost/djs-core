@@ -156,10 +156,10 @@ export function registerDevCommand(cli: CAC) {
 						if (!cmd) return;
 						const leaf = getLeaf(route);
 						if (leaf) cmd.setName(leaf);
-						await client.commandsHandler.add({ route, command: cmd }, true);
+						await client.commandsHandler.add({ route, command: cmd });
 					},
 					unload: async (route) => {
-						await client.commandsHandler.delete(route, true);
+						client.commandsHandler.delete(route);
 					},
 					sync: true,
 					unloadBeforeReload: true,

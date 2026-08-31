@@ -4,6 +4,7 @@ import Command from "../interaction/Command";
 import {
 	applyDefaultMemberPermissions,
 	buildCommandStructure,
+	compileRootCommand,
 	routesToEntries,
 } from "../utils/compile-command";
 
@@ -89,5 +90,27 @@ describe("applyDefaultMemberPermissions", () => {
 		} finally {
 			console.warn = originalWarn;
 		}
+	});
+});
+
+describe("compileRootCommand", () => {
+	test("copies subcommand options", () => {
+		const command = new Command()
+			.setName("add")
+			.setDescription("add item")
+			.addStringOption((opt) =>
+				opt.setName("name").setDescription("item name").setRequired(true),
+			);
+
+		const json = compileRootCommand("todo", [{ route: "todo.add", command }]);
+		expect(json).toBeDefined();
+
+		const subcommands = (json as { options?: Array<{ options?: unknown[] }> })
+			.options?.[0]?.options;
+		expect(subcommands?.[0]).toMatchObject({
+			name: "name",
+			description: "item name",
+			required: true,
+		});
 	});
 });

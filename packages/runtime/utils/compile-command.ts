@@ -1,7 +1,13 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+	type ApplicationCommandDataResolvable,
+	type InteractionContextType,
+	PermissionFlagsBits,
+	SlashCommandBuilder,
+	type SlashCommandSubcommandBuilder,
+} from "discord.js";
 import type Command from "../interaction/Command";
 import { runtimeLog } from "./logger";
-import { splitRoute } from "./route";
+import { getRoot, splitRoute } from "./route";
 
 interface RouteEntry {
 	parts: string[];
@@ -157,4 +163,256 @@ export function applyDefaultMemberPermissions(
 	if (merged != null) {
 		target.setDefaultMemberPermissions(merged);
 	}
+}
+
+interface AnyOptionJson {
+	name: string;
+	description: string;
+	type: number;
+	required?: boolean;
+	choices?: Array<{ name: string; value: string | number }>;
+	autocomplete?: boolean;
+	min_value?: number;
+	max_value?: number;
+	channel_types?: number[];
+}
+
+export interface CompileSlashCommandsOptions {
+	defaultContext?: InteractionContextType[];
+	onEmptyDefaultContext?: () => void;
+}
+
+function copyOptionsToSubcommand(
+	cmd: Command,
+	sc: SlashCommandSubcommandBuilder,
+): void {
+	for (const optionBuilder of cmd.options) {
+		const optionJson = optionBuilder.toJSON() as unknown as AnyOptionJson;
+		const {
+			name,
+			description,
+			type,
+			required,
+			choices,
+			autocomplete,
+			min_value,
+			max_value,
+			channel_types,
+		} = optionJson;
+
+		if (!name || !description) continue;
+
+		switch (type) {
+			case 3:
+				sc.addStringOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					if (choices && choices.length > 0)
+						opt.addChoices(
+							...(choices as Array<{ name: string; value: string }>),
+						);
+					if (autocomplete !== undefined) opt.setAutocomplete(autocomplete);
+					return opt;
+				});
+				break;
+			case 4:
+				sc.addIntegerOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					if (choices && choices.length > 0)
+						opt.addChoices(
+							...(choices as Array<{ name: string; value: number }>),
+						);
+					if (min_value !== undefined) opt.setMinValue(min_value);
+					if (max_value !== undefined) opt.setMaxValue(max_value);
+					if (autocomplete !== undefined) opt.setAutocomplete(autocomplete);
+					return opt;
+				});
+				break;
+			case 5:
+				sc.addBooleanOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					return opt;
+				});
+				break;
+			case 6:
+				sc.addUserOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					return opt;
+				});
+				break;
+			case 7:
+				sc.addChannelOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					if (channel_types && channel_types.length > 0)
+						opt.addChannelTypes(...channel_types);
+					return opt;
+				});
+				break;
+			case 8:
+				sc.addRoleOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					return opt;
+				});
+				break;
+			case 9:
+				sc.addMentionableOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					return opt;
+				});
+				break;
+			case 10:
+				sc.addNumberOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					if (choices && choices.length > 0)
+						opt.addChoices(
+							...(choices as Array<{ name: string; value: number }>),
+						);
+					if (min_value !== undefined) opt.setMinValue(min_value);
+					if (max_value !== undefined) opt.setMaxValue(max_value);
+					if (autocomplete !== undefined) opt.setAutocomplete(autocomplete);
+					return opt;
+				});
+				break;
+			case 11:
+				sc.addAttachmentOption((opt) => {
+					opt.setName(name).setDescription(description);
+					if (required !== undefined) opt.setRequired(required);
+					return opt;
+				});
+				break;
+		}
+	}
+}
+
+function applyDefaultContext(
+	target: Command | SlashCommandBuilder,
+	routes: RouteEntry[],
+	options?: CompileSlashCommandsOptions,
+): void {
+	const defaultContext = options?.defaultContext;
+	if (!defaultContext) {
+		return;
+	}
+	if (!Array.isArray(defaultContext) || defaultContext.length === 0) {
+		options?.onEmptyDefaultContext?.();
+		return;
+	}
+
+	try {
+		const targetJson = target.toJSON();
+		if (targetJson.contexts && targetJson.contexts.length > 0) {
+			return;
+		}
+	} catch {}
+
+	for (const r of routes) {
+		try {
+			const cmdJson = r.cmd.toJSON();
+			if (cmdJson.contexts && cmdJson.contexts.length > 0) {
+				target.setContexts(cmdJson.contexts);
+				return;
+			}
+		} catch {}
+	}
+
+	target.setContexts(defaultContext);
+}
+
+function getRootDescription(
+	root: string,
+	allRoutes: Array<{ route: string; command: Command }>,
+): string | undefined {
+	const leaf = allRoutes.find((r) => getRoot(r.route) === root);
+	if (!leaf) return undefined;
+	const cmd = leaf.command as SlashCommandBuilder & { description?: string };
+	return cmd.description;
+}
+
+export function compileRootCommand(
+	root: string,
+	allRoutes: Array<{ route: string; command: Command }>,
+	options?: CompileSlashCommandsOptions,
+): ApplicationCommandDataResolvable | null {
+	const entries = routesToEntries(allRoutes, root);
+	if (entries.length === 0) return null;
+
+	const { subcommands, groups, builder } = buildCommandStructure(
+		root,
+		entries,
+		(r) => getRootDescription(r, allRoutes),
+	);
+
+	if (
+		subcommands.has("__root__") &&
+		subcommands.size === 1 &&
+		groups.size === 0
+	) {
+		// biome-ignore lint/style/noNonNullAssertion: guarded by subcommands.has("__root__") above
+		const cmd = subcommands.get("__root__")!;
+		if (!cmd.name) cmd.setName(root);
+		applyDefaultContext(cmd, entries, options);
+		const json = cmd.toJSON();
+		if (json.contexts && json.contexts.length === 0) delete json.contexts;
+		return json;
+	}
+
+	for (const [name, cmd] of subcommands) {
+		if (name === "__root__") continue;
+		builder.addSubcommand((sc) => {
+			sc.setName(name);
+			const cmdWithDesc = cmd as SlashCommandBuilder & {
+				description?: string;
+			};
+			sc.setDescription(cmdWithDesc.description ?? "No description");
+			copyOptionsToSubcommand(cmd, sc);
+			return sc;
+		});
+	}
+
+	for (const [groupName, subs] of groups) {
+		builder.addSubcommandGroup((g) => {
+			g.setName(groupName);
+			g.setDescription("No description");
+			for (const [subName, cmd] of subs) {
+				g.addSubcommand((sc) => {
+					sc.setName(subName);
+					const cmdWithDesc = cmd as SlashCommandBuilder & {
+						description?: string;
+					};
+					sc.setDescription(cmdWithDesc.description ?? "No description");
+					copyOptionsToSubcommand(cmd, sc);
+					return sc;
+				});
+			}
+			return g;
+		});
+	}
+
+	applyDefaultContext(builder, entries, options);
+	applyDefaultMemberPermissions(builder, entries);
+	const json = builder.toJSON();
+	if (json.contexts && json.contexts.length === 0) delete json.contexts;
+	return json;
+}
+
+export function compileSlashCommands(
+	commands: Array<{ route: string; command: Command }>,
+	options?: CompileSlashCommandsOptions,
+): ApplicationCommandDataResolvable[] {
+	const roots = new Set(commands.map((r) => getRoot(r.route)));
+	const payload: ApplicationCommandDataResolvable[] = [];
+
+	for (const root of roots) {
+		const compiled = compileRootCommand(root, commands, options);
+		if (compiled) payload.push(compiled);
+	}
+
+	return payload;
 }

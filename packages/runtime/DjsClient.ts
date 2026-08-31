@@ -93,7 +93,6 @@ export class DjsClient<
 		this.pluginInitPromise = this.initPlugins();
 
 		if (djsConfig.servers && djsConfig.servers.length > 0) {
-			this.commandsHandler.setGuilds(djsConfig.servers);
 			this.contextMenusHandler.setGuilds(djsConfig.servers);
 			this.applicationCommandHandler.setGuilds(djsConfig.servers);
 		}
