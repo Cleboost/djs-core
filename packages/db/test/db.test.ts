@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { closeDb } from "../close";
 import type { DbConfig } from "../config";
 import { createDb } from "../create";
+import { migrateDb } from "../migrate";
 import { clearDbRoot, resolveMigrationsFolder } from "../paths";
 
 describe("@djs-core/db", () => {
@@ -55,6 +56,23 @@ describe("@djs-core/db", () => {
 		const db = await createDb(config);
 		expect(db).toBeDefined();
 		expect(db.select).toBeDefined();
+		await closeDb(db);
+	});
+
+	test("migrateDb throws when migrations folder is missing", async () => {
+		const fixtureRoot = join(import.meta.dir, "fixtures", "db-project");
+		previousCwd = process.cwd();
+		process.chdir(fixtureRoot);
+
+		const db = await createDb({
+			dialect: "sqlite",
+			url: join(fixtureRoot, "migrate-test.db"),
+		});
+
+		await expect(
+			migrateDb(db, { dialect: "sqlite", autoMigrate: true }),
+		).rejects.toThrow("no migrations folder found");
+
 		await closeDb(db);
 	});
 

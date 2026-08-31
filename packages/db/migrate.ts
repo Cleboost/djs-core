@@ -14,11 +14,10 @@ export async function migrateDb(
 	const migrationsFolder = resolveMigrationsFolder(root);
 
 	if (!existsSync(migrationsFolder)) {
-		console.warn(
+		throw new Error(
 			"[djs-core/db] autoMigrate is enabled but no migrations folder found at db/migrations. " +
 				"Run 'djs-core db generate' first.",
 		);
-		return;
 	}
 
 	if (dialect === "sqlite") {

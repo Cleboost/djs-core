@@ -27,7 +27,6 @@ Official database plugins (`@djs-core/plugin-drizzle`, `@djs-core/plugin-sql`, `
       servers: ["YOUR_GUILD_ID"],
       db: {
         dialect: "sqlite",
-        autoMigrate: true,
       },
     });
     ```
@@ -71,9 +70,13 @@ Official database plugins (`@djs-core/plugin-drizzle`, `@djs-core/plugin-sql`, `
 |---|---|---|
 | `dialect` | `"sqlite"` \| `"postgresql"` \| `"mysql"` \| `"turso"` | Database driver |
 | `url` | `string` | Connection URL (optional — defaults per dialect) |
-| `autoMigrate` | `boolean` | Apply migrations on bot startup |
+| `autoMigrate` | `boolean` | Apply migrations on bot startup (default: `false`) |
 
 SQLite uses `file:./db.sqlite` by default. PostgreSQL reads `DATABASE_URL`. Turso reads `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`.
+
+<Warning>
+  Keep `autoMigrate` disabled in production and run `djs-core db migrate` in your deploy pipeline. Multiple bot instances with `autoMigrate: true` can race on the same database.
+</Warning>
 
 ## CLI
 

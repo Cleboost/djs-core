@@ -62,7 +62,7 @@ Long term, djs-core aims to ship common features (database, tooling, etc.) as co
 export default defineConfig({
   token: process.env.TOKEN!,
   servers: ["..."],
-  db: { dialect: "sqlite", autoMigrate: true },
+  db: { dialect: "sqlite" },
 });
 ```
 

@@ -24,7 +24,6 @@ const config = defineConfig({
 	plugins: [demoPlugin],
 	db: {
 		dialect: "sqlite",
-		autoMigrate: true,
 	},
 	pluginsConfig: {
 		demo: {
