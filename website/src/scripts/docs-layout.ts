@@ -108,7 +108,6 @@ function initToc(): void {
 
 	const resolveActiveHeading = (): HTMLElement => {
 		const scrollY = window.scrollY;
-		const _viewportBottom = scrollY + window.innerHeight;
 		const maxScroll =
 			document.documentElement.scrollHeight - window.innerHeight;
 

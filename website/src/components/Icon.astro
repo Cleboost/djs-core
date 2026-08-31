@@ -6,7 +6,7 @@ interface Props {
 	size?: number;
 }
 const { name, size = 14 } = Astro.props;
-const _path = ICONS[name];
+const path = ICONS[name];
 ---
 
 {path && (

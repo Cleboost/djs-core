@@ -1,7 +1,8 @@
 ---
+import PluginCard from "@components/PluginCard.astro";
 import { marketplacePlugins } from "@lib/plugins-marketplace";
 
-const _categories = [...new Set(marketplacePlugins.map((p) => p.category))];
+const categories = [...new Set(marketplacePlugins.map((p) => p.category))];
 ---
 
 <section class="plugin-marketplace-shell">
