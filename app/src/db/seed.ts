@@ -1,8 +1,9 @@
-import Database from "bun:sqlite";
-import { schema } from "@djs-core/db";
-import { drizzle } from "drizzle-orm/bun-sqlite";
+import { resolve } from "node:path";
+import { createDb, schema, setDbRoot } from "@djs-core/db";
 
-const db = drizzle(new Database(".djscore/db.sqlite"));
+setDbRoot(resolve(import.meta.dir, "../.."));
+
+const db = await createDb({ dialect: "sqlite" });
 
 await db.insert(schema.products).values([
 	{ name: "Health Potion", price: 50, stock: 20 },

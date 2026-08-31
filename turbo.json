@@ -6,7 +6,7 @@
 			"outputs": ["dist/**"]
 		},
 		"types": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "^types"],
 			"outputs": ["dist/**/*.d.ts"]
 		},
 		"dev": {

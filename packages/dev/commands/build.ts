@@ -6,7 +6,11 @@ import path from "path";
 import pc from "picocolors";
 import { banner, PATH_ALIASES } from "../utils/common";
 import { autoGenerateConfigTypes } from "../utils/config-type-generator";
-import { projectNeedsDb, usesDbInSource } from "../utils/db-usage";
+import {
+	DB_BUNDLE_EXTERNALS,
+	projectNeedsDb,
+	usesDbInSource,
+} from "../utils/db-usage";
 
 declare const Bun: typeof import("bun");
 
@@ -555,6 +559,9 @@ export function registerBuildCommand(cli: CAC) {
 						...Object.keys(botPackageJson.peerDependencies || {}),
 						"discord.js",
 					].filter((d) => d !== "@djs-core/runtime");
+					if (needsDb) {
+						externalDeps.push(...DB_BUNDLE_EXTERNALS);
+					}
 				} catch (_e) {
 					console.warn(
 						pc.yellow(

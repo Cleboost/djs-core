@@ -2,6 +2,10 @@
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
 		"packages/runtime": {},
+		"packages/db": {
+			"entry": ["index.ts", "runtime.ts", "test/**/*.test.ts"],
+			"ignore": ["test/fixtures/**"]
+		},
 		"packages/dev": {
 			"entry": "index.ts"
 		},
@@ -23,11 +27,13 @@
 				"djs.config.ts",
 				"prisma.config.ts",
 				"drizzle.config.ts",
-				"src/**/*.ts"
+				"src/**/*.ts",
+				"src/db/seed.ts"
 			],
+			"ignore": ["db/schema.ts"],
 			"ignoreDependencies": ["dotenv", "prisma", "drizzle-kit"]
 		}
 	},
 	"ignoreBinaries": ["tail"],
-	"ignore": ["packages/utils/**", "website/**"]
+	"ignore": ["website/**"]
 }
