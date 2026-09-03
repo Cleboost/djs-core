@@ -9,14 +9,15 @@ import Note from '@components/Note.astro';
 String select menus (also called dropdowns) allow users to select one or more options from a predefined list of text choices.
 
 <Note>
-String select menus can display up to 25 options and support emojis, descriptions, and custom values. They're perfect for choices that don't change dynamically.
+  Files in `src/components/selects/string/` are auto-registered. `src/components/selects/string/pick-color.ts` gets `customId` `string.pick-color`.
 </Note>
+
+String select menus can display up to 25 options and support emojis, descriptions, and custom values. They're perfect for choices that don't change dynamically.
 
 ## Creating a String Select Menu
 
-String select menus in djs-core are created using the `StringSelectMenu` class. Each select menu component file in `src/components/selects/string/` is automatically registered.
-
-### Basic Select Menu
+String select menus in djs-core are created using the `StringSelectMenu` class.
+## Basic Select Menu
 
 ```typescript
 import { StringSelectMenu } from "@djs-core/runtime";
@@ -63,7 +64,8 @@ Select menus can receive custom data using `.setData()`, just like buttons and m
 ### Component Definition
 
 ```typescript [src/components/selects/string/product.ts]
-export default new StringSelectMenu<{ category: string }>()
+export default new StringSelectMenu()
+        .withData<{ category: string }>()
         .run(async (interaction, data) => {
                 const product = interaction.values[0];
                 await interaction.reply(`Selected ${product} from category: ${data.category}`);

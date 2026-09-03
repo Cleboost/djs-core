@@ -4,53 +4,62 @@ icon: "square"
 description: "Creating and handling button interactions with djs-core."
 ---
 
+import Note from '@components/Note.astro';
 import Tip from '@components/Tip.astro';
 
 Buttons are interactive components that users can click to trigger actions in your Discord bot.
 
-<Tip>
-  Buttons are automatically registered when placed in `src/components/buttons/`. The customId is generated from the file path, so you don't need to set it manually.
-</Tip>
+<Note>
+  Buttons in `src/components/buttons/` are auto-registered. The `customId` comes from the file path — you do not call `.setCustomId()` in the handler file.
+</Note>
 
-## Creating a Button
+## File-based routing
 
-Buttons in djs-core are created using the `Button` class.
+| File path | `customId` |
+|-----------|------------|
+| `src/components/buttons/confirm.ts` | `confirm` |
+| `src/components/buttons/demo/subdemo.ts` | `demo.subdemo` |
+| `src/components/buttons/shop/buy.ts` | `shop.buy` |
 
-```typescript [src/components/buttons/my-button.ts]
+Nested folders use dot notation, same as slash commands.
+
+## Creating a button
+
+```typescript [src/components/buttons/confirm.ts]
 import { Button } from "@djs-core/runtime";
 import { ButtonStyle } from "discord.js";
 
 export default new Button()
   .setLabel("Click me!")
   .setStyle(ButtonStyle.Primary)
-  .setCustomId("my-button")
   .run(async (interaction) => {
     await interaction.reply("Button clicked!");
   });
 ```
 
-## Button Styles
+## Button styles
 
 Discord provides several button styles:
+
 - `ButtonStyle.Primary` (Blurple)
 - `ButtonStyle.Secondary` (Gray)
 - `ButtonStyle.Success` (Green)
 - `ButtonStyle.Danger` (Red)
 - `ButtonStyle.Link` (Gray with external link icon)
 
-## Using Buttons in Commands
+## Using buttons in commands
 
-To use a button, import it and add it to an `ActionRowBuilder`.
+Import the button and add it to an `ActionRowBuilder`:
 
-```typescript
-import { Command, Button } from "@djs-core/runtime";
+```typescript [src/interactions/commands/demo.ts]
+import confirmButton from "../../components/buttons/confirm";
+import { Button, Command } from "@djs-core/runtime";
 import { ActionRowBuilder } from "discord.js";
-import myButton from "../../components/buttons/my-button";
 
 export default new Command()
   .setDescription("Show a button")
   .run(async (interaction) => {
-    const row = new ActionRowBuilder<Button>().addComponents(myButton);
+    const row = new ActionRowBuilder<Button>().addComponents(confirmButton);
 
     await interaction.reply({
       content: "Click the button below!",
@@ -59,43 +68,44 @@ export default new Command()
   });
 ```
 
-## Passing Data to Buttons
+## Passing data with `.withData()`
 
-`djs-core` allows you to pass typed data to your buttons using the `.setData()` method.
+Declare the data shape with `.withData<T>()`, then call `.setData()` when attaching the button to a message:
 
-### 1. Define Button with Data Type
-```typescript [src/components/buttons/confirm.ts]
+```typescript [src/components/buttons/delete.ts]
 import { Button } from "@djs-core/runtime";
 import { ButtonStyle } from "discord.js";
 
-export default new Button<{ userId: string; action: string }>()
+export default new Button()
+  .withData<{ userId: string; action: string }>()
   .setLabel("Confirm")
-  .setStyle(ButtonStyle.Success)
-  .setCustomId("confirm-button")
+  .setStyle(ButtonStyle.Danger)
   .run(async (interaction, data) => {
     await interaction.reply(`Processing ${data.action} for user ${data.userId}`);
   });
 ```
 
-### 2. Set Data when Using the Button
 ```typescript
-import confirmButton from "../../components/buttons/confirm";
+import deleteButton from "../../components/buttons/delete";
+import { Button } from "@djs-core/runtime";
+import { ActionRowBuilder } from "discord.js";
 
-// ... in your command run()
 const row = new ActionRowBuilder<Button>().addComponents(
-  confirmButton.setData({ userId: interaction.user.id, action: "delete" })
+  deleteButton.setData({ userId: interaction.user.id, action: "delete" }),
 );
 ```
 
-### Data Time-to-Live (TTL)
-You can optionally specify a TTL in seconds for the data storage:
+### Data TTL
+
+Optionally expire stored data after a number of seconds:
+
 ```typescript
-confirmButton.setData({ userId: "123" }, 60) // Expires in 60 seconds
+deleteButton.setData({ userId: "123", action: "delete" }, 60);
 ```
 
-## Link Buttons
+## Link buttons
 
-Link buttons navigate to external URLs and don't trigger interaction events.
+Link buttons navigate to external URLs and do not trigger interaction handlers:
 
 ```typescript [src/components/buttons/website-link.ts]
 import { Button } from "@djs-core/runtime";
@@ -106,3 +116,7 @@ export default new Button()
   .setStyle(ButtonStyle.Link)
   .setURL("https://example.com");
 ```
+
+<Tip>
+  Link buttons are the only buttons that need `.setURL()`. Handler buttons get their `customId` from the file path automatically.
+</Tip>

@@ -49,7 +49,7 @@ export default new ContextMenu()
 
     await interaction.reply({
       content: "Message liked!",
-      ephemeral: true,
+      flags: [MessageFlags.Ephemeral],
     });
   });
 ```
@@ -60,7 +60,7 @@ You can restrict context menus to users with specific permissions:
 
 ```typescript
 import { ContextMenu } from "@djs-core/runtime";
-import { ApplicationCommandType, PermissionFlagsBits } from "discord.js";
+import { ApplicationCommandType, MessageFlags, PermissionFlagsBits } from "discord.js";
 
 export default new ContextMenu()
   .withType(ApplicationCommandType.Message)
@@ -69,7 +69,7 @@ export default new ContextMenu()
     await interaction.targetMessage.delete();
     await interaction.reply({
       content: "Message deleted!",
-      ephemeral: true,
+      flags: [MessageFlags.Ephemeral],
     });
   });
 ```

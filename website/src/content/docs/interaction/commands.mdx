@@ -67,8 +67,8 @@ export default new Command()
                         .setDescription("Enter some text")
                         .setRequired(true),
         )
-        .run(async (interaction) => {
-                const text = interaction.options.getString("text");
+        .run(async (interaction, options) => {
+                const text = options.text;
                 await interaction.reply(`You entered: ${text}`);
         });
 ```
@@ -102,8 +102,8 @@ export default new Command()
                         .filter((f) => f.startsWith(value))
                         .map((f) => ({ name: f, value: f })),
         )
-        .run(async (interaction) => {
-                const fruit = interaction.options.getString("fruit", true);
+        .run(async (interaction, options) => {
+                const fruit = options.fruit;
                 await interaction.reply(`You picked: ${fruit}`);
         });
 ```
@@ -132,9 +132,9 @@ export default new Command()
         .autocomplete("color", (value) =>
                 COLORS.filter((c) => c.startsWith(value)).map((c) => ({ name: c, value: c })),
         )
-        .run(async (interaction) => {
-                const fruit = interaction.options.getString("fruit", true);
-                const color = interaction.options.getString("color", true);
+        .run(async (interaction, options) => {
+                const fruit = options.fruit;
+                const color = options.color;
                 await interaction.reply(`${fruit} in ${color}`);
         });
 ```
@@ -145,14 +145,16 @@ The handler also receives the full `interaction` as a second argument, useful wh
 
 ```typescript
 .autocomplete("query", async (value, interaction) => {
-        const results = await interaction.client.drizzle
+        const results = await interaction.client.db
                 .select()
-                .from(products)
-                .where(like(products.name, `${value}%`));
+                .from(schema.products)
+                .where(like(schema.products.name, `${value}%`));
 
         return results.map((r) => ({ name: r.name, value: String(r.id) }));
 })
 ```
+
+Import `like` and `schema` from `@djs-core/db` when using the native database.
 
 ### Low-level fallback
 

@@ -50,7 +50,7 @@ export const nav: NavGroup[] = [
 			{
 				label: "Event Listeners",
 				slug: "interaction/events",
-				icon: "clock-eleven-thirty",
+    icon: "bolt",
 			},
 		],
 	},

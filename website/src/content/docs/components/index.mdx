@@ -19,6 +19,20 @@ Components help keep your code organized and DRY (Don't Repeat Yourself) by allo
 Components are perfect for creating reusable UI elements. For example, a "Confirm" button can be used across multiple commands without duplicating code. Just import it and use it wherever needed!
 </Tip>
 
+## File-based routing
+
+Buttons, modals, and select menus under `src/components/` get a `customId` from their file path. Nested folders use dot notation — same idea as slash commands.
+
+| File path | `customId` |
+|-----------|------------|
+| `src/components/buttons/confirm.ts` | `confirm` |
+| `src/components/modals/feedback.ts` | `feedback` |
+| `src/components/selects/string/pick-color.ts` | `string.pick-color` |
+
+You do **not** call `.setCustomId()` inside handler files. djs-core sets it when the component is loaded.
+
+Pass per-use context with `.withData<T>()` on the component and `.setData()` when sending it in a reply.
+
 ## Types of Components
 
 ### Buttons

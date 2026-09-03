@@ -1,29 +1,71 @@
 ---
 title: "Event Listeners"
-icon: "clock-eleven-thirty"
+icon: "bolt"
+description: "Listen to Discord gateway events with file-based handlers."
 ---
 
+import Note from '@components/Note.astro';
 import Tip from '@components/Tip.astro';
 
-Event listeners are defined in the `src/events/` directory. Each file should export a default `EventListener` instance.
+Event listeners react to Discord gateway events (`messageCreate`, `guildMemberAdd`, etc.). Each file in `src/events/` exports a default `EventListener` — djs-core registers it on startup.
+
+<Note>
+  Event file names become the internal listener id (`ready.ts` → `ready`). Use `Events.ClientReady`, not the deprecated `Events.Ready`.
+</Note>
+
+## Basic listener
 
 ```typescript [src/events/ready.ts]
 import { EventListener } from "@djs-core/runtime";
-import { Events, ActivityType } from "discord.js";
+import { ActivityType, Events } from "discord.js";
 
 export default new EventListener()
   .event(Events.ClientReady)
   .run((client) => {
     console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setActivity({ name: "over your server", type: ActivityType.Watching });
+    client.user.setActivity({
+      name: "over your server",
+      type: ActivityType.Watching,
+    });
   });
 ```
 
-### Key Methods
+## Message events
 
-- `.event(Events.EventName)`: Specifies which Discord event to listen for.
-- `.run((client, ...args) => { ... })`: The function that executes when the event is fired. It receives the `client` and any event-specific arguments.Docs WIP
+```typescript [src/events/messageCreate.ts]
+import { EventListener } from "@djs-core/runtime";
+import { Events } from "discord.js";
+
+export default new EventListener()
+  .event(Events.MessageCreate)
+  .run(async (client, message) => {
+    if (message.author.bot) return;
+    if (message.content === "!ping") {
+      await message.reply("Pong!");
+    }
+  });
+```
+
+## Member events
+
+```typescript [src/events/guildMemberAdd.ts]
+import { EventListener } from "@djs-core/runtime";
+import { Events } from "discord.js";
+
+export default new EventListener()
+  .event(Events.GuildMemberAdd)
+  .run(async (client, member) => {
+    console.log(`${member.user.tag} joined ${member.guild.name}`);
+  });
+```
+
+## API
+
+| Method | Description |
+|--------|-------------|
+| `.event(Events.EventName)` | Discord event to subscribe to |
+| `.run((client, ...args) => { ... })` | Handler — receives `client` plus event-specific arguments from discord.js |
 
 <Tip>
-  `Ready` event is auto replaced by `Events.ClientReady` event. `Ready` are [depreacted](https://discordjs.guide/v15#ready-event).
+  Gateway events need the right [intents](/essentials/configuration) in `djs.config.ts`. The runtime defaults to `Guilds` only — add `GuildMessages`, `GuildMembers`, etc. when your listeners need them.
 </Tip>
