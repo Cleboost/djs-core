@@ -30,7 +30,7 @@
 		"prepack": "bun turbo build types"
 	},
 	"dependencies": {
-		"drizzle-orm": "0.44.5",
+		"drizzle-orm": "0.45.2",
 		"postgres": "3.4.7",
 		"mysql2": "3.24.2",
 		"@libsql/client": "0.15.10"
