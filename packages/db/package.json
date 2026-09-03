@@ -1,6 +1,6 @@
 {
 	"name": "@djs-core/db",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Native Drizzle database layer for djs-core",
 	"type": "module",
 	"main": "./dist/index.js",

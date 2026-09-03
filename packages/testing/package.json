@@ -1,6 +1,6 @@
 {
 	"name": "@djs-core/testing",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "Testing utilities and mocks for djs-core Discord bots",
 	"type": "module",
 	"main": "./dist/index.js",

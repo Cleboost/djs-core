@@ -1,5 +1,32 @@
 # @djs-core/dev
 
+## 5.6.0
+
+### Minor Changes
+
+- 940ea61: Add `@djs-core/testing` and ship `djs-core test` for running colocated `bun:test` suites against bot handlers.
+
+### Patch Changes
+
+- 940ea61: Security, reliability, and DX improvements:
+
+  - Include modals in the production generated entry
+  - Lazy-load ts-morph for `djs-core check` and keep it external in the CLI bundle
+  - Read CLI `--version` from `@djs-core/dev` `package.json`
+  - Sanitize `djs-core generate` output paths against directory traversal
+  - Harden generated Dockerfiles (`USER bun`, healthcheck, optional migrations copy) and add `--docker`
+  - Handle `SIGTERM` during `djs-core dev` shutdown (Docker/systemd)
+  - Improve dev HMR: unload buttons before reload, warn when `djs.config.ts` changes, document restart requirements
+  - Generate `PostgresJsDatabase` types for PostgreSQL (matches `postgres-js` runtime driver)
+
+- Updated dependencies [940ea61]
+- Updated dependencies [940ea61]
+- Updated dependencies [940ea61]
+- Updated dependencies [940ea61]
+  - @djs-core/db@1.0.1
+  - @djs-core/runtime@1.14.1
+  - @djs-core/testing@1.0.0
+
 ## 5.5.0
 
 ### Minor Changes
