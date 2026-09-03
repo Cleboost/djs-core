@@ -35,6 +35,11 @@ export const nav: NavGroup[] = [
 				slug: "getting-started/project-structure",
 				icon: "folder-tree",
 			},
+			{
+				label: "Routing",
+				slug: "guides/routing",
+				icon: "route",
+			},
 		],
 	},
 	{
@@ -50,7 +55,7 @@ export const nav: NavGroup[] = [
 			{
 				label: "Event Listeners",
 				slug: "interaction/events",
-    icon: "bolt",
+				icon: "bolt",
 			},
 		],
 	},
@@ -122,15 +127,16 @@ export const nav: NavGroup[] = [
 		],
 	},
 	{
-		label: "Other",
+		label: "Tooling",
 		items: [
+			{ label: "CLI Reference", slug: "guides/cli", icon: "terminal" },
+			{ label: "Lint", slug: "essentials/check", icon: "magnifying-glass" },
+			{ label: "Testing", slug: "essentials/testing", icon: "flask" },
 			{
 				label: "Configuration",
 				slug: "essentials/configuration",
 				icon: "gear",
 			},
-			{ label: "Lint", slug: "essentials/check", icon: "magnifying-glass" },
-			{ label: "Testing", slug: "essentials/testing", icon: "flask" },
 		],
 	},
 ];

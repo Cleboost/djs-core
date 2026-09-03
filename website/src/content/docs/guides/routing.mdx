@@ -1,0 +1,122 @@
+---
+title: "Routing"
+icon: "route"
+description: "How file paths become Discord command names and component customIds."
+---
+
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+
+djs-core uses **file-based routing**: drop a `.ts` file in the right folder and the framework registers it. No manual imports, no index files.
+
+Folder depth becomes **dot-separated routes** — `admin/moderation/ban.ts` → route `admin.moderation.ban`.
+
+## Slash commands
+
+**Folder:** `src/interactions/commands/`
+
+| File | Discord command |
+|------|-----------------|
+| `ping.ts` | `/ping` |
+| `admin/kick.ts` | `/admin kick` |
+| `shop/buy.ts` | `/shop buy` |
+| `admin/moderation/ban.ts` | `/admin moderation ban` |
+
+Subdirectories become **subcommand groups** automatically. The file name is always the leaf command.
+
+```text
+src/interactions/commands/
+├── ping.ts              → /ping
+└── admin/
+    ├── kick.ts          → /admin kick
+    └── moderation/
+        └── ban.ts       → /admin moderation ban
+```
+
+<Note>
+  Command names come from the **file path**, not the class name. Rename the file to rename the command.
+</Note>
+
+## Context menus
+
+**Folder:** `src/interactions/contexts/`
+
+Same dot routing as commands. The **leaf segment** becomes the context menu name shown in Discord.
+
+| File | Route | Menu name |
+|------|-------|-----------|
+| `user/hi.ts` | `user.hi` | `hi` |
+| `message/delete.ts` | `message.delete` | `delete` |
+
+Organize with `user/` and `message/` subfolders, then set the type with `.withType(ApplicationCommandType.User | Message)`.
+
+## Components (buttons, modals, selects)
+
+**Folders:** `src/components/buttons/`, `modals/`, `selects/`
+
+The route becomes the component **`customId`**. djs-core sets it at load time — do not call `.setCustomId()` in handler files.
+
+| File | `customId` |
+|------|----------|
+| `buttons/confirm.ts` | `confirm` |
+| `buttons/shop/buy.ts` | `shop.buy` |
+| `modals/feedback.ts` | `feedback` |
+| `selects/string/pick-color.ts` | `string.pick-color` |
+
+Select menus can live in type subfolders (`string/`, `user/`, `role/`, `channel/`, `mentionable/`) — the full path is part of the id.
+
+### Passing per-use data
+
+Routes identify **which handler** runs. For per-click context (user id, action type), use `.withData<T>()` on the component and `.setData()` when sending it:
+
+```typescript
+confirmButton.setData({ userId: target.id, action: "ban" });
+```
+
+Data is stored server-side with an optional TTL. Expired interactions get an automatic ephemeral error.
+
+## Events
+
+**Folder:** `src/events/`
+
+Flat files only — **no subfolders**. The file stem is the internal listener id.
+
+| File | Listener id |
+|------|-------------|
+| `ready.ts` | `ready` |
+| `messageCreate.ts` | `messageCreate` |
+
+## Cron tasks
+
+**Folder:** `src/cron/` (requires `experimental.cron: true`)
+
+Same flat layout as events.
+
+| File | Task id |
+|------|---------|
+| `hourly-cleanup.ts` | `hourly-cleanup` |
+
+## Inspecting routes
+
+```bash
+djs-core list
+```
+
+Prints every command, context menu, button, select, modal, event, and cron task with its route and source file.
+
+## Testing routes
+
+Exercise handler routing in tests with `viaHandler` and `route`:
+
+```typescript
+await testCommand(myCommand, {
+  viaHandler: true,
+  route: "admin.moderation.ban",
+});
+```
+
+See [Testing](/essentials/testing#handler-routing).
+
+<Tip>
+  Keep folder names lowercase and URL-safe. Routes use dots, not slashes — `shop/buy.ts` is `shop.buy`, not `shop/buy`.
+</Tip>

@@ -1,0 +1,159 @@
+---
+title: "CLI Reference"
+icon: "terminal"
+description: "All djs-core dev CLI commands in one place."
+---
+
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+
+The `@djs-core/dev` package ships a single CLI: `djs-core`. Most commands accept `-p, --path <path>` to target another project root (default: `.`).
+
+## Development
+
+### `djs-core dev`
+
+Run the bot with hot reload for handlers under `src/`.
+
+```bash
+djs-core dev
+djs-core dev --path ./apps/my-bot
+```
+
+Reloads commands, buttons, modals, select menus, context menus, events, and cron tasks when files change. **Restart manually** after editing `djs.config.ts`.
+
+### `djs-core start`
+
+Run the bot from TypeScript sources without hot reload.
+
+```bash
+djs-core start
+```
+
+Loads `src/` dynamically — same as dev, but no file watcher. Does **not** run the `dist/` bundle. For production, use [Bundle](/bundle).
+
+## Build
+
+### `djs-core build`
+
+Create a production artifact in `dist/`. See [Bundle](/bundle) for details.
+
+```bash
+djs-core build --bundled
+djs-core build --external
+djs-core build --compile
+djs-core build --docker
+djs-core build --bundled --outdir release --no-minify
+```
+
+| Flag | Description |
+|------|-------------|
+| `--bundled` | Single-file Bun bundle |
+| `--external` | Bundle with external `node_modules` |
+| `-c, --compile` | Native executable |
+| `--docker` | Bundle + generated `Dockerfile` |
+| `-o, --outdir <dir>` | Output folder (default: `dist`) |
+| `--no-minify` | Disable minification |
+
+## Scaffolding
+
+### `djs-core generate <type> <name>`
+
+Create a new handler file with a lint-friendly template. Alias: `djs-core g`.
+
+```bash
+djs-core generate command ping
+djs-core generate button shop/buy
+djs-core generate modal feedback
+djs-core generate select pick-color
+djs-core generate event messageCreate
+djs-core generate context user/profile
+djs-core generate command admin --force   # overwrite existing file
+```
+
+| Type | Output path |
+|------|-------------|
+| `command` | `src/interactions/commands/<name>.ts` |
+| `context` | `src/interactions/contexts/<name>.ts` |
+| `button` | `src/components/buttons/<name>.ts` |
+| `modal` | `src/components/modals/<name>.ts` |
+| `select` | `src/components/selects/<name>.ts` |
+| `event` | `src/events/<name>.ts` |
+
+Nested names like `shop/buy` create subfolders. Paths are sanitized — traversal outside the project root is rejected.
+
+### `djs-core list`
+
+Print every detected route and its source file.
+
+```bash
+djs-core list
+```
+
+Useful to verify routing after adding files or to debug missing handlers.
+
+## Quality
+
+### `djs-core check`
+
+Lint `src/**/*.ts` for djs-core anti-patterns. See [Lint](/essentials/check).
+
+```bash
+djs-core check
+djs-core check --fix
+djs-core check --rule no-ephemeral
+```
+
+### `djs-core test`
+
+Run `bun test` in the project root.
+
+```bash
+djs-core test
+djs-core test src/interactions/commands
+```
+
+For handler testing helpers, see [Testing](/essentials/testing).
+
+## Database
+
+### `djs-core db <action>`
+
+Drizzle helpers synced from `djs.config.ts`. See [Database](/essentials/database).
+
+```bash
+djs-core db init
+djs-core db generate
+djs-core db migrate
+djs-core db push
+djs-core db studio
+djs-core db pull
+```
+
+Requires a `db:` block in `djs.config.ts` (except `init`, which scaffolds `db/` first).
+
+## Types & plugins
+
+### `djs-core generate-config-types`
+
+Regenerate `.djscore/` types from `config.json`, plugins, and database config.
+
+```bash
+djs-core generate-config-types
+```
+
+Runs automatically during `dev`, `build`, and `start` when needed.
+
+### `djs-core plugin <action> <name>`
+
+```bash
+djs-core plugin install demo          # installs @djs-core/plugin-demo
+djs-core plugin install @scope/pkg    # full package name also works
+djs-core plugin postinstall demo
+```
+
+`install` runs `bun add`, patches `djs.config.ts` when possible, and runs the plugin `postinstall` hook. See [Plugins](/essentials/plugins).
+
+<Tip>
+  Add scripts in `package.json` for the commands you use daily — `dev`, `build`, `check`, and `test` cover most workflows.
+</Tip>

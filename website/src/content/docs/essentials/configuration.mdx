@@ -5,74 +5,180 @@ description: "Everything you need to know about configuring your djs-core bot."
 ---
 
 import Warning from '@components/Warning.astro';
+import Note from '@components/Note.astro';
 import ResponseField from '@components/ResponseField.astro';
 
-The `djs.config.ts` file is the heart of your `djs-core` project. It defines essential settings like your Discord bot token and server IDs.
+The `djs.config.ts` file is the heart of your `djs-core` project. It defines secrets, Discord gateway settings, database, plugins, and experimental flags.
 
 ## `djs.config.ts`
 
-Create a `djs.config.ts` file in your project root. Use the `Config` type from `@djs-core/dev` for full type safety.
+Use `defineConfig` from `@djs-core/runtime` for full type inference on plugins and `pluginsConfig`:
 
 ```typescript
-import type { Config } from "@djs-core/dev";
+import { defineConfig } from "@djs-core/runtime";
+import { IntentsBitField, InteractionContextType } from "discord.js";
 
 if (!process.env.TOKEN) {
   throw new Error("TOKEN environment variable is required");
 }
 
-export default {
+export default defineConfig({
   token: process.env.TOKEN,
   servers: ["YOUR_GUILD_ID"],
-} satisfies Config;
+  intents: [IntentsBitField.Flags.Guilds],
+  commands: {
+    defaultContext: [InteractionContextType.Guild],
+  },
+});
 ```
 
-## Options
+You can also use `satisfies Config` from `@djs-core/dev` if you do not need plugin type inference.
+
+## Core options
 
 <ResponseField name="token" type="string" required>
   Your Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications).
 </ResponseField>
 
 <ResponseField name="servers" type="string[]" required>
-  Array of guild (server) IDs where commands should be registered.
+  Guild IDs where slash commands and context menus are registered.
 
-  - During development, using specific server IDs ensures near-instant command updates.
-  - Use an empty array `[]` for global commands (can take up to 1 hour to propagate).
+  - Specific guild IDs → near-instant updates during development.
+  - Empty array `[]` → global commands (can take up to 1 hour to propagate).
 </ResponseField>
 
 <Warning>
-  Never commit your bot token to version control! Store it in a `.env` file and add `.env` to your `.gitignore`.
+  Never commit your bot token. Store it in `.env` and add `.env` to `.gitignore`.
 </Warning>
 
-## Environment Variables
+## Gateway: intents & partials
 
-We recommend using a `.env` file to manage your secrets:
+The runtime defaults to **`Guilds` intent only** and **no partials**. Add what your bot actually listens to.
 
-```shellscript .env
-TOKEN=your_discord_bot_token_here
+```typescript
+import { IntentsBitField, Partials } from "discord.js";
+
+export default defineConfig({
+  // ...
+  intents: [
+    IntentsBitField.Flags.Guilds,
+    IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.MessageContent,
+    IntentsBitField.Flags.GuildMembers,
+  ],
+  partials: [Partials.Message, Partials.Channel],
+});
 ```
 
-Ensure your `.gitignore` includes:
+| Intent | Needed for |
+|--------|------------|
+| `Guilds` | Default — slash commands, basic guild data |
+| `GuildMessages` | `messageCreate` and message content |
+| `MessageContent` | Reading message text (privileged) |
+| `GuildMembers` | Member join/leave events, member lists |
 
-```text
-.env
-node_modules/
-dist/
+Enable matching intents in the [Discord Developer Portal](https://discord.com/developers/applications) under **Bot → Privileged Gateway Intents**.
+
+## Command defaults
+
+```typescript
+commands: {
+  defaultContext: [InteractionContextType.Guild],
+},
 ```
 
-## Development hot reload
+Sets where new slash commands are available by default (guild only, DMs, etc.). Override per command with `.setContexts()` on the `Command` builder.
 
-`djs-core dev` hot-reloads handlers under `src/` (commands, buttons, components, events, cron tasks). It does **not** reload the running process when configuration changes.
+## Database
 
-<Warning>
-  After editing `djs.config.ts` (token, `servers`, `db`, plugins, experimental flags), **restart** `djs-core dev`. The dev server watches the file and prints a reminder, but changes are not applied live.
-</Warning>
+```typescript
+db: {
+  dialect: "sqlite",       // sqlite | postgresql | mysql | turso
+  url: "file:./db.sqlite", // optional
+  autoMigrate: false,      // default — prefer CI migrations in prod
+},
+```
 
-During long dev sessions, Bun keeps every cache-busted module import in memory. If memory usage grows, restart `djs-core dev` to reclaim it.
+Adds `interaction.client.db` with Drizzle. See [Database](/essentials/database).
+
+## Plugins
+
+```typescript
+import { myPlugin } from "my-djs-plugin";
+
+export default defineConfig({
+  plugins: [myPlugin],
+  pluginsConfig: {
+    myPlugin: {
+      apiKey: process.env.MY_PLUGIN_KEY,
+    },
+  },
+});
+```
+
+`defineConfig` infers `pluginsConfig` keys from each plugin's `name`. Third-party plugins attach APIs to `interaction.client.<pluginName>`. See [Plugins](/essentials/plugins).
+
+<Note>
+  Official database plugins are deprecated — use native `db:` instead. See [Migrate from plugins](/guides/migrate-db-plugins).
+</Note>
 
 ## Experimental features
 
-Optional flags under `experimental` in `djs.config.ts`:
+| Flag | Purpose |
+|------|---------|
+| `experimental.cron` | Enable `src/cron/` tasks — [Cron Tasks](/essentials/events-tasks) |
+| `experimental.userConfig` | Load `config.json` into `client.config` — [User Config](/essentials/user-config) |
+| `experimental.bundle` | Embed `config.json` in production builds — [Bundle](/bundle) |
 
-- **`cron`** — scheduled tasks under `src/cron/`. See [Cron Tasks](/essentials/events-tasks).
-- **`userConfig`** — load `config.json` into `client.config` with auto-generated types. See [User Config](/essentials/user-config).
-- **`bundle`** — embed `config.json` in production builds. See [Bundle](/bundle).
+## Environment variables
+
+```env
+TOKEN=your_discord_bot_token_here
+DATABASE_URL=postgresql://...   # when using postgresql dialect
+```
+
+Bun loads `.env` automatically — no `dotenv` needed.
+
+## Development hot reload
+
+`djs-core dev` hot-reloads handlers under `src/`. It does **not** reload `djs.config.ts` changes.
+
+<Warning>
+  After editing `djs.config.ts` (token, `servers`, `db`, plugins, intents, experimental flags), **restart** `djs-core dev`.
+</Warning>
+
+`config.json` is different — when `experimental.userConfig` is enabled, types regenerate on save, but restart dev to pick up new runtime values.
+
+During long dev sessions, Bun keeps cache-busted module imports in memory. Restart `djs-core dev` if memory grows.
+
+## Full example
+
+```typescript
+import { demoPlugin } from "my-djs-plugin";
+import { defineConfig } from "@djs-core/runtime";
+import { IntentsBitField, InteractionContextType } from "discord.js";
+
+export default defineConfig({
+  token: process.env.TOKEN!,
+  servers: ["YOUR_GUILD_ID"],
+  intents: [
+    IntentsBitField.Flags.Guilds,
+    IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.MessageContent,
+  ],
+  commands: {
+    defaultContext: [InteractionContextType.Guild],
+  },
+  db: {
+    dialect: "sqlite",
+  },
+  plugins: [demoPlugin],
+  pluginsConfig: {
+    demo: { message: "hello" },
+  },
+  experimental: {
+    cron: true,
+    userConfig: true,
+  },
+});
+```

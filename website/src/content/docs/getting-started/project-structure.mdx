@@ -5,75 +5,111 @@ description: "How djs-core organizes your bot's code."
 ---
 
 import Tip from '@components/Tip.astro';
+import Card from '@components/Card.astro';
 
-This is the minimal directory structure for a djs-core Discord bot project:
+A typical djs-core bot looks like this:
 
 ```text
 my-bot/
 ├── src/
 │   ├── interactions/
-│   │   ├── commands/       # Slash commands (/ping, /admin kick)
-│   │   ├── contexts/       # Context menus (User, Message)
-│   │   │   ├── user/
-│   │   │   └── message/
-│   ├── events/             # discord.js event listeners (ready, messageCreate)
-│   └── components/         # Reusable interaction components
-│       ├── buttons/
-│       ├── modals/
-│       └── selects/
-├── djs.config.ts           # Core configuration
-├── config.json             # optional user config (experimental.userConfig)
-├── .djscore/               # auto-generated types (config, plugins, db)
+│   │   ├── commands/           # Slash commands → /ping, /admin kick
+│   │   └── contexts/           # Context menus
+│   │       ├── user/
+│   │       └── message/
+│   ├── events/                 # discord.js gateway events
+│   ├── components/
+│   │   ├── buttons/
+│   │   ├── modals/
+│   │   └── selects/
+│   │       ├── string/
+│   │       ├── user/
+│   │       ├── role/
+│   │       ├── channel/
+│   │       └── mentionable/
+│   └── cron/                   # optional — experimental.cron
+├── db/                         # optional — when db: is configured
+│   ├── schema.ts
+│   └── migrations/
+├── djs.config.ts
+├── config.json                 # optional — experimental.userConfig
+├── .env
+├── .djscore/                   # auto-generated — do not edit
 ├── package.json
-└── tsconfig.json
+├── tsconfig.json
+└── dist/                       # production build output
 ```
 
-### `src/` directory
+<Card title="How routing works" icon="route" href="/guides/routing" horizontal>
+  File paths become command names and component customIds. Read the routing guide for the full mapping rules.
+</Card>
 
-This is where you organize your bot's code using the file-based routing system.
+## `src/interactions/commands/`
+
+Slash commands. Folder depth creates subcommand groups.
+
+| File | Command |
+|------|---------|
+| `ping.ts` | `/ping` |
+| `admin/kick.ts` | `/admin kick` |
+| `shop/buy.ts` | `/shop buy` |
+
+Colocate tests: `ping.ts` + `ping.test.ts`.
+
+## `src/interactions/contexts/`
+
+Right-click user and message menus. Use `user/` and `message/` subfolders.
+
+## `src/events/`
+
+Discord event listeners — flat files only (`ready.ts`, `messageCreate.ts`, …). Use `Events.ClientReady`, not deprecated `Events.Ready`.
+
+## `src/components/`
+
+Reusable buttons, modals, and select menus. Imported into commands or other handlers.
+
+| Folder | Handler class |
+|--------|---------------|
+| `buttons/` | `Button` |
+| `modals/` | `Modal` |
+| `selects/string/` | `StringSelectMenu` |
+| `selects/user/` | `UserSelectMenu` |
+| `selects/role/` | `RoleSelectMenu` |
+| `selects/channel/` | `ChannelSelectMenu` |
+| `selects/mentionable/` | `MentionableSelectMenu` |
+
+Component `customId` values come from the file path — see [Routing](/guides/routing).
+
+## `src/cron/`
+
+Scheduled tasks when `experimental.cron: true`. Flat files — `hourly-cleanup.ts` registers task `hourly-cleanup`.
+
+## `db/`
+
+Created by `djs-core db init` when using native database. Schema + Drizzle migrations. Not needed without `db:` in config.
+
+## Root files
+
+| File | Role |
+|------|------|
+| `djs.config.ts` | Token, servers, intents, `db`, plugins, experimental flags — [Configuration](/essentials/configuration) |
+| `config.json` | User-tunable bot settings when `experimental.userConfig` is on — [User Config](/essentials/user-config) |
+| `.env` | Secrets (`TOKEN`, `DATABASE_URL`, …) — never commit |
+| `.djscore/` | Generated types for config, plugins, and database |
+| `dist/` | Output of `djs-core build` — deploy this, not `src/` |
+
+## Scaffolding files
+
+```bash
+djs-core generate command ping
+djs-core generate button shop/buy
+djs-core generate modal feedback
+djs-core generate select string/pick-color
+djs-core generate event messageCreate
+```
+
+See [CLI Reference](/guides/cli#djs-core-generate-type-name).
 
 <Tip>
-The file-based routing system means the structure of your files determines how commands, components, and events are registered. Keep your files organized to match your bot's functionality.
+  Run `djs-core list` anytime to see every registered route and its source file.
 </Tip>
-
-#### `src/interactions/commands/`
-
-This directory contains your slash commands. Each file automatically becomes a command, and subdirectories create command groups.
-
-- **File Path → Command Name Mapping**:
-  - `ping.ts` → `/ping`
-  - `admin/kick.ts` → `/admin kick`
-  - `shop/buy.ts` → `/shop buy`
-
-#### `src/interactions/contexts/`
-
-This directory contains your context menu commands (user and message context menus).
-
-- `user/` - User context menus (right-click on users).
-- `message/` - Message context menus (right-click on messages).
-
-#### `src/events/`
-
-This directory contains your Discord event handlers. Common events include:
-- `ready.ts` - Fired when the bot connects to Discord.
-- `messageCreate.ts` - Fired when a message is created.
-- `guildMemberAdd.ts` - Fired when a member joins a server.
-
-#### `src/components/`
-
-This directory contains reusable interaction components:
-- `buttons/` - Interactive clickable buttons.
-- `modals/` - Form-like dialogs with text inputs.
-- `selects/` - Select menu components (string, user, role, channel, mentionable).
-
-### `djs.config.ts`
-
-The configuration file for your bot. It defines settings like your token and server IDs.
-
-### `package.json`
-
-Contains dependencies and scripts. Essential dependencies include `@djs-core/runtime` and `discord.js`.
-
-### `tsconfig.json`
-
-TypeScript configuration for the project.
