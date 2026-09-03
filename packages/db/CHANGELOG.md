@@ -1,5 +1,14 @@
 # @djs-core/db
 
+## 1.0.1
+
+### Patch Changes
+
+- 940ea61: Security and reliability improvements:
+
+  - Parse `db:` from `djs.config.ts` with a strict JSON-like parser instead of `new Function()`
+  - Throw when `autoMigrate` is enabled but `db/migrations` is missing (default examples use `autoMigrate: false`)
+
 ## 1.0.0
 
 ### Major Changes
