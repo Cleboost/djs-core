@@ -74,7 +74,9 @@ Set up a new djs-core project from scratch with complete control over your proje
       "scripts": {
         "dev": "djs-core dev",
         "build": "djs-core build",
-        "start": "djs-core start"
+        "start": "djs-core start",
+        "check": "djs-core check",
+        "test": "djs-core test"
       }
     }
     ```
@@ -87,6 +89,12 @@ Set up a new djs-core project from scratch with complete control over your proje
     </ResponseField>
     <ResponseField name="start" type="script">
       Runs the compiled bot from the `dist/` folder (use after `build`)
+    </ResponseField>
+    <ResponseField name="check" type="script">
+      Lints `src/` for djs-core anti-patterns (`djs-core check`)
+    </ResponseField>
+    <ResponseField name="test" type="script">
+      Runs colocated `bun:test` suites via `djs-core test`
     </ResponseField>
   </Step>
   <Step title="Create configuration file">

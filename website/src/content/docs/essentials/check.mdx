@@ -1,0 +1,157 @@
+---
+title: "Lint"
+icon: "magnifying-glass"
+description: "Catch djs-core anti-patterns with djs-core check."
+---
+
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+import Steps from '@components/Steps.astro';
+import Step from '@components/Step.astro';
+
+`djs-core check` scans your `src/**/*.ts` files for patterns that break Discord APIs or fight the framework. It ships with `@djs-core/dev` — no extra install.
+
+<Note>
+This is **not** ESLint or Biome. It only knows djs-core-specific rules (typed options, deprecated reply flags, missing command descriptions, etc.).
+</Note>
+
+## Quick start
+
+<Steps>
+  <Step title="Add a script">
+    ```json
+    {
+      "scripts": {
+        "check": "djs-core check"
+      }
+    }
+    ```
+  </Step>
+  <Step title="Run the linter">
+    ```bash
+    bun run check
+    # or
+    djs-core check
+    ```
+  </Step>
+  <Step title="Auto-fix what you can">
+    ```bash
+    djs-core check --fix
+    ```
+  </Step>
+</Steps>
+
+## CLI options
+
+| Flag | Description |
+|------|-------------|
+| `--fix` | Auto-fix all fixable issues in place |
+| `-p, --path <path>` | Project root (default: `.`) |
+| `--rule <rule>` | Run a single rule by name |
+
+```bash
+# Lint another folder
+djs-core check --path ./my-bot
+
+# Only check ephemeral usage
+djs-core check --rule no-ephemeral
+
+# Fix deprecated constructors
+djs-core check --fix --rule no-generic-constructor
+```
+
+### Exit codes
+
+- **0** — no errors (warnings alone are OK)
+- **1** — at least one **error** severity issue, or unknown `--rule` name
+
+Warnings never fail the command on their own. Handy for CI: block on errors, tolerate warnings while you migrate.
+
+## Rules
+
+| Rule | Severity | Auto-fix | What it catches |
+|------|----------|----------|-----------------|
+| `no-ephemeral` | error | yes | `ephemeral: true` in reply options |
+| `no-generic-constructor` | warn | yes | `new Button<T>()` instead of `.withData<T>()` |
+| `prefer-typed-options` | warn | no | `interaction.options.getString()` etc. in `.run()` |
+| `require-description` | warn | yes | `new Command()` without `.setDescription()` |
+
+### `no-ephemeral`
+
+Discord.js deprecated `ephemeral: true`. Use `MessageFlags` instead.
+
+```ts
+// bad
+await interaction.reply({ content: "secret", ephemeral: true });
+
+// good
+import { MessageFlags } from "discord.js";
+
+await interaction.reply({
+  content: "secret",
+  flags: [MessageFlags.Ephemeral],
+});
+```
+
+`--fix` rewrites the property and adds the `MessageFlags` import when missing.
+
+### `no-generic-constructor`
+
+Component data types belong on `.withData<T>()`, not on the constructor.
+
+Applies to: `Button`, `Modal`, `StringSelectMenu`, `UserSelectMenu`, `RoleSelectMenu`, `ChannelSelectMenu`, `MentionableSelectMenu`.
+
+```ts
+// bad
+new Button<{ id: string }>().setCustomId("x").run(...)
+
+// good
+new Button().withData<{ id: string }>().setCustomId("x").run(...)
+```
+
+### `prefer-typed-options`
+
+Declare options on the command builder and use the typed `options` parameter in `.run()`.
+
+```ts
+// bad
+.run(async (interaction) => {
+  const name = interaction.options.getString("name", true);
+})
+
+// good
+.addStringOption((opt) => opt.setName("name").setRequired(true))
+.run(async (interaction, options) => {
+  const name = options.name; // string
+})
+```
+
+No auto-fix — you refactor the handler yourself.
+
+### `require-description`
+
+Every slash command needs a description in Discord.
+
+```ts
+// bad
+export default new Command().run(async (interaction) => { ... });
+
+// good
+export default new Command()
+  .setDescription("Ping the bot")
+  .run(async (interaction) => { ... });
+```
+
+`--fix` inserts `.setDescription("TODO: add a description")` so you fill in the real text later.
+
+## CI
+
+```bash
+djs-core check
+```
+
+Add it next to `bun test` in your pipeline. Use `--fix` locally, not in CI — let the job fail so you see what broke.
+
+<Tip>
+Run `djs-core check --fix` before opening a PR. Three rules auto-fix; `prefer-typed-options` is the one you still do by hand.
+</Tip>

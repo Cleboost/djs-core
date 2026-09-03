@@ -124,19 +124,8 @@ export const nav: NavGroup[] = [
 				slug: "essentials/configuration",
 				icon: "gear",
 			},
+			{ label: "Lint", slug: "essentials/check", icon: "magnifying-glass" },
 			{ label: "Testing", slug: "essentials/testing", icon: "flask" },
-		],
-	},
-	{
-		label: "AI tools",
-		items: [
-			{ label: "Cursor setup", slug: "ai-tools/cursor", icon: "arrow-pointer" },
-			{
-				label: "Claude Code setup",
-				slug: "ai-tools/claude-code",
-				icon: "asterisk",
-			},
-			{ label: "Windsurf setup", slug: "ai-tools/windsurf", icon: "water" },
 		],
 	},
 ];
