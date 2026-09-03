@@ -1,0 +1,116 @@
+---
+title: "Select Menus"
+icon: "list"
+description: "String, user, role, channel, and mentionable select menus."
+---
+
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+
+Select menus are dropdowns that let users pick options in a message. djs-core supports five variants — each lives under `src/components/selects/` in a type subfolder.
+
+<Note>
+  File path sets the `customId`. Example: `src/components/selects/string/pick-color.ts` → `string.pick-color`.
+</Note>
+
+## Overview
+
+| Type | Class | Folder | Use when |
+|------|-------|--------|----------|
+| String | `StringSelectMenu` | `selects/string/` | Fixed text options you define |
+| User | `UserSelectMenu` | `selects/user/` | Pick Discord users |
+| Role | `RoleSelectMenu` | `selects/role/` | Pick server roles |
+| Channel | `ChannelSelectMenu` | `selects/channel/` | Pick channels |
+| Mentionable | `MentionableSelectMenu` | `selects/mentionable/` | Users **or** roles |
+
+All types support `.withData<T>()` and `.setData()` — same pattern as [Buttons](/components/buttons).
+
+## String select menus
+
+Predefined options (max 25). Good for categories, settings, static lists.
+
+```typescript [src/components/selects/string/pick-color.ts]
+import { StringSelectMenu } from "@djs-core/runtime";
+
+export default new StringSelectMenu()
+  .setPlaceholder("Choose a color")
+  .addOptions([
+    { label: "Red", value: "red" },
+    { label: "Blue", value: "blue" },
+    { label: "Green", value: "green" },
+  ])
+  .run(async (interaction) => {
+    const color = interaction.values[0];
+    await interaction.reply(`You selected: ${color}`);
+  });
+```
+
+Multiple selections: `.setMinValues(1).setMaxValues(5)`.
+
+## User select menus
+
+Discord's user picker — `interaction.users` holds the selection.
+
+```typescript [src/components/selects/user/assign.ts]
+import { UserSelectMenu } from "@djs-core/runtime";
+
+export default new UserSelectMenu()
+  .withData<{ action: string }>()
+  .setPlaceholder("Select users")
+  .run(async (interaction, data) => {
+    const names = interaction.users.map((u) => u.username);
+    await interaction.reply(`${data.action}: ${names.join(", ")}`);
+  });
+```
+
+## Role select menus
+
+Pick roles from the server — `interaction.roles`.
+
+```typescript [src/components/selects/role/assign.ts]
+import { RoleSelectMenu } from "@djs-core/runtime";
+
+export default new RoleSelectMenu()
+  .setPlaceholder("Select a role")
+  .run(async (interaction) => {
+    const role = interaction.roles.first();
+    if (role) await interaction.reply(`Selected: ${role.name}`);
+  });
+```
+
+## Channel select menus
+
+Pick channels — filter types with `.setChannelTypes()`.
+
+```typescript [src/components/selects/channel/announce.ts]
+import { ChannelSelectMenu } from "@djs-core/runtime";
+import { ChannelType } from "discord.js";
+
+export default new ChannelSelectMenu()
+  .setPlaceholder("Select a text channel")
+  .setChannelTypes([ChannelType.GuildText])
+  .run(async (interaction) => {
+    const channel = interaction.channels.first();
+    if (channel) await interaction.reply(`Channel: ${channel.name}`);
+  });
+```
+
+## Mentionable select menus
+
+Users **or** roles in one menu — check both `interaction.users` and `interaction.roles`.
+
+```typescript [src/components/selects/mentionable/notify.ts]
+import { MentionableSelectMenu } from "@djs-core/runtime";
+
+export default new MentionableSelectMenu()
+  .setPlaceholder("Select users or roles")
+  .run(async (interaction) => {
+    const users = interaction.users.map((u) => u.username);
+    const roles = interaction.roles.map((r) => r.name);
+    await interaction.reply(`Users: ${users.join(", ") || "none"} · Roles: ${roles.join(", ") || "none"}`);
+  });
+```
+
+<Tip>
+  Scaffold a string select with `djs-core generate select my-menu` — creates a file under `src/components/selects/`.
+</Tip>

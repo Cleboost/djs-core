@@ -1,49 +1,60 @@
 ---
-title: "Djs-Core"
+title: "djs-core"
 icon: "house"
-description: "The first type-safe Discord bot framework"
+description: "Type-safe Discord bots with file-based routing on top of discord.js."
 ---
 
 import CardGroup from '@components/CardGroup.astro';
 import Card from '@components/Card.astro';
 
-Welcome to **djs-core**, a fully integrated documentation solution built for developers who want to build Discord bots with speed and type safety.
+**djs-core** is a framework on top of [discord.js](https://discord.js.org) that kills the boring scaffolding. Drop files in folders — commands, buttons, events register themselves. Options are typed. Database is built in.
 
-## What is djs-core?
+## Philosophy
 
-Djs-core is a framework for creating Discord bots with TypeScript. It uses a routing system inspired by frameworks like Nuxt or Next, leveraging a file system-based router to define your bot's structure. Additionally, it automatically manages data flows that developers would otherwise need to handle manually.
+**File-based, not config-based.** Your project structure *is* your bot structure. No manual registration, no index files to update.
+
+**Typed by default.** Declare command options on the builder — the `options` object in `.run()` is fully inferred.
+
+**Built for the long run.** `djs-core check` catches deprecated patterns. `djs-core generate` scaffolds files the linter won't hate.
+
+## What it handles
+
+- Slash commands, context menus, autocomplete
+- Buttons, modals, all select menu types
+- Events and cron tasks
+- Native Drizzle database — `client.db`, `djs-core db` CLI
+- Third-party plugins via `definePlugin`
+
+## Packages
 
 <CardGroup cols={2}>
   <Card title="@djs-core/runtime" icon="npm" href="https://npmjs.com/package/@djs-core/runtime">
-    The core runtime library for your bot.
+    Core runtime — loads and runs your bot.
   </Card>
   <Card title="@djs-core/dev" icon="npm" href="https://npmjs.com/package/@djs-core/dev">
-    Development tools and CLI for djs-core.
+    CLI — dev, build, check, generate, test, db.
   </Card>
-  <Card title="@djs-core/db" icon="npm" href="/essentials/database">
-    Native Drizzle database — client.db and djs-core db CLI.
+  <Card title="@djs-core/db" icon="database" href="/essentials/database">
+    Drizzle layer — `client.db` and migrations.
+  </Card>
+  <Card title="@djs-core/testing" icon="flask" href="/essentials/testing">
+    Mock helpers for `bun:test` — ships with dev.
   </Card>
 </CardGroup>
 
-## Key Features
+## Get started
 
-djs-core provides a comprehensive set of features designed to simplify Discord bot development:
-
-- **File-based Routing System**: Organize your bot structure using the file system, similar to modern frameworks like Nuxt or Next.js.
-- **Automatic Handler Registration**: Handlers are automatically discovered and registered based on your project structure.
-- **Full TypeScript Support**: Built with TypeScript for type-safe development and excellent IDE support.
-- **Built on Discord.js**: Leverages the power and reliability of the Discord.js library.
-- **Multiple Interaction Types**: Supports commands, events, buttons, modals, select menus, and context menus out of the box.
-- **Auto Command Registration**: Automatically registers slash commands on bot startup.
-- **Type-Safe Interactions**: Fully typed interactions with autocompletion for better developer experience.
-- **Zero-Config Approach**: Works out of the box with sensible defaults, no complex configuration required.
-- **Native Database**: Drizzle built in — `db:` config, `client.db`, and `djs-core db` CLI.
-- **Plugin System**: Third-party plugins via `definePlugin`; official DB plugins deprecated.
-
-## Next Steps
-
-Ready to build your bot?
-
-<Card title="Get started" icon="rocket" href="/getting-started/installation" horizontal>
-  Follow our guide to get your bot up and running in minutes.
-</Card>
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/getting-started/installation">
+    Set up a bot from template or scratch.
+  </Card>
+  <Card title="Routing" icon="route" href="/guides/routing">
+    How file paths become commands and customIds.
+  </Card>
+  <Card title="Database" icon="database" href="/essentials/database">
+    Native Drizzle — no plugin required.
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/guides/cli">
+    Every `djs-core` command in one page.
+  </Card>
+</CardGroup>

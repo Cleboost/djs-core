@@ -6,6 +6,13 @@ import expressiveCode from "astro-expressive-code";
 export default defineConfig({
 	site: "https://djs-core.cleboost.com",
 	base: "/",
+	redirects: {
+		"/components/string-select-menus": "/components/select-menus",
+		"/components/user-select-menus": "/components/select-menus",
+		"/components/role-select-menus": "/components/select-menus",
+		"/components/channel-select-menus": "/components/select-menus",
+		"/components/mentionable-select-menus": "/components/select-menus",
+	},
 	integrations: [
 		expressiveCode({
 			themes: ["dracula"],

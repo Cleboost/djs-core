@@ -14,17 +14,13 @@ export interface NavTab {
 	slug: string;
 }
 
-export const tabs: NavTab[] = [
-	{ label: "Guides", slug: "" },
-	{ label: "Plugins Marketplace", slug: "plugins-marketplace" },
-	{ label: "Partners", slug: "partners" },
-];
+export const tabs: NavTab[] = [{ label: "Guides", slug: "" }];
 
 export const nav: NavGroup[] = [
 	{
 		label: "Getting Started",
 		items: [
-			{ label: "Djs-Core", slug: "", icon: "house" },
+			{ label: "djs-core", slug: "", icon: "house" },
 			{
 				label: "Installation",
 				slug: "getting-started/installation",
@@ -40,12 +36,17 @@ export const nav: NavGroup[] = [
 				slug: "guides/routing",
 				icon: "route",
 			},
+			{
+				label: "Configuration",
+				slug: "essentials/configuration",
+				icon: "gear",
+			},
 		],
 	},
 	{
-		label: "Interaction",
+		label: "Interactions",
 		items: [
-			{ label: "Interactions", slug: "interaction", icon: "message" },
+			{ label: "Overview", slug: "interaction", icon: "message" },
 			{ label: "Commands", slug: "interaction/commands", icon: "terminal" },
 			{
 				label: "Context Menus",
@@ -62,38 +63,18 @@ export const nav: NavGroup[] = [
 	{
 		label: "Components",
 		items: [
-			{ label: "Components", slug: "components", icon: "puzzle-piece" },
+			{ label: "Overview", slug: "components", icon: "puzzle-piece" },
 			{ label: "Buttons", slug: "components/buttons", icon: "square" },
 			{ label: "Modals", slug: "components/modals", icon: "window-maximize" },
 			{
-				label: "String Select Menus",
-				slug: "components/string-select-menus",
+				label: "Select Menus",
+				slug: "components/select-menus",
 				icon: "list",
-			},
-			{
-				label: "User Select Menus",
-				slug: "components/user-select-menus",
-				icon: "users",
-			},
-			{
-				label: "Role Select Menus",
-				slug: "components/role-select-menus",
-				icon: "user-circle",
-			},
-			{
-				label: "Channel Select Menus",
-				slug: "components/channel-select-menus",
-				icon: "hashtag",
-			},
-			{
-				label: "Mentionable Select Menus",
-				slug: "components/mentionable-select-menus",
-				icon: "at",
 			},
 		],
 	},
 	{
-		label: "Database",
+		label: "Data",
 		items: [
 			{ label: "Database", slug: "essentials/database", icon: "database" },
 			{
@@ -104,12 +85,19 @@ export const nav: NavGroup[] = [
 		],
 	},
 	{
-		label: "Bundle",
+		label: "Production",
 		items: [{ label: "Bundle", slug: "bundle", icon: "box-open" }],
 	},
 	{
-		label: "Plugins",
-		items: [{ label: "Plugins", slug: "essentials/plugins", icon: "plug" }],
+		label: "Extensions",
+		items: [
+			{ label: "Plugins", slug: "essentials/plugins", icon: "plug" },
+			{
+				label: "Plugin Marketplace",
+				slug: "plugins-marketplace",
+				icon: "sparkles",
+			},
+		],
 	},
 	{
 		label: "Experimental",
@@ -132,11 +120,6 @@ export const nav: NavGroup[] = [
 			{ label: "CLI Reference", slug: "guides/cli", icon: "terminal" },
 			{ label: "Lint", slug: "essentials/check", icon: "magnifying-glass" },
 			{ label: "Testing", slug: "essentials/testing", icon: "flask" },
-			{
-				label: "Configuration",
-				slug: "essentials/configuration",
-				icon: "gear",
-			},
 		],
 	},
 ];
@@ -155,8 +138,7 @@ export function getPrevNext(slug: string): { prev?: NavItem; next?: NavItem } {
 }
 
 export function getActiveTab(slug: string): string {
-	if (slug === "plugins-marketplace") return "plugins-marketplace";
-	if (slug === "partners") return "partners";
+	if (slug === "plugins-marketplace") return "";
 	return "";
 }
 

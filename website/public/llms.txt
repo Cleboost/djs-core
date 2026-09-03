@@ -1,33 +1,52 @@
 # djs-core
 
-> Framework for discord.js developpement
+> Type-safe Discord bot framework built on discord.js
 
 ## Docs
 
-- [Djs-Core](/index.md): The first type-safe Discord bot framework
-- [Installation](/getting-started/installation.md): Get started with djs-core.
-- [Project Structure](/getting-started/project-structure.md): How djs-core organizes your bot's code.
-- [Routing](/guides/routing.md): How file paths become Discord command names and component customIds.
-- [Interactions](/interaction/index.md): Learn how to create and manage Discord interactions with djs-core.
-- [Commands](/interaction/commands.md): Learn how to create slash commands with djs-core.
-- [Context Menus](/interaction/context-menus.md): User and Message commands available from the Discord right-click menu.
-- [Event Listeners](/interaction/events.md)
-- [Components](/components/index.md): Learn how to create and manage reusable interaction components with djs-core.
-- [Buttons](/components/buttons.md): Creating and handling button interactions with djs-core.
-- [Modals](/components/modals.md): Handling modal submissions and data entry in djs-core.
-- [String Select Menus](/components/string-select-menus.md): Learn how to create and use string select menu components with djs-core.
-- [User Select Menus](/components/user-select-menus.md): Learn how to create and use user select menu components with djs-core.
-- [Role Select Menus](/components/role-select-menus.md): Learn how to create and use role select menu components with djs-core.
-- [Channel Select Menus](/components/channel-select-menus.md): Learn how to create and use channel select menu components with djs-core.
-- [Mentionable Select Menus](/components/mentionable-select-menus.md): Learn how to create and use mentionable select menu components with djs-core.
-- [Bundle](/bundle/index.md): Learn about bundling and building your Discord bot with djs-core.
-- [Database](/essentials/database.md): Native Drizzle database with client.db and djs-core db CLI.
-- [Plugins](/essentials/plugins.md): Extend your bot with the powerful djs-core plugin system.
-- [Cron Tasks](/essentials/events-tasks.md): How to run scheduled tasks in djs-core.
-- [User Config](/essentials/user-config.md): Load bot-tunable settings from config.json with full TypeScript types.
-- [Configuration](/essentials/configuration.md): Everything you need to know about configuring your djs-core bot.
-- [CLI Reference](/guides/cli.md): All djs-core dev CLI commands in one place.
-- [Lint](/essentials/check.md): Catch djs-core anti-patterns with djs-core check.
-- [Testing](/essentials/testing.md): Test commands and interactions with @djs-core/testing and bun:test.
-- [Plugins-Marketplace](/plugins-marketplace.md)
-- [Partners](/partners.md)
+### Getting Started
+
+- [djs-core](/index.md): Type-safe Discord bots with file-based routing
+- [Installation](/getting-started/installation.md): Get started with djs-core
+- [Project Structure](/getting-started/project-structure.md): How djs-core organizes your bot's code
+- [Routing](/guides/routing.md): File paths → command names and component customIds
+- [Configuration](/essentials/configuration.md): djs.config.ts, intents, db, plugins
+
+### Interactions
+
+- [Overview](/interaction/index.md): Slash commands and context menus
+- [Commands](/interaction/commands.md): Create slash commands
+- [Context Menus](/interaction/context-menus.md): User and message right-click menus
+- [Event Listeners](/interaction/events.md): Discord gateway events
+
+### Components
+
+- [Overview](/components/index.md): Buttons, modals, and select menus
+- [Buttons](/components/buttons.md): Button interactions
+- [Modals](/components/modals.md): Modal forms and submissions
+- [Select Menus](/components/select-menus.md): All select menu types
+
+### Data
+
+- [Database](/essentials/database.md): Native Drizzle with client.db
+- [Migrate from plugins](/guides/migrate-db-plugins.md): Move off deprecated DB plugins
+
+### Production
+
+- [Bundle](/bundle/index.md): Build and deploy your bot
+
+### Extensions
+
+- [Plugins](/essentials/plugins.md): definePlugin and lifecycle hooks
+- [Plugin Marketplace](/plugins-marketplace.md): Legacy official plugins (deprecated DB plugins)
+
+### Experimental
+
+- [Cron Tasks](/essentials/events-tasks.md): Scheduled background tasks
+- [User Config](/essentials/user-config.md): config.json with typed client.config
+
+### Tooling
+
+- [CLI Reference](/guides/cli.md): All djs-core dev commands
+- [Lint](/essentials/check.md): djs-core check rules
+- [Testing](/essentials/testing.md): @djs-core/testing and bun:test
