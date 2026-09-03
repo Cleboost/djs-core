@@ -68,3 +68,11 @@ dist/
 </Warning>
 
 During long dev sessions, Bun keeps every cache-busted module import in memory. If memory usage grows, restart `djs-core dev` to reclaim it.
+
+## Experimental features
+
+Optional flags under `experimental` in `djs.config.ts`:
+
+- **`cron`** — scheduled tasks under `src/cron/`. See [Cron Tasks](/essentials/events-tasks).
+- **`userConfig`** — load `config.json` into `client.config` with auto-generated types. See [User Config](/essentials/user-config).
+- **`bundle`** — embed `config.json` in production builds. See [Bundle](/bundle).

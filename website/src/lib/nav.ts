@@ -107,12 +107,17 @@ export const nav: NavGroup[] = [
 		items: [{ label: "Plugins", slug: "essentials/plugins", icon: "plug" }],
 	},
 	{
-		label: "Experimtental",
+		label: "Experimental",
 		items: [
 			{
 				label: "Cron Tasks",
 				slug: "essentials/events-tasks",
 				icon: "calendar-check",
+			},
+			{
+				label: "User Config",
+				slug: "essentials/user-config",
+				icon: "file-code",
 			},
 		],
 	},

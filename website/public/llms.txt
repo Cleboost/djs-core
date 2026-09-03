@@ -22,6 +22,7 @@
 - [Bundle](/bundle/index.md): Learn about bundling and building your Discord bot with djs-core.
 - [Plugins](/essentials/plugins.md): Extend your bot with the powerful djs-core plugin system.
 - [Cron Tasks](/essentials/events-tasks.md): How to run scheduled tasks in djs-core.
+- [User Config](/essentials/user-config.md): Load bot-tunable settings from config.json with full TypeScript types.
 - [Configuration](/essentials/configuration.md): Everything you need to know about configuring your djs-core bot.
 - [Lint](/essentials/check.md): Catch djs-core anti-patterns with djs-core check.
 - [Testing](/essentials/testing.md): Test commands and interactions with @djs-core/testing and bun:test.

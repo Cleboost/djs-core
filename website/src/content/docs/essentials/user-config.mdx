@@ -1,0 +1,184 @@
+---
+title: "User Config"
+icon: "file-code"
+description: "Load bot-tunable settings from config.json with full TypeScript types."
+---
+
+import Info from '@components/Info.astro';
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+import Warning from '@components/Warning.astro';
+import Steps from '@components/Steps.astro';
+import Step from '@components/Step.astro';
+import ResponseField from '@components/ResponseField.astro';
+
+`djs.config.ts` holds secrets and framework settings (token, guild IDs, plugins, database). **`config.json`** is for everything else — prefixes, feature flags, API keys your users can edit without touching TypeScript.
+
+When enabled, djs-core loads that JSON into `client.config` with types inferred from the file shape.
+
+<Info>
+  **Experimental feature** — opt in with `experimental.userConfig` in `djs.config.ts`.
+</Info>
+
+## `djs.config.ts` vs `config.json`
+
+| File | Purpose | Edited by |
+|------|---------|-----------|
+| `djs.config.ts` | Token, servers, plugins, `db`, intents | Developer |
+| `config.json` | Bot settings (prefixes, limits, feature toggles) | Developer or deployer |
+
+<Warning>
+  Do not put your Discord token in `config.json`. Keep secrets in `.env` and reference them from `djs.config.ts`.
+</Warning>
+
+## Quick start
+
+<Steps>
+  <Step title="Enable the feature">
+    ```typescript [djs.config.ts]
+    import { defineConfig } from "@djs-core/runtime";
+
+    export default defineConfig({
+      token: process.env.TOKEN!,
+      servers: ["YOUR_GUILD_ID"],
+      experimental: {
+        userConfig: true,
+      },
+    });
+    ```
+  </Step>
+  <Step title="Create config.json at the project root">
+    ```json [config.json]
+    {
+      "prefix": "!",
+      "maxWarnings": 3,
+      "features": {
+        "economy": true,
+        "moderation": false
+      }
+    }
+    ```
+  </Step>
+  <Step title="Start dev — types are generated automatically">
+    ```bash
+    djs-core dev
+    ```
+
+    djs-core writes `.djscore/config.types.ts` and augments `discord.js` so `client.config` is typed.
+  </Step>
+  <Step title="Use it in handlers">
+    ```typescript [src/interactions/commands/ping.ts]
+    import { Command } from "@djs-core/runtime";
+
+    export default new Command()
+      .setDescription("Ping with the configured prefix")
+      .run(async (interaction) => {
+        const prefix = interaction.client.config?.prefix ?? "!";
+        await interaction.reply(`Prefix is ${prefix}`);
+      });
+    ```
+  </Step>
+</Steps>
+
+## How it works
+
+1. **You write JSON** at the project root (`config.json`).
+2. **djs-core infers types** from the JSON structure and writes `.djscore/config.types.ts`.
+3. **`discord.js` is augmented** via `.djscore/discord.d.ts` so `Client.config` matches your `UserConfig` type.
+4. **At runtime**, the dev server or production build loads the JSON and passes it to `DjsClient` as `client.config`.
+
+Type inference is structural — strings, numbers, booleans, arrays, and nested objects are mapped automatically. Change `config.json`, and the generated types update on the next dev run or when the file watcher fires.
+
+```json
+{
+  "apiKeys": ["key1", "key2"]
+}
+```
+
+```typescript
+// .djscore/config.types.ts (auto-generated)
+interface UserConfig {
+  apiKeys: string[];
+}
+
+export type { UserConfig };
+```
+
+<Note>
+  Do not edit `.djscore/config.types.ts` manually. It is recreated from `config.json`.
+</Note>
+
+## Dev workflow
+
+`djs-core dev` watches `config.json` when `userConfig` is enabled:
+
+- **File created or changed** → types are regenerated automatically.
+- **`djs.config.ts` changed** → restart `djs-core dev` (token, plugins, db, experimental flags are not hot-reloaded).
+
+<Tip>
+  After changing values in `config.json`, restart `djs-core dev` so the running bot picks up the new `client.config` data. Type generation is live; the in-memory config is loaded at startup.
+</Tip>
+
+## Production builds
+
+In production, how `config.json` is loaded depends on `experimental.bundle`:
+
+| `userConfig` | `bundle` | Behavior |
+|--------------|----------|----------|
+| `false` | — | `config.json` ignored |
+| `true` | `false` | JSON **copied** to `dist/` and read at runtime |
+| `true` | `true` | JSON **embedded** in the bundle at build time |
+
+```typescript [djs.config.ts]
+experimental: {
+  userConfig: true,
+  bundle: true, // embed config.json — required for `djs-core build --compile`
+},
+```
+
+<ResponseField name="experimental.userConfig" type="boolean">
+  Enables `config.json` loading and type generation. Exposes data on `client.config`.
+</ResponseField>
+
+<ResponseField name="experimental.bundle" type="boolean">
+  Embeds `config.json` inside the production bundle instead of copying it beside `dist/index.js`. Use this for native binaries (`--compile`) or when you want a single deployable artifact.
+</ResponseField>
+
+See [Bundle](/bundle) for full build options and deployment examples.
+
+## CLI
+
+```bash
+# Regenerate types manually (also runs during dev/build)
+djs-core generate-config-types
+
+# Custom project root
+djs-core generate-config-types --path ./apps/my-bot
+```
+
+If `config.json` is missing, the command still generates plugin and database types; `UserConfig` falls back to an empty interface.
+
+## Project layout
+
+```text
+my-bot/
+├── config.json              # user-tunable settings
+├── djs.config.ts            # framework config (enable userConfig here)
+├── .djscore/
+│   ├── config.types.ts      # auto-generated UserConfig type
+│   └── discord.d.ts         # augments Client.config
+└── src/
+    └── interactions/
+        └── commands/
+            └── ping.ts      # interaction.client.config is typed
+```
+
+## Troubleshooting
+
+**`client.config` is `undefined`** — check that `experimental.userConfig: true` is set and `config.json` exists at the project root with valid JSON.
+
+**Types are stale** — save `config.json` again in dev, or run `djs-core generate-config-types`.
+
+**`config.json not found at runtime`** — rebuild after enabling `userConfig`. If `bundle: false`, ensure `dist/config.json` was copied during `djs-core build`.
+
+**Type errors after renaming a key** — update every handler that reads the old key. Types follow the JSON file strictly.
