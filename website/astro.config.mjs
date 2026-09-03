@@ -12,6 +12,7 @@ export default defineConfig({
 		"/components/role-select-menus": "/components/select-menus",
 		"/components/channel-select-menus": "/components/select-menus",
 		"/components/mentionable-select-menus": "/components/select-menus",
+		"/essentials/events-tasks": "/essentials/cron-tasks",
 	},
 	integrations: [
 		expressiveCode({

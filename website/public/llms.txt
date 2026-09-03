@@ -42,7 +42,7 @@
 
 ### Experimental
 
-- [Cron Tasks](/essentials/events-tasks.md): Scheduled background tasks
+- [Cron Tasks](/essentials/cron-tasks.md): Scheduled background tasks
 - [User Config](/essentials/user-config.md): config.json with typed client.config
 
 ### Tooling

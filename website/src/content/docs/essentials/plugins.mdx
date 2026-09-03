@@ -1,59 +1,121 @@
 ---
 title: "Plugins"
 icon: "plug"
-description: "Extend your bot with the powerful djs-core plugin system."
+description: "Extend your bot with definePlugin — third-party plugins and plugin authoring."
 ---
 
-Plugins are reusable modules that can add features, commands, or data stores to your bot. They allow you to share logic between multiple bot projects.
+import Warning from '@components/Warning.astro';
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
 
-## Using a Plugin
+<Warning>
+  **Official `@djs-core/plugin-*` packages are deprecated** (database plugins: drizzle, sql, prisma-sqlite). They will be **removed in an upcoming major release**.
 
-To use a plugin, add it to your `djs.config.ts`. You can also provide specific configuration for the plugin.
+  Use [native Database](/essentials/database) with `db:` and `client.db` instead. See [Migrate from plugins](/guides/migrate-db-plugins).
+
+  The [Plugin Marketplace](/plugins-marketplace) is legacy reference only — do not start new projects on official DB plugins.
+</Warning>
+
+Third-party plugins via `definePlugin` are still supported. Use them to share logic across bots and attach typed APIs to `interaction.client`.
+
+## Install a plugin
+
+```bash
+djs-core plugin install my-package
+# or full scope:
+djs-core plugin install @scope/my-djs-plugin
+```
+
+This runs `bun add`, patches `djs.config.ts` when possible, and runs the plugin `postinstall` hook.
+
+## Use a plugin
 
 ```typescript [djs.config.ts]
-import { myAwesomePlugin } from "my-awesome-djs-plugin";
+import { defineConfig } from "@djs-core/runtime";
+import { myPlugin } from "my-djs-plugin";
 
 export default defineConfig({
-  // ...
-  plugins: [myAwesomePlugin],
+  token: process.env.TOKEN!,
+  servers: ["YOUR_GUILD_ID"],
+  plugins: [myPlugin],
   pluginsConfig: {
-    myAwesome: {
-      apiKey: "secret",
+    myPlugin: {
+      apiKey: process.env.MY_PLUGIN_KEY,
     },
   },
 });
 ```
 
-## Creating a Plugin
+`defineConfig` infers `pluginsConfig` keys from each plugin's `name`. Access the extension on `interaction.client.myPlugin` inside handlers.
 
-You can create your own plugins by using the `definePlugin` helper from `@djs-core/runtime`.
+## Create a plugin
 
 ```typescript [my-plugin.ts]
 import { definePlugin } from "@djs-core/runtime";
+import packageJson from "./package.json" with { type: "json" };
+
+export interface MyPluginConfig {
+  apiKey: string;
+}
 
 export const myPlugin = definePlugin({
   name: "myPlugin",
-  setup: (client, config) => {
-    // initialize your plugin
-    // return an extension object that will be attached to interaction.client.myPlugin
+  packageName: packageJson.name,
+  setup(_client, config: MyPluginConfig) {
     return {
-      sayHello: () => "Hello from plugin!",
+      ping: () => `ok (${config.apiKey.slice(0, 4)}…)`,
     };
   },
-  onReady: (client, config, extension) => {
-    // code to run when the bot is ready
-    console.log("Plugin is ready!");
+  onReady(_client, _config, extension) {
+    console.log("[myPlugin] ready", extension.ping());
+  },
+  types: () => `
+declare module "@djs-core/runtime" {
+  interface PluginsExtensions {
+    myPlugin: {
+      ping: () => string;
+    };
   }
+}
+`,
+  postinstall: async ({ root }) => {
+    // optional — scaffold files, print setup steps, etc.
+    console.log(`myPlugin installed in ${root}`);
+  },
 });
 ```
 
-### Plugin Lifecycle Hooks
+### Required fields
 
-- **`setup(client, config)`**: Called when the bot starts, before it logs into Discord. Returns an optional extension object.
-- **`onReady(client, config, extension)`**: Called after the bot is fully ready.
+| Field | Description |
+|-------|-------------|
+| `name` | Key used in `pluginsConfig` and `client.<name>` |
+| `packageName` | npm package name — used for runtime semver validation against `peerDependencies["@djs-core/runtime"]` |
+| `setup(client, config)` | Runs before login. Return value is attached to `client` |
 
-## Why use plugins?
+### Optional hooks
 
-- **Reusability**: Share common logic (e.g., database handling, logging) across multiple bots.
-- **Modularity**: Keep your core bot code clean by offloading specific features to plugins.
-- **Type Safety**: When using `defineConfig`, plugins and their configurations are fully typed.
+| Hook | Description |
+|------|-------------|
+| `onReady(client, config, extension)` | After the bot is ready |
+| `types({ root })` | TypeScript declarations merged into `.djscore/` |
+| `postinstall({ root })` | Runs after `djs-core plugin install` |
+| `cli(cac)` | Register extra CLI commands on the shared `djs-core` binary |
+
+Run `djs-core generate-config-types` after changing plugin types.
+
+<Note>
+  Plugin API changes are tracked separately from runtime bugfixes in [`PLUGIN_API_CHANGELOG.md`](https://github.com/Cleboost/djs-core/blob/master/packages/runtime/PLUGIN_API_CHANGELOG.md) on GitHub.
+</Note>
+
+## When to use plugins vs native features
+
+| Need | Use |
+|------|-----|
+| Database (SQLite, Postgres, MySQL, Turso) | Native [`db:`](/essentials/database) — not a plugin |
+| Shared bot utilities, integrations, custom APIs | `definePlugin` |
+| Official `@djs-core/plugin-drizzle` etc. | **Deprecated** — migrate |
+
+<Tip>
+  Prefer native `db:` for databases. Reserve plugins for logic that does not belong in the core framework.
+</Tip>

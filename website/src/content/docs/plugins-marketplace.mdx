@@ -1,22 +1,27 @@
 ---
 title: "Plugins Marketplace"
-description: "Official djs-core plugins for databases, ORM integrations, and more."
+description: "Legacy official djs-core plugins — deprecated."
 ---
 
+import Warning from '@components/Warning.astro';
 import PluginMarketplace from '@components/PluginMarketplace.astro';
 
-Official database plugins are **deprecated** — use [native Database](/essentials/database) with `db:` and `client.db` instead. See the [migration guide](/guides/migrate-db-plugins).
+<Warning>
+  **All official `@djs-core/plugin-*` packages listed here are deprecated** and will be **removed in an upcoming major release**.
 
-The marketplace below lists legacy official plugins for reference only.
+  Do not use them for new projects. Migrate to [native Database](/essentials/database) (`db:`, `client.db`, `djs-core db`). See the [migration guide](/guides/migrate-db-plugins).
+</Warning>
+
+This page exists for reference while migrating existing bots. The marketplace below shows legacy official plugins only.
 
 <PluginMarketplace />
 
-## Build your own
+## Build your own (third-party)
 
-Plugins use `definePlugin` from `@djs-core/runtime`. Share logic across bots, attach typed APIs to `client`, and hook into the bot lifecycle.
+Custom plugins via `definePlugin` are **not** deprecated — only the official `@djs-core/plugin-*` packages above.
 
 ```bash
 djs-core plugin install <your-package>
 ```
 
-See the [Plugins guide](/essentials/plugins) for authoring your own.
+See the [Plugins guide](/essentials/plugins) for authoring and installing third-party plugins.

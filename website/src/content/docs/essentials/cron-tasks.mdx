@@ -1,0 +1,92 @@
+---
+title: "Cron Tasks"
+icon: "calendar-check"
+description: "Run scheduled background jobs with cron expressions."
+---
+
+import Experimental from '@components/Experimental.astro';
+import Note from '@components/Note.astro';
+import Tip from '@components/Tip.astro';
+
+Cron tasks run code on a schedule — cleanup jobs, daily digests, cache pruning, etc. Each task is a file in `src/cron/` exporting a `Task` instance.
+
+<Experimental>
+  Cron tasks are **experimental**. Enable `experimental.cron` in `djs.config.ts`. API may change before stabilization.
+</Experimental>
+
+## Enable cron tasks
+
+```typescript [djs.config.ts]
+import { defineConfig } from "@djs-core/runtime";
+
+export default defineConfig({
+  token: process.env.TOKEN!,
+  servers: ["YOUR_GUILD_ID"],
+  experimental: {
+    cron: true,
+  },
+});
+```
+
+Without this flag, files in `src/cron/` are ignored.
+
+## Create a task
+
+One file per task. The **filename** (without `.ts`) is the task id — `hourly-cleanup.ts` → `hourly-cleanup`.
+
+```typescript [src/cron/hourly-cleanup.ts]
+import { Task } from "@djs-core/runtime";
+
+export default new Task()
+  .cron("0 * * * *")
+  .run(async (client) => {
+    console.log("Hourly cleanup…");
+    // use client.db, client.guilds, etc.
+  });
+```
+
+## Cron expressions
+
+Standard five-field syntax (minute hour day month weekday):
+
+| Expression | Runs |
+|------------|------|
+| `* * * * *` | Every minute |
+| `0 * * * *` | Every hour, at minute 0 |
+| `0 9 * * *` | Every day at 09:00 |
+| `0 0 * * 0` | Every Sunday at midnight |
+| `*/15 * * * *` | Every 15 minutes |
+
+Uses the [`cron`](https://www.npmjs.com/package/cron) package under the hood. Expressions run in the **server's local timezone**.
+
+## API
+
+| Method | Description |
+|--------|-------------|
+| `.cron("expression")` | Schedule (required) |
+| `.run((client) => { ... })` | Handler — receives the Discord `client` (required) |
+
+Both must be set or the task fails to register.
+
+## Dev & production
+
+- **`djs-core dev`** — tasks in `src/cron/` hot-reload with other handlers when `experimental.cron` is enabled.
+- **`djs-core build`** — cron tasks are included in the production bundle only when the flag is on. See [Bundle](/bundle).
+
+```bash
+djs-core list
+```
+
+Lists registered cron tasks alongside commands and components.
+
+## Error handling
+
+If a tick throws, the error is logged and the process keeps running — the next scheduled run still fires. Fix the handler; don't let failures crash the bot.
+
+<Note>
+  Cron is not a replacement for external job queues at scale. For heavy or distributed work, consider a dedicated worker — cron tasks suit light periodic bot maintenance.
+</Note>
+
+<Tip>
+  Keep tasks idempotent when possible. A retry after a partial failure should not double-charge users or duplicate messages.
+</Tip>

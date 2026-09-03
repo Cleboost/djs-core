@@ -104,7 +104,7 @@ export const nav: NavGroup[] = [
 		items: [
 			{
 				label: "Cron Tasks",
-				slug: "essentials/events-tasks",
+				slug: "essentials/cron-tasks",
 				icon: "calendar-check",
 			},
 			{
